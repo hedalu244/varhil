@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <script type="text/javascript" src="main.js"></script>
+  </head>
+  <body>
+    <h1>構文/意味解析器</h1>
+    <p>v5文法案に従った構文/意味解析器です。JavaScriptで動作しています。</p>
+    <hr>
+    <textarea id="input" rows="8" cols="80"></textarea>
+    <div id="output"></div>
+    <div id="error"></div>
+    <input type="text" id="token_pattern"><br>
+
+    <table>
+      <tr>
+        <td>single_variable</td>
+        <td><input type="text" id="single_variable_pattern"></td>
+      </tr>
+      <tr>
+        <td>new_variable</td>
+        <td><input type="text" id="new_variable_pattern"></td>
+        <td>character</td>
+        <td><input type="text" id="new_variable_replacer"></td>
+      </tr>
+      <tr>
+        <td>continued_variable</td>
+        <td><input type="text" id="continued_variable_pattern"></td>
+        <td>character</td>
+        <td><input type="text" id="continued_variable_replacer"></td>
+      </tr>
+      <tr>
+        <td>last_variable</td>
+        <td><input type="text" id="last_variable_pattern"></td>
+        <td>character</td>
+        <td><input type="text" id="last_variable_replacer"></td>
+      </tr>
+      <tr>
+        <td>predicate</td>
+        <td><input type="text" id="predicate_pattern"></td>
+        <td>name</td>
+        <td><input type="text" id="predicate_replacer"></td>
+      </tr>
+      <tr>
+        <td>preposition</td>
+        <td><input type="text" id="preposition_pattern"></td>
+        <td>casus</td>
+        <td><input type="text" id="preposition_replacer"></td>
+      </tr>
+      <tr>
+        <td>article</td>
+        <td><input type="text" id="article_pattern"></td>
+        <td>casus</td>
+        <td><input type="text" id="article_replacer"></td>
+      </tr>
+      <tr>
+        <td>union</td>
+        <td><input type="text" id="union_pattern"></td>
+      </tr>
+      <tr>
+        <td>single_negation</td>
+        <td><input type="text" id="single_negation_pattern"></td>
+      </tr>
+      <tr>
+        <td>open_negation</td>
+        <td><input type="text" id="open_negation_pattern"></td>
+      </tr>
+      <tr>
+        <td>close_negation</td>
+        <td><input type="text" id="close_negation_pattern"></td>
+      </tr>
+    </table>
+  </body>
+</html>
