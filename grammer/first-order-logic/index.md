@@ -285,6 +285,7 @@ E^{\\prime\\prime}\_{n+1} &= \\{ (( v , (e, f, b)), \\{c \\in f \\mid c \\notin 
 
 述語はそれ単体で述語句となる。その論理式はその述語の全ての格に別々の変数を割り当てた原子論理式であり、主述語はその述語である。
 
+<!--
 Sentence -> Conjunctive "."?
 
 Conjunctive -> (SingleSentence ","?)* SingleSentence
@@ -316,6 +317,7 @@ Article -> "/[" Identifier "]" ...
 
 Number
 Identifier
+-->
 
 冠詞は直後の述語句を名詞述語句に変換する。その際、述語句の主述語の、その冠詞の格に割り当てられている変数を主変数に設定する。論理式や主述語は述語句のものを継承する。
 
