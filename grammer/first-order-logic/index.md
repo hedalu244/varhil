@@ -1,11 +1,11 @@
 ---
 layout: default
-title: v5/grammer/first-order-logic
+title: Varhil/grammer/first-order-logic
 ---
 
 ## 意味
 
-レミウェイの解釈は、レミウェイ文集合から意味集合への全射である。つまり、一つのレミウェイ文が複数の意味に解釈されることはなく、また、レミウェイ文で表せない意味は存在しない。ここで意味とは、以下のようにアレンジした一階述語論理の閉論理式である。
+Varhilの解釈は、Varhil文集合から意味集合への全射である。つまり、一つのVarhil文が複数の意味に解釈されることはなく、また、Varhil文で表せない意味は存在しない。ここで意味とは、以下のようにアレンジした一階述語論理の閉論理式である。
 
 + 述語はアリティ（項の数）の代わりに、格集合という有限集合が決まっている。引数はその順番ではなく、$述語記号(格記号:変数記号, 格記号:変数記号...)$ のように、格との対応を使って区別する（[名前付き引数(named parameter)](https://en.wikipedia.org/wiki/Named_parameter)に似ている）。
 + 定数記号や関数記号は使わない。
@@ -111,7 +111,7 @@ title: v5/grammer/first-order-logic
 : $\\exists x \\lnot リンゴだ(は:x)$
 : リンゴではないものがある。
 
-ここまでの文法を使えば、レミウェイ文を使ってすべての意味を表すことができる。ここからの文法は糖衣構文である。
+ここまでの文法を使えば、Varhil文を使ってすべての意味を表すことができる。ここからの文法は糖衣構文である。
 
 ## 変項の隠蔽
 
@@ -340,66 +340,66 @@ MathJax.Hub.Config({
 
 ### 字句解析
 
-字句解析では、入力文字列をトークンの配列に分解する。
+字句解析では、入力文字列をトークンの配列に分解する。  
 
-トークンは、その語形から、品詞や付随する情報が得られる。
+トークンは、その語形から、品詞や付随する情報が得られる。  
 
-品詞は *single-variable*,　*new-variable*, *continued-variable*, *last-variable*, *predicate*, *article*, *preposition*, *union*, *single-negation*, *open-negation*, *close-negation* の11種ある。
-その他、入力の先頭に *open-sentence*, 末尾に *sentence_close* が挿入される。
+品詞は *single-variable*,　*new-variable*, *continued-variable*, *last-variable*, *predicate*, *article*, *preposition*, *union*, *single-negation*, *open-negation*, *close-negation* の11種ある。  
+その他、入力の先頭に *open-sentence*, 末尾に *sentence_close* が挿入される。  
 
-single-variable, union, single-negation, open-negation, close-negation, open-sentence, sentence_close は品詞以外の情報を持たない（即ち1語だけが属する、機能語的な品詞である）。
-new-variable, continued-variable, last-variable は、品詞の他、*character* の情報(文字列)を持つ。
-predicate は品詞の他、*name* の情報(文字列)を持つ。
-article, preposition は品詞の他、*casus* の情報(文字列)を持つ。
+single-variable, union, single-negation, open-negation, close-negation, open-sentence, sentence_close は品詞以外の情報を持たない（即ち1語だけが属する、機能語的な品詞である）。  
+new-variable, continued-variable, last-variable は、品詞の他、*character* の情報(文字列)を持つ。  
+predicate は品詞の他、*name* の情報(文字列)を持つ。  
+article, preposition は品詞の他、*casus* の情報(文字列)を持つ。  
 
 ### 構文解析
 
-構文解析では、以下の構造に従って抽象構文木を構築する。
+構文解析では、以下の構造に従って抽象構文木を構築する。  
 
-構文は基本的にポーランド記法である。但し、可変長アリティの関数については括弧のような構造がある。
+構文は基本的にポーランド記法である。但し、可変長アリティの関数については括弧のような構造がある。  
 
-single-variable,　new-variable, continued-variable, last-variable, predicate は アリティ 0 の関数（つまり項）である。
-article と single-negation はアリティ 1 の関数である。
-preposition と union は アリティ 2 の関数である。
-open-negation ～ close-negation, open-sentence ～ close-sentence は括弧のように対応し、間の値を引数とる可変アリティの関数である。
+single-variable,　new-variable, continued-variable, last-variable, predicate は アリティ 0 の関数（つまり項）である。  
+article と single-negation はアリティ 1 の関数である。  
+preposition と union は アリティ 2 の関数である。  
+open-negation ～ close-negation, open-sentence ～ close-sentence は括弧のように対応し、間の値を引数とる可変アリティの関数である。  
 
 この構造は自明に構文厳密である。
 
 ### 意味解析
 
-意味解析では、各トークンに対応する演算を、抽象構文木に従って計算する。
+意味解析では、各トークンに対応する演算を、抽象構文木に従って計算する。  
 
 #### 戻り値の型
 
-各演算の引数と戻り値は、 *変数* の配列と *論理式* 、*主変数* と *主述語* からなるオブジェクトである。
+各演算の引数と戻り値は、 *変数* の配列と *論理式* 、*主変数* と *主述語* からなるオブジェクトである。  
 
-変数(品詞とは異なる)は、整数をメンバーに持つオブジェクトである。
-*変数* の配列は、その内部で何回変数が登場したかを管理する。
+変数(品詞とは異なる)は、整数をメンバーに持つオブジェクトである。  
+*変数* の配列は、その内部で何回変数が登場したかを管理する。  
 
 述語論理式は、述語名と、適用されている引数の配列をメンバーに持つ。ここで引数とは、格と変数からなるオブジェクトである。
-等式は 2 つの変数を等号で結んだものである
-論理式 は 等式と述語論理式を ∃、∧、￢ を使って結合したものである。
+等式は 2 つの変数を等号で結んだものである  
+論理式 は 等式と述語論理式を ∃、∧、￢ を使って結合したものである。  
 
-主変数は変数（の参照）であり、主述語は論理式の中にある述語原子論理式の参照である。
-主変数と主述語は未定義の場合もある。
+主変数は変数（の参照）であり、主述語は論理式の中にある述語原子論理式の参照である。  
+主変数と主述語は未定義の場合もある。  
 
 #### 計算の進行
 
-兄弟ノードの中では兄（入力順で先頭に近かった）ノードから順に計算され、子ノードがすべて計算されてから親ノードが計算される。特に、single-variable,　new-variable, continued-variable, last-variable の処理は副作用を持つので、これらが入力順に計算されることが重要である。
+兄弟ノードの中では兄（入力順で先頭に近かった）ノードから順に計算され、子ノードがすべて計算されてから親ノードが計算される。特に、single-variable,　new-variable, continued-variable, last-variable の処理は副作用を持つので、これらが入力順に計算されることが重要である。  
 
-変数は共有のハッシュテーブルに登録され、後から参照することができる。ハッシュテーブルはパースの度に初期化される。
+変数は共有のハッシュテーブルに登録され、後から参照することができる。ハッシュテーブルはパースの度に初期化される。  
 
-single-variable は新しい変数を生成する。
-new-variable は新しい変数を生成し、character に紐づけてハッシュテーブルに登録する。既にそのcharacterで登録されていても上書きする。
-continued-variable はハッシュテーブルからその character に紐づけられている変数を取得する。もし登録がなかった場合は警告を出し、新たな変数を生成してハッシュテーブルに登録する。
-last-variable はハッシュテーブルからその character に紐づけられている変数を取得し、その変数をハッシュテーブルから削除する。登録がなかった場合は警告を出し、新たな変数を生成してハッシュテーブルに登録する。
-これらの戻り値はいずれも、論理式は空積（T）、variables は生成または取得した変数一つを持つ配列、主変数はその変数、主述語は未定義である。
+single-variable は新しい変数を生成する。  
+new-variable は新しい変数を生成し、character に紐づけてハッシュテーブルに登録する。既にそのcharacterで登録されていても上書きする。  
+continued-variable はハッシュテーブルからその character に紐づけられている変数を取得する。もし登録がなかった場合は警告を出し、新たな変数を生成してハッシュテーブルに登録する。  
+last-variable はハッシュテーブルからその character に紐づけられている変数を取得し、その変数をハッシュテーブルから削除する。登録がなかった場合は警告を出し、新たな変数を生成してハッシュテーブルに登録する。  
+これらの戻り値はいずれも、論理式は空積（T）、variables は生成または取得した変数一つを持つ配列、主変数はその変数、主述語は未定義である。  
 
-predicate はその述語名と空の引数リストを持つ述語式を生成する。戻り値の論理式と主述語はその述語論理式、variablesは空、主変数は未定義である。
+predicate はその述語名と空の引数リストを持つ述語式を生成する。戻り値の論理式と主述語はその述語論理式、variablesは空、主変数は未定義である。  
 
-article は新しい変数を生成し、その格と変数の組を、引数の主述語の引数に加える。戻り値の論理式は加工した引数の論理式、variables は引数の varialbles に生成した変数を加えたものとなる。
-引数に主述語が定義されていない場合、または主変数が定義されている場合はエラーを吐く。
+article は新しい変数を生成し、その格と変数の組を、引数の主述語の引数に加える。戻り値の論理式は加工した引数の論理式、variables は引数の varialbles に生成した変数を加えたものとなる。  
+引数に主述語が定義されていない場合、または主変数が定義されている場合はエラーを吐く。  
 
-single-negation は、引数の論理式を量化したうえで否定し、変数は主変数、主述語はそのまま返す。
-open-negation ～ close-negation は引数の論理式の論理積を量化したうえで否定したものを返す。主変数、主述語はundefined。
-open-sentence ～ close-sentence は引数の論理式の論理積を量化したものを返す。主変数、主述語はundefined。
+single-negation は、引数の論理式を量化したうえで否定し、変数は主変数、主述語はそのまま返す。  
+open-negation ～ close-negation は引数の論理式の論理積を量化したうえで否定したものを返す。主変数、主述語はundefined。  
+open-sentence ～ close-sentence は引数の論理式の論理積を量化したものを返す。主変数、主述語はundefined。  

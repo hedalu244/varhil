@@ -1,6 +1,6 @@
 ---
 layout: default
-title: v5/grammer/meta-logic
+title: Varhil/grammer/meta-logic
 ---
 
 ## 従属節
