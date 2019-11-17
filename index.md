@@ -32,7 +32,7 @@ Varhil(VARiable-HIding Logic)[ˈvɑ˞ .hɪl]は述語論理をベースにした
     2. [形態論](lexicology/morphology)
     2. [辞書](lexicology/dictionaly)
 
-
+<!--
 ## 生成文法
 
 C
@@ -95,11 +95,13 @@ S
     [Preposition] -> e be fe ...
     [Article] -> ei bei fei ...
 ```
+-->
 
 ## 課題  
 
 * 等号が名詞句であることにより等号のみの意味(`∃x, ∃y, x=y`など)が表現できない問題
 * メタ、二階の整理（文字列やVarhil文を引用したり、Varhil内で述語を定義したりしたい）
+* 形態論と造語
 
 ## コンタクト
 
