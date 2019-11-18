@@ -246,7 +246,6 @@ function equation(a: Variable, b: Variable): EquationFormula {
 interface Value {
   formula: Formula,
   variables: Variable[],
-  isVariable: boolean,
   mainVariable: Variable | undefined,
   mainPredicate: PredicateFormula | undefined
 };
@@ -316,8 +315,7 @@ function calculate(tree: Tree): Formula {
       formula: T(),
       variables: [variable],
       mainPredicate: undefined,
-      mainVariable: variable,
-      isVariable: true
+      mainVariable: variable
     };
   }
   function calcContinuedVariable(character: string): NounValue {
@@ -331,8 +329,7 @@ function calculate(tree: Tree): Formula {
       formula: T(),
       variables: [variable],
       mainPredicate: undefined,
-      mainVariable: variable,
-      isVariable: true
+      mainVariable: variable
     };
   }
   function calcLastVariable(character: string): NounValue {
@@ -346,8 +343,7 @@ function calculate(tree: Tree): Formula {
       formula: T(),
       variables: [variable],
       mainPredicate: undefined,
-      mainVariable: variable,
-      isVariable: true
+      mainVariable: variable
     };
   }
   function calcSingleVariable(): NounValue {
@@ -356,8 +352,7 @@ function calculate(tree: Tree): Formula {
       formula: T(),
       variables: [variable],
       mainPredicate: undefined,
-      mainVariable: variable,
-      isVariable: true
+      mainVariable: variable
     };
   }
   function calcPredicate(name: string): PredicateValue {
@@ -366,21 +361,19 @@ function calculate(tree: Tree): Formula {
       formula: formula,
       variables: [],
       mainVariable: undefined,
-      mainPredicate: formula,
-      isVariable: false
+      mainPredicate: formula
     };
   }
   function calcArticle(casus: string, a: Value): PredicateValue & NounValue {
     if (!isPredicateValue(a) || isNounValue(a)) throw new Error("CalcError: Unexpected Value");
-    let v = issueVariable();
-    a.mainPredicate.args.unshift({casus: casus, variable: v});
-    a.variables.unshift(v);
+    let variable = issueVariable();
+    a.mainPredicate.args.unshift({casus: casus, variable: variable});
+    a.variables.unshift(variable);
     return {
       formula: a.formula,
       variables: a.variables,
       mainPredicate: a.mainPredicate,
-      mainVariable: v,
-      isVariable: false
+      mainVariable: variable
     };
   }
   function calcPreposition(casus: string, a: Value, b: Value): PredicateValue {
@@ -395,8 +388,7 @@ function calculate(tree: Tree): Formula {
       formula: comb.formula,
       variables: comb.variables,
       mainPredicate: b.mainPredicate,
-      mainVariable: b.mainVariable,
-      isVariable: false
+      mainVariable: b.mainVariable
     };
   }
   function calcUnion(a: Value, b: Value): NounValue {
@@ -408,8 +400,7 @@ function calculate(tree: Tree): Formula {
       formula: conjunction([comb.formula, equation(aa.mainVariable, bb.mainVariable)]),
       variables: comb.variables,
       mainVariable: aa.mainVariable,
-      mainPredicate: undefined,
-      isVariable: false
+      mainPredicate: undefined
     };
   }
   function calcSingleNegation(value: Value): Value {
@@ -417,33 +408,26 @@ function calculate(tree: Tree): Formula {
       formula: negation(quantify(value.formula, value.variables), value.variables),
       variables: value.variables,
       mainPredicate: value.mainPredicate,
-      mainVariable: value.mainVariable,
-      isVariable: false
+      mainVariable: value.mainVariable
     };
   }
   function calcNegation (values: Value[]): Value {
-    if (values.some(x=>isNounValue(x) && !x.isVariable)) throw new Error("CalcError: Unexpected Value");
-
     let comb = combine(values);
     return {
       formula: negation(quantify(comb.formula, comb.variables), comb.variables),
       variables: comb.variables,
       mainPredicate: undefined,
-      mainVariable: undefined,
-      isVariable: false
+      mainVariable: undefined
     };
   }
 
   function calcSentence(values: Value[]): Value {
-    if (values.some(x=>isNounValue(x) && !x.isVariable)) throw new Error("CalcError: Unexpected Value");
-
     let comb = combine(values);
     return {
       formula: quantify(comb.formula, comb.variables),
       variables: comb.variables,
       mainPredicate: undefined,
-      mainVariable: undefined,
-      isVariable: false
+      mainVariable: undefined
     };
   }
 

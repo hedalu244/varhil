@@ -216,8 +216,7 @@ function calculate(tree) {
             formula: T(),
             variables: [variable],
             mainPredicate: undefined,
-            mainVariable: variable,
-            isVariable: true
+            mainVariable: variable
         };
     }
     function calcContinuedVariable(character) {
@@ -231,8 +230,7 @@ function calculate(tree) {
             formula: T(),
             variables: [variable],
             mainPredicate: undefined,
-            mainVariable: variable,
-            isVariable: true
+            mainVariable: variable
         };
     }
     function calcLastVariable(character) {
@@ -247,8 +245,7 @@ function calculate(tree) {
             formula: T(),
             variables: [variable],
             mainPredicate: undefined,
-            mainVariable: variable,
-            isVariable: true
+            mainVariable: variable
         };
     }
     function calcSingleVariable() {
@@ -257,8 +254,7 @@ function calculate(tree) {
             formula: T(),
             variables: [variable],
             mainPredicate: undefined,
-            mainVariable: variable,
-            isVariable: true
+            mainVariable: variable
         };
     }
     function calcPredicate(name) {
@@ -267,22 +263,20 @@ function calculate(tree) {
             formula: formula,
             variables: [],
             mainVariable: undefined,
-            mainPredicate: formula,
-            isVariable: false
+            mainPredicate: formula
         };
     }
     function calcArticle(casus, a) {
         if (!isPredicateValue(a) || isNounValue(a))
             throw new Error("CalcError: Unexpected Value");
-        let v = issueVariable();
-        a.mainPredicate.args.unshift({ casus: casus, variable: v });
-        a.variables.unshift(v);
+        let variable = issueVariable();
+        a.mainPredicate.args.unshift({ casus: casus, variable: variable });
+        a.variables.unshift(variable);
         return {
             formula: a.formula,
             variables: a.variables,
             mainPredicate: a.mainPredicate,
-            mainVariable: v,
-            isVariable: false
+            mainVariable: variable
         };
     }
     function calcPreposition(casus, a, b) {
@@ -296,8 +290,7 @@ function calculate(tree) {
             formula: comb.formula,
             variables: comb.variables,
             mainPredicate: b.mainPredicate,
-            mainVariable: b.mainVariable,
-            isVariable: false
+            mainVariable: b.mainVariable
         };
     }
     function calcUnion(a, b) {
@@ -308,8 +301,7 @@ function calculate(tree) {
             formula: conjunction([comb.formula, equation(aa.mainVariable, bb.mainVariable)]),
             variables: comb.variables,
             mainVariable: aa.mainVariable,
-            mainPredicate: undefined,
-            isVariable: false
+            mainPredicate: undefined
         };
     }
     function calcSingleNegation(value) {
@@ -317,32 +309,25 @@ function calculate(tree) {
             formula: negation(quantify(value.formula, value.variables), value.variables),
             variables: value.variables,
             mainPredicate: value.mainPredicate,
-            mainVariable: value.mainVariable,
-            isVariable: false
+            mainVariable: value.mainVariable
         };
     }
     function calcNegation(values) {
-        if (values.some(x => isNounValue(x) && !x.isVariable))
-            throw new Error("CalcError: Unexpected Value");
         let comb = combine(values);
         return {
             formula: negation(quantify(comb.formula, comb.variables), comb.variables),
             variables: comb.variables,
             mainPredicate: undefined,
-            mainVariable: undefined,
-            isVariable: false
+            mainVariable: undefined
         };
     }
     function calcSentence(values) {
-        if (values.some(x => isNounValue(x) && !x.isVariable))
-            throw new Error("CalcError: Unexpected Value");
         let comb = combine(values);
         return {
             formula: quantify(comb.formula, comb.variables),
             variables: comb.variables,
             mainPredicate: undefined,
-            mainVariable: undefined,
-            isVariable: false
+            mainVariable: undefined
         };
     }
     function recursion(tree) {
@@ -595,26 +580,25 @@ function update() {
         gebi("error").innerText = e.message;
     }
 }
-
 window.onload = () => {
-  gebi("input").oninput = update;
-  gebi("token_pattern").oninput = updatePattern;
-  gebi("single_variable_pattern").oninput = updatePattern;
-  gebi("new_variable_pattern").oninput = updatePattern;
-  gebi("new_variable_replacer").oninput = updatePattern;
-  gebi("continued_variable_pattern").oninput = updatePattern;
-  gebi("continued_variable_replacer").oninput = updatePattern;
-  gebi("last_variable_pattern").oninput = updatePattern;
-  gebi("last_variable_replacer").oninput = updatePattern;
-  gebi("predicate_pattern").oninput = updatePattern;
-  gebi("predicate_replacer").oninput = updatePattern;
-  gebi("article_pattern").oninput = updatePattern;
-  gebi("article_replacer").oninput = updatePattern;
-  gebi("preposition_pattern").oninput = updatePattern;
-  gebi("preposition_replacer").oninput = updatePattern;
-  gebi("union_pattern").oninput = updatePattern;
-  gebi("single_negation_pattern").oninput = updatePattern;
-  gebi("open_negation_pattern").oninput = updatePattern;
-  gebi("close_negation_pattern").oninput = updatePattern;
-  reset1();
-}
+    gebi("input").oninput = update;
+    gebi("token_pattern").oninput = updatePattern;
+    gebi("single_variable_pattern").oninput = updatePattern;
+    gebi("new_variable_pattern").oninput = updatePattern;
+    gebi("new_variable_replacer").oninput = updatePattern;
+    gebi("continued_variable_pattern").oninput = updatePattern;
+    gebi("continued_variable_replacer").oninput = updatePattern;
+    gebi("last_variable_pattern").oninput = updatePattern;
+    gebi("last_variable_replacer").oninput = updatePattern;
+    gebi("predicate_pattern").oninput = updatePattern;
+    gebi("predicate_replacer").oninput = updatePattern;
+    gebi("article_pattern").oninput = updatePattern;
+    gebi("article_replacer").oninput = updatePattern;
+    gebi("preposition_pattern").oninput = updatePattern;
+    gebi("preposition_replacer").oninput = updatePattern;
+    gebi("union_pattern").oninput = updatePattern;
+    gebi("single_negation_pattern").oninput = updatePattern;
+    gebi("open_negation_pattern").oninput = updatePattern;
+    gebi("close_negation_pattern").oninput = updatePattern;
+    reset1();
+};
