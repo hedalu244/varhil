@@ -490,62 +490,40 @@ function gebi(id) {
 }
 function updatePattern() {
     tokenPattern = new RegExp(gebi("token_pattern").value, "g");
-    {
-        let pattern = new RegExp("^" + gebi("single_variable_pattern").value + "$");
-        isSingleVariable = literal => pattern.test(literal);
-    }
-    {
-        let pattern = new RegExp("^" + gebi("new_variable_pattern").value + "$");
-        let replacer = gebi("new_variable_replacer").value;
-        isNewVariable = literal => pattern.test(literal);
-        newVariableToCharacter = literal => literal.replace(pattern, replacer);
-    }
-    {
-        let pattern = new RegExp("^" + gebi("continued_variable_pattern").value + "$");
-        let replacer = gebi("continued_variable_replacer").value;
-        isContinuedVariable = literal => pattern.test(literal);
-        continuedVariableToCharacter = literal => literal.replace(pattern, replacer);
-    }
-    {
-        let pattern = new RegExp("^" + gebi("last_variable_pattern").value + "$");
-        let replacer = gebi("last_variable_replacer").value;
-        isLastVariable = literal => pattern.test(literal);
-        lastVariableToCharacter = literal => literal.replace(pattern, replacer);
-    }
-    {
-        let pattern = new RegExp("^" + gebi("predicate_pattern").value + "$");
-        let replacer = gebi("predicate_replacer").value;
-        isPredicate = literal => pattern.test(literal);
-        predicateToName = literal => literal.replace(pattern, replacer);
-    }
-    {
-        let pattern = new RegExp("^" + gebi("article_pattern").value + "$");
-        let replacer = gebi("article_replacer").value;
-        isArticle = literal => pattern.test(literal);
-        articleToCasus = literal => literal.replace(pattern, replacer);
-    }
-    {
-        let pattern = new RegExp("^" + gebi("preposition_pattern").value + "$");
-        let replacer = gebi("preposition_replacer").value;
-        isPreposition = literal => pattern.test(literal);
-        prepositionToCasus = literal => literal.replace(pattern, replacer);
-    }
-    {
-        let pattern = new RegExp("^" + gebi("union_pattern").value + "$");
-        isUnion = literal => pattern.test(literal);
-    }
-    {
-        let pattern = new RegExp("^" + gebi("single_negation_pattern").value + "$");
-        isSingleNegation = literal => pattern.test(literal);
-    }
-    {
-        let pattern = new RegExp("^" + gebi("open_negation_pattern").value + "$");
-        isOpenNegation = literal => pattern.test(literal);
-    }
-    {
-        let pattern = new RegExp("^" + gebi("close_negation_pattern").value + "$");
-        isCloseNegation = literal => pattern.test(literal);
-    }
+    let singleVariablePattern = new RegExp("^" + gebi("single_variable_pattern").value + "$");
+    isSingleVariable = literal => singleVariablePattern.test(literal);
+    let newVariablePattern = new RegExp("^" + gebi("new_variable_pattern").value + "$");
+    let newVariableReplacer = gebi("new_variable_replacer").value;
+    isNewVariable = literal => newVariablePattern.test(literal);
+    newVariableToCharacter = literal => literal.replace(newVariablePattern, newVariableReplacer);
+    let continuedVariablePattern = new RegExp("^" + gebi("continued_variable_pattern").value + "$");
+    let continuedVariableReplacer = gebi("continued_variable_replacer").value;
+    isContinuedVariable = literal => continuedVariablePattern.test(literal);
+    continuedVariableToCharacter = literal => literal.replace(continuedVariablePattern, continuedVariableReplacer);
+    let lastVariablePattern = new RegExp("^" + gebi("last_variable_pattern").value + "$");
+    let lastVariableReplacer = gebi("last_variable_replacer").value;
+    isLastVariable = literal => lastVariablePattern.test(literal);
+    lastVariableToCharacter = literal => literal.replace(lastVariablePattern, lastVariableReplacer);
+    let predicatePattern = new RegExp("^" + gebi("predicate_pattern").value + "$");
+    let predicateReplacer = gebi("predicate_replacer").value;
+    isPredicate = literal => predicatePattern.test(literal);
+    predicateToName = literal => literal.replace(predicatePattern, predicateReplacer);
+    let articlePattern = new RegExp("^" + gebi("article_pattern").value + "$");
+    let articleReplacer = gebi("article_replacer").value;
+    isArticle = literal => articlePattern.test(literal);
+    articleToCasus = literal => literal.replace(articlePattern, articleReplacer);
+    let prepositionPattern = new RegExp("^" + gebi("preposition_pattern").value + "$");
+    let prepositionReplacer = gebi("preposition_replacer").value;
+    isPreposition = literal => prepositionPattern.test(literal);
+    prepositionToCasus = literal => literal.replace(prepositionPattern, prepositionReplacer);
+    let unionPattern = new RegExp("^" + gebi("union_pattern").value + "$");
+    isUnion = literal => unionPattern.test(literal);
+    let singleNegationPattern = new RegExp("^" + gebi("single_negation_pattern").value + "$");
+    isSingleNegation = literal => singleNegationPattern.test(literal);
+    let openNegationPattern = new RegExp("^" + gebi("open_negation_pattern").value + "$");
+    isOpenNegation = literal => openNegationPattern.test(literal);
+    let closeNegationPattern = new RegExp("^" + gebi("close_negation_pattern").value + "$");
+    isCloseNegation = literal => closeNegationPattern.test(literal);
     update();
 }
 function reset1() {
