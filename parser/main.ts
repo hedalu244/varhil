@@ -320,7 +320,7 @@ function calculate(tree: Tree): Formula {
   }
   function calcContinuedVariable(character: string): NounValue {
     let variable = variableTable[character];
-    if (!variable) {
+    if (variable === undefined) {
       console.warn();
       variable = issueVariable();
       variableTable[character] = variable;
@@ -334,7 +334,7 @@ function calculate(tree: Tree): Formula {
   }
   function calcLastVariable(character: string): NounValue {
     let variable = variableTable[character];
-    if (!variable) {
+    if (variable === undefined) {
       console.warn();
       variable = issueVariable();
     }
