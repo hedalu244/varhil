@@ -523,7 +523,7 @@ function update() {
     gebi("error").innerText = "";
     let input = gebi("input").value;
     try {
-        gebi("output").innerText = stringify(normalize(calculate(parse(tokenize(input)))));
+        gebi("output").innerText = stringify((calculate(parse(tokenize(input)))));
     }
     catch (e) {
         gebi("error").innerText = e.message;
