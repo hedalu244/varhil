@@ -454,11 +454,11 @@ function normalize(formula: Formula): Formula {
     fs = fs.map(x=>{
       while(true) {
         if(x.formulaType === "exist") {
-          q.push({type:exist, variable:x.variable});
+          q.unshift({type:exist, variable:x.variable});
           x = x.formula;
         }
         else if (x.formulaType === "all") {
-          q.push({type:all, variable:x.variable});
+          q.unshift({type:all, variable:x.variable});
           x = x.formula;
         }
         else break;
@@ -489,11 +489,11 @@ function normalize(formula: Formula): Formula {
     fs = fs.map(x=>{
       while(true) {
         if(x.formulaType === "exist") {
-          q.push({type:exist, variable:x.variable});
+          q.unshift({type:exist, variable:x.variable});
           x = x.formula;
         }
         else if (x.formulaType === "all") {
-          q.push({type:all, variable:x.variable});
+          q.unshift({type:all, variable:x.variable});
           x = x.formula;
         }
         else break;
@@ -651,7 +651,7 @@ function update(): void {
   gebi("error").innerText = "";
   let input = gebi("input").value;
   try {
-    gebi("output").innerText = stringify(normalize(calculate(parse(tokenize(input)))));
+    gebi("output").innerText = stringify((calculate(parse(tokenize(input)))));
   } catch(e) {
     gebi("error").innerText = e.message;
   }

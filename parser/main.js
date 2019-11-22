@@ -355,11 +355,11 @@ function normalize(formula) {
         fs = fs.map(x => {
             while (true) {
                 if (x.formulaType === "exist") {
-                    q.push({ type: exist, variable: x.variable });
+                    q.unshift({ type: exist, variable: x.variable });
                     x = x.formula;
                 }
                 else if (x.formulaType === "all") {
-                    q.push({ type: all, variable: x.variable });
+                    q.unshift({ type: all, variable: x.variable });
                     x = x.formula;
                 }
                 else
@@ -388,11 +388,11 @@ function normalize(formula) {
         fs = fs.map(x => {
             while (true) {
                 if (x.formulaType === "exist") {
-                    q.push({ type: exist, variable: x.variable });
+                    q.unshift({ type: exist, variable: x.variable });
                     x = x.formula;
                 }
                 else if (x.formulaType === "all") {
-                    q.push({ type: all, variable: x.variable });
+                    q.unshift({ type: all, variable: x.variable });
                     x = x.formula;
                 }
                 else
