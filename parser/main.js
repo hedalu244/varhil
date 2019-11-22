@@ -109,8 +109,8 @@ function T() {
 function F() {
     return { formulaType: "false" };
 }
-function negation(formula, inner) {
-    return { formulaType: "negation", formula, inner };
+function negation(formula) {
+    return { formulaType: "negation", formula };
 }
 function exist(variable, formula) {
     return { formulaType: "exist", variable, formula };
@@ -118,14 +118,11 @@ function exist(variable, formula) {
 function all(variable, formula) {
     return { formulaType: "all", variable, formula };
 }
-function isConjunction(formula) {
-    return formula.formulaType === "conjunction";
-}
 function conjunction(formulas) {
     formulas = formulas.reduce((acc, cur) => {
-        if (cur.formulaType == "true")
+        if (cur.formulaType === "true")
             return acc;
-        if (isConjunction(cur))
+        if (cur.formulaType === "conjunction")
             acc.push(...cur.formulas);
         else
             acc.push(cur);
@@ -170,40 +167,31 @@ function calculate(tree) {
     let variableTable = {};
     let variableCount = 0;
     function issueVariable() { return { name: "" + variableCount++ }; }
-    function combine(values) {
-        return {
-            formula: conjunction(values.map((x) => x.formula)),
-            variables: values.reduce((acc, cur) => [...acc, ...cur.variables], [])
-        };
-    }
-    function quantify(formula, variables) {
-        let negations = formula.formulaType === "negation" ? [formula] :
-            formula.formulaType === "conjunction" ? formula.formulas.filter((x) => {
-                return x.formulaType === "negation";
-            }) : [];
-        negations.forEach((x) => {
-            //節の内部でのみ使われいる変項を削除
-            variables = variables.filter(y => x.inner.filter(z => y === z).length
-                !== variables.filter(z => y === z).length);
-            //外部でも使われている変項の量化を内部から削除
-            x.formula = removeQuantify(x.formula, variables);
-        });
-        //variablesから重複を除外し、残った変数に対応する存在量化に包む
-        return variables.filter((x, i, a) => a.findIndex(y => x === y) === i).reduce((acc, cur) => exist(cur, acc), formula);
-        function removeQuantify(formula, variables) {
-            if (variables.length === 0)
-                return formula;
+    function combine(formulas) {
+        let variables = formulas.map(x => enumrateQuantify(x)).reduce((acc, cur) => [...acc, ...cur], []);
+        let duplication = variables.filter((x, i, self) => self.indexOf(x) === i && i !== self.lastIndexOf(x));
+        return duplication.reduce((acc, cur) => exist(cur, acc), duplication.reduce((acc, cur) => removeQuantify(acc, cur), conjunction(formulas)));
+        function enumrateQuantify(formula) {
+            if (formula.formulaType === "exist")
+                return [formula.variable, ...enumrateQuantify(formula.formula)];
+            else if (formula.formulaType === "negation")
+                return enumrateQuantify(formula.formula);
+            else if (formula.formulaType === "conjunction")
+                return formula.formulas.map(x => enumrateQuantify(x)).reduce((cur, acc) => [...cur, ...acc]);
+            else
+                return [];
+        }
+        function removeQuantify(formula, variable) {
             if (formula.formulaType === "exist") {
-                if (variables.some(x => x === formula.variable))
-                    return removeQuantify(formula.formula, variables.filter(x => x !== formula.variable));
+                if (variable === formula.variable)
+                    return formula.formula;
                 else
-                    return exist(formula.variable, removeQuantify(formula.formula, variables));
+                    return exist(formula.variable, removeQuantify(formula.formula, variable));
             }
             else if (formula.formulaType === "negation")
-                return negation(removeQuantify(formula.formula, variables), formula.inner);
-            else if (formula.formulaType === "conjunction") {
-                return conjunction(formula.formulas.map(x => removeQuantify(x, variables)));
-            }
+                return negation(removeQuantify(formula.formula, variable));
+            else if (formula.formulaType === "conjunction")
+                return conjunction(formula.formulas.map(x => removeQuantify(x, variable)));
             return formula;
         }
     }
@@ -213,37 +201,34 @@ function calculate(tree) {
         let variable = issueVariable();
         variableTable[character] = variable;
         return {
-            formula: T(),
-            variables: [variable],
+            formula: exist(variable, T()),
             mainPredicate: undefined,
             mainVariable: variable
         };
     }
     function calcContinuedVariable(character) {
         let variable = variableTable[character];
-        if (!variable) {
+        if (variable === undefined) {
             console.warn();
             variable = issueVariable();
             variableTable[character] = variable;
         }
         return {
-            formula: T(),
-            variables: [variable],
+            formula: exist(variable, T()),
             mainPredicate: undefined,
             mainVariable: variable
         };
     }
     function calcLastVariable(character) {
         let variable = variableTable[character];
-        if (!variable) {
+        if (variable === undefined) {
             console.warn();
             variable = issueVariable();
         }
         else
             delete variableTable[character];
         return {
-            formula: T(),
-            variables: [variable],
+            formula: exist(variable, T()),
             mainPredicate: undefined,
             mainVariable: variable
         };
@@ -251,8 +236,7 @@ function calculate(tree) {
     function calcSingleVariable() {
         let variable = issueVariable();
         return {
-            formula: T(),
-            variables: [variable],
+            formula: exist(variable, T()),
             mainPredicate: undefined,
             mainVariable: variable
         };
@@ -261,7 +245,6 @@ function calculate(tree) {
         let formula = predicate(name, []);
         return {
             formula: formula,
-            variables: [],
             mainVariable: undefined,
             mainPredicate: formula
         };
@@ -271,10 +254,8 @@ function calculate(tree) {
             throw new Error("CalcError: Unexpected Value");
         let variable = issueVariable();
         a.mainPredicate.args.unshift({ casus: casus, variable: variable });
-        a.variables.unshift(variable);
         return {
-            formula: a.formula,
-            variables: a.variables,
+            formula: exist(variable, a.formula),
             mainPredicate: a.mainPredicate,
             mainVariable: variable
         };
@@ -284,11 +265,8 @@ function calculate(tree) {
             throw new Error("CalcError: Unexpected Value");
         let aa = isNounValue(a) ? a : calcArticle("", a);
         b.mainPredicate.args.unshift({ casus: casus, variable: aa.mainVariable });
-        b.variables.unshift(aa.mainVariable);
-        let comb = combine([aa, b]);
         return {
-            formula: comb.formula,
-            variables: comb.variables,
+            formula: combine([aa.formula, b.formula]),
             mainPredicate: b.mainPredicate,
             mainVariable: b.mainVariable
         };
@@ -296,36 +274,29 @@ function calculate(tree) {
     function calcUnion(a, b) {
         let aa = isNounValue(a) ? a : calcArticle("", a);
         let bb = isNounValue(b) ? b : calcArticle("", b);
-        let comb = combine([aa, bb]);
         return {
-            formula: conjunction([comb.formula, equation(aa.mainVariable, bb.mainVariable)]),
-            variables: comb.variables,
+            formula: conjunction([combine([aa.formula, bb.formula]), equation(aa.mainVariable, bb.mainVariable)]),
             mainVariable: aa.mainVariable,
             mainPredicate: undefined
         };
     }
     function calcSingleNegation(value) {
         return {
-            formula: negation(quantify(value.formula, value.variables), value.variables),
-            variables: value.variables,
+            formula: negation(value.formula),
             mainPredicate: value.mainPredicate,
             mainVariable: value.mainVariable
         };
     }
     function calcNegation(values) {
-        let comb = combine(values);
         return {
-            formula: negation(quantify(comb.formula, comb.variables), comb.variables),
-            variables: comb.variables,
+            formula: negation(combine(values.map(x => x.formula))),
             mainPredicate: undefined,
             mainVariable: undefined
         };
     }
     function calcSentence(values) {
-        let comb = combine(values);
         return {
-            formula: quantify(comb.formula, comb.variables),
-            variables: comb.variables,
+            formula: combine(values.map(x => x.formula)),
             mainPredicate: undefined,
             mainVariable: undefined
         };
@@ -482,7 +453,7 @@ function test() {
     inputs.forEach(x => {
         console.log(">" + x);
         console.log(stringify(calculate(parse(tokenize(x)))));
-        //console.log(stringify(normalize(calculate(parse(tokenize(x))[0]))));
+        console.log(stringify(normalize(calculate(parse(tokenize(x))))));
     });
 }
 function gebi(id) {
