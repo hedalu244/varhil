@@ -64,7 +64,7 @@ function parse(tokens) {
         throw new Error("ParseError: Unxpected End of Tokens");
     let arity = getArity(token);
     if (arity === ")")
-        throw new Error("ParseError: Unxpected Token" + token.literal);
+        throw new Error("ParseError: Unxpected Token " + token.literal);
     let children = [];
     if (arity === "(") {
         while (true) {
@@ -73,9 +73,11 @@ function parse(tokens) {
                 throw new Error("ParseError: Unxpected End of Tokens");
             if (getArity(next) === ")") {
                 if (token.tokenType === "open_negation" && next.tokenType === "close_negation"
-                    || token.tokenType === "open_sentence" && next.tokenType === "close_sentence")
+                    || token.tokenType === "open_sentence" && next.tokenType === "close_sentence") {
+                    tokens.shift();
                     break;
-                throw new Error("ParseError: Unxpected Token" + next.literal);
+                }
+                throw new Error("ParseError: Unxpected Token " + next.literal);
             }
             children.push(parse(tokens));
         }
