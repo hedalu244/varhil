@@ -12,7 +12,7 @@ type Token = {
   casus: string
 } | {
   literal: string,
-  tokenType: "single_variable" | "union" | "single_negation" | "open_negation" | "close_negation" | "open_sentence" | "close_sentence"
+  tokenType: "single_variable" | "single_negation" | "open_negation" | "close_negation" | "open_sentence" | "close_sentence"
 };
 
 //字句解析
@@ -38,7 +38,6 @@ let articleToCasus: (literal :string)=>string;
 let isPreposition: (literal :string)=>boolean;
 let prepositionToCasus: (literal :string)=>string;
 
-let isUnion: (literal :string)=>boolean;
 let isSingleNegation: (literal :string)=>boolean;
 let isOpenNegation: (literal :string)=>boolean;
 let isCloseNegation: (literal :string)=>boolean;
@@ -63,8 +62,6 @@ function tokenize(input: string): Token[] {
       return { literal, tokenType: "article", casus: articleToCasus(literal) };
     if (isPreposition(literal))
       return { literal, tokenType: "preposition", casus: prepositionToCasus(literal) };
-    if (isUnion(literal))
-      return { literal, tokenType: "union" };
     if (isSingleNegation(literal))
       return { literal, tokenType: "single_negation" };
     if (isOpenNegation(literal))
@@ -129,9 +126,8 @@ function parse(tokens: Token[]): Tree {
       case "last_variable": return 0;
       case "single_variable": return 0;
       case "predicate": return 0;
-      case "article": return 1;
+      case "article": return 2;
       case "preposition": return 2;
-      case "union": return 2;
       case "single_negation": return 1;
       case "open_negation": return "(";
       case "close_negation": return ")";
@@ -344,36 +340,38 @@ function calculate(tree: Tree): Formula {
       mainPredicate: formula
     };
   }
-  function calcArticle(casus: string, a: Value): PredicateValue & NounValue {
-    if (!isPredicateValue(a) || isNounValue(a)) throw new Error("CalcError: Unexpected Value");
-    let variable = issueVariable();
-    a.mainPredicate.args.unshift({casus: casus, variable: variable});
+  function convertToNoun(a: Value): NounValue {
+    if (isNounValue(a)) return a;
 
+    if (!isPredicateValue(a)) throw new Error("CalcError: Unexpected Value");
+    let variable = issueVariable();
+    a.mainPredicate.args.unshift({casus: "", variable: variable});
     return {
       formula: exist(variable, a.formula),
       mainPredicate: a.mainPredicate,
       mainVariable: variable
     };
   }
+  function calcArticle(casus: string, a: Value, b: Value): NounValue {
+    if (!isPredicateValue(a)) throw new Error("CalcError: Unexpected Value");
+    let bb: NounValue = convertToNoun(b);
+    a.mainPredicate.args.unshift({casus: casus, variable: bb.mainVariable});
+
+    return {
+      formula: combine([a.formula, bb.formula]),
+      mainPredicate: bb.mainPredicate,
+      mainVariable: bb.mainVariable
+    };
+  }
   function calcPreposition(casus: string, a: Value, b: Value): PredicateValue {
+    let aa: NounValue = convertToNoun(a);
     if (!isPredicateValue(b)) throw new Error("CalcError: Unexpected Value");
-    let aa: NounValue = isNounValue(a) ? a : calcArticle("", a);
     b.mainPredicate.args.unshift({casus: casus, variable: aa.mainVariable});
 
     return {
       formula: combine([aa.formula, b.formula]),
       mainPredicate: b.mainPredicate,
       mainVariable: b.mainVariable
-    };
-  }
-  function calcUnion(a: Value, b: Value): NounValue {
-    let aa: NounValue = isNounValue(a) ? a : calcArticle("", a);
-    let bb: NounValue = isNounValue(b) ? b : calcArticle("", b);
-
-    return {
-      formula: conjunction([combine([aa.formula, bb.formula]), equation(aa.mainVariable, bb.mainVariable)]),
-      mainVariable: aa.mainVariable,
-      mainPredicate: undefined
     };
   }
   function calcSingleNegation(value: Value): Value {
@@ -407,9 +405,8 @@ function calculate(tree: Tree): Formula {
       case "last_variable": return calcLastVariable(tree.token.character);
       case "single_variable": return calcSingleVariable();
       case "predicate": return calcPredicate(tree.token.name);
-      case "article": return calcArticle(tree.token.casus, values[0]);
+      case "article": return calcArticle(tree.token.casus, values[0], values[1]);
       case "preposition": return calcPreposition(tree.token.casus, values[0], values[1]);
-      case "union": return calcUnion(values[0], values[1]);
       case "single_negation": return calcSingleNegation(values[0]);
       case "open_negation": return calcNegation(values);
       case "open_sentence": return calcSentence(values);
@@ -602,9 +599,6 @@ function updatePattern() {
   isPreposition = literal => prepositionPattern.test(literal);
   prepositionToCasus = literal => literal.replace(prepositionPattern, prepositionReplacer);
 
-  let unionPattern = new RegExp("^" + gebi("union_pattern").value + "$");
-  isUnion = literal => unionPattern.test(literal);
-
   let singleNegationPattern = new RegExp("^" + gebi("single_negation_pattern").value + "$");
   isSingleNegation = literal => singleNegationPattern.test(literal);
 
@@ -640,7 +634,6 @@ function reset1(): void {
   gebi("preposition_pattern").value = "([^aeiou]?)e";
   gebi("preposition_replacer").value = "$1";
 
-  gebi("union_pattern").value = "o";
   gebi("single_negation_pattern").value = "no";
   gebi("open_negation_pattern").value = "nou";
   gebi("close_negation_pattern").value = "noi";
@@ -675,7 +668,6 @@ window.onload = () => {
   gebi("article_replacer").oninput = updatePattern;
   gebi("preposition_pattern").oninput = updatePattern;
   gebi("preposition_replacer").oninput = updatePattern;
-  gebi("union_pattern").oninput = updatePattern;
   gebi("single_negation_pattern").oninput = updatePattern;
   gebi("open_negation_pattern").oninput = updatePattern;
   gebi("close_negation_pattern").oninput = updatePattern;
