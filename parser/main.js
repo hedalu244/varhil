@@ -243,8 +243,8 @@ function calculate(tree) {
         let formula = predicate(name, []);
         return {
             formula: formula,
-            mainVariable: undefined,
-            mainPredicate: formula
+            mainPredicate: formula,
+            mainVariable: undefined
         };
     }
     function convertToNoun(a) {
@@ -256,7 +256,7 @@ function calculate(tree) {
         a.mainPredicate.args.unshift({ casus: "", variable: variable });
         return {
             formula: exist(variable, a.formula),
-            mainPredicate: a.mainPredicate,
+            mainPredicate: undefined,
             mainVariable: variable
         };
     }
@@ -267,7 +267,7 @@ function calculate(tree) {
         a.mainPredicate.args.unshift({ casus: casus, variable: bb.mainVariable });
         return {
             formula: combine([a.formula, bb.formula]),
-            mainPredicate: bb.mainPredicate,
+            mainPredicate: undefined,
             mainVariable: bb.mainVariable
         };
     }
@@ -279,7 +279,7 @@ function calculate(tree) {
         return {
             formula: combine([aa.formula, b.formula]),
             mainPredicate: b.mainPredicate,
-            mainVariable: b.mainVariable
+            mainVariable: undefined
         };
     }
     function calcSingleNegation(value) {
