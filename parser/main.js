@@ -10,8 +10,8 @@ let isLastVariable;
 let lastVariableToCharacter;
 let isPredicate;
 let predicateToName;
-let isArticle;
-let articleToCasus;
+let isRelative;
+let relativeToCasus;
 let isPreposition;
 let prepositionToCasus;
 let isSingleNegation;
@@ -32,8 +32,8 @@ function tokenize(input) {
             return { literal, tokenType: "last_variable", character: lastVariableToCharacter(literal) };
         if (isPredicate(literal))
             return { literal, tokenType: "predicate", name: predicateToName(literal) };
-        if (isArticle(literal))
-            return { literal, tokenType: "article", casus: articleToCasus(literal) };
+        if (isRelative(literal))
+            return { literal, tokenType: "relative", casus: relativeToCasus(literal) };
         if (isPreposition(literal))
             return { literal, tokenType: "preposition", casus: prepositionToCasus(literal) };
         if (isSingleNegation(literal))
@@ -91,7 +91,7 @@ function parse(tokens) {
             case "last_variable": return 0;
             case "single_variable": return 0;
             case "predicate": return 0;
-            case "article": return 2;
+            case "relative": return 2;
             case "preposition": return 2;
             case "single_negation": return 1;
             case "open_negation": return "(";
@@ -260,7 +260,7 @@ function calculate(tree) {
             mainVariable: variable
         };
     }
-    function calcArticle(casus, a, b) {
+    function calcRelative(casus, a, b) {
         if (!isPredicateValue(a))
             throw new Error("CalcError: Unexpected Value");
         let bb = convertToNoun(b);
@@ -311,7 +311,7 @@ function calculate(tree) {
             case "last_variable": return calcLastVariable(tree.token.character);
             case "single_variable": return calcSingleVariable();
             case "predicate": return calcPredicate(tree.token.name);
-            case "article": return calcArticle(tree.token.casus, values[0], values[1]);
+            case "relative": return calcRelative(tree.token.casus, values[0], values[1]);
             case "preposition": return calcPreposition(tree.token.casus, values[0], values[1]);
             case "single_negation": return calcSingleNegation(values[0]);
             case "open_negation": return calcNegation(values);
@@ -480,10 +480,10 @@ function updatePattern() {
     let predicateReplacer = gebi("predicate_replacer").value;
     isPredicate = literal => predicatePattern.test(literal);
     predicateToName = literal => literal.replace(predicatePattern, predicateReplacer);
-    let articlePattern = new RegExp("^" + gebi("article_pattern").value + "$");
-    let articleReplacer = gebi("article_replacer").value;
-    isArticle = literal => articlePattern.test(literal);
-    articleToCasus = literal => literal.replace(articlePattern, articleReplacer);
+    let relativePattern = new RegExp("^" + gebi("relative_pattern").value + "$");
+    let relativeReplacer = gebi("relative_replacer").value;
+    isRelative = literal => relativePattern.test(literal);
+    relativeToCasus = literal => literal.replace(relativePattern, relativeReplacer);
     let prepositionPattern = new RegExp("^" + gebi("preposition_pattern").value + "$");
     let prepositionReplacer = gebi("preposition_replacer").value;
     isPreposition = literal => prepositionPattern.test(literal);
@@ -507,8 +507,8 @@ function reset1() {
     gebi("last_variable_replacer").value = "$1";
     gebi("predicate_pattern").value = "(([^aeiou'][aeiou]){2,})";
     gebi("predicate_replacer").value = "$1";
-    gebi("article_pattern").value = "([^aeiou]?)ei";
-    gebi("article_replacer").value = "$1";
+    gebi("relative_pattern").value = "([^aeiou]?)ei";
+    gebi("relative_replacer").value = "$1";
     gebi("preposition_pattern").value = "([^aeiou]?)e";
     gebi("preposition_replacer").value = "$1";
     gebi("single_negation_pattern").value = "no";
@@ -539,8 +539,8 @@ window.onload = () => {
     gebi("last_variable_replacer").oninput = updatePattern;
     gebi("predicate_pattern").oninput = updatePattern;
     gebi("predicate_replacer").oninput = updatePattern;
-    gebi("article_pattern").oninput = updatePattern;
-    gebi("article_replacer").oninput = updatePattern;
+    gebi("relative_pattern").oninput = updatePattern;
+    gebi("relative_replacer").oninput = updatePattern;
     gebi("preposition_pattern").oninput = updatePattern;
     gebi("preposition_replacer").oninput = updatePattern;
     gebi("single_negation_pattern").oninput = updatePattern;
