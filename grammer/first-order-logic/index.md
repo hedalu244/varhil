@@ -243,13 +243,13 @@ MathJax.Hub.Config({
 
 トークンは、その語形から、品詞や付随する情報が得られる。  
 
-品詞は *single-variable*,　*new-variable*, *continued-variable*, *last-variable*, *predicate*, *article*, *preposition*, *single-negation*, *open-negation*, *close-negation* の11種ある。  
+品詞は *single-variable*,　*new-variable*, *continued-variable*, *last-variable*, *predicate*, *relative*, *preposition*, *single-negation*, *open-negation*, *close-negation* の11種ある。  
 その他、入力の先頭に *open-sentence*, 末尾に *sentence_close* が挿入される。  
 
 single-variable, single-negation, open-negation, close-negation, open-sentence, sentence_close は品詞以外の情報を持たない（即ち1語だけが属する、機能語的な品詞である）。  
 new-variable, continued-variable, last-variable は、品詞の他、*character* の情報(文字列)を持つ。  
 predicate は品詞の他、*name* の情報(文字列)を持つ。  
-article, preposition は品詞の他、*casus* の情報(文字列)を持つ。  
+relative, preposition は品詞の他、*casus* の情報(文字列)を持つ。  
 
 ### 構文解析
 
@@ -259,7 +259,7 @@ article, preposition は品詞の他、*casus* の情報(文字列)を持つ。
 
 single-variable,　new-variable, continued-variable, last-variable, predicate は アリティ 0 の関数（つまり項）である。  
 single-negation はアリティ 1 の関数である。  
-preposition と article は アリティ 2 の関数である。  
+preposition と relative は アリティ 2 の関数である。  
 open-negation ～ close-negation, open-sentence ～ close-sentence は括弧のように対応し、間の値を引数とる可変アリティの関数である。  
 
 この構造は自明に構文厳密である。
@@ -296,7 +296,7 @@ last-variable はハッシュテーブルからその character に紐づけら�
 
 predicate はその述語名と空の引数リストを持つ述語式を生成する。戻り値の論理式と主述語はその述語論理式、variablesは空、主変数は未定義である。  
 
-article は第二引数の、その格と変数の組を、引数の主述語の引数に加える。戻り値の論理式は加工した述語句の論理式と名詞句の論理式の論理積、variables は引数の varialbles に生成した変数を加えたもの、主変数は第二引数の主変数である。  
+relative は第二引数の、その格と変数の組を、引数の主述語の引数に加える。戻り値の論理式は加工した述語句の論理式と名詞句の論理式の論理積、variables は引数の varialbles に生成した変数を加えたもの、主変数は第二引数の主変数である。  
 引数に主述語が定義されていない場合、または主変数が定義されている場合はエラーを吐く。  
 
 single-negation は、引数の論理式を量化したうえで否定し、変数は主変数、主述語はそのまま返す。  
