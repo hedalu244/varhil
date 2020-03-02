@@ -422,7 +422,34 @@ function disjunction(formulas: Formula[]): Formula {
   };
 }
 function formularize(graph:Graph): Formula{
-
+  function recursion(graph: Graph, inner: Variable[]): Formula {
+    let core: Formula = conjunction(graph.children.map(subgraph => {
+      switch (subgraph.subgraphType) {
+        case "cut": {
+          //数があったものを抽出
+          /*
+          var a = inner.filter(x=>count(x, subgraph.content.using)===count(x, inner));
+          inner = inner.filter(x=>count(x, subgraph.content.using)!==count(x, inner));
+          return negation(recursion(subgraph.content, a));
+          */
+          var a: Variable[] = [];
+          var b: Variable[] = [];
+          inner.forEach(x=>count(x, subgraph.content.usings)===count(x, inner)?a.push(x):b.push(x));
+          inner = b;
+          return negation(recursion(subgraph.content, a));
+        }
+        case "predicate":
+          //predicateはsubgraphとformulaを兼ねてる
+          return subgraph;
+      }
+    }));
+    //どこのcutでも数が合わなかった（複数のcutで使われてるか、定名詞が直置きされてる）変数のみ量化
+    return inner.filter((x,i)=>i===inner.indexOf(x)).reduce((a, c)=>exist(c, a), core);
+  }
+  function count<T>(element: T, array:T[]):number{
+    return array.filter(x=>x===element).length;
+  }
+  return recursion(graph, [...graph.usings]);
 }
 
 //標準化
