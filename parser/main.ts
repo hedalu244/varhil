@@ -152,7 +152,7 @@ interface Cut {
 }
 type SubGraph = Predicate | Cut;
 interface Graph {
-  content: SubGraph[];
+  children: SubGraph[];
   usings: Variable[];
 }
 
@@ -184,7 +184,7 @@ function calculate(tree: Tree): Graph {
   }
   function cut(graph: Graph): Graph{
     return {
-      content: [{
+      children: [{
         subgraphType: "cut",
         content: graph
       }],
@@ -193,7 +193,7 @@ function calculate(tree: Tree): Graph {
   }
   function merge(a:Graph, b:Graph): Graph {
     return {
-      content: [...a.content, ...b.content],
+      children: [...a.children, ...b.children],
       usings: [...a.usings, ...b.usings]
     }
   }
@@ -213,7 +213,7 @@ function calculate(tree: Tree): Graph {
     variableTable[character] = variable;
     return {
       graph: {
-        content: [],
+        children: [],
         usings: [variable]
       },
       mainPredicate: undefined,
@@ -229,7 +229,7 @@ function calculate(tree: Tree): Graph {
     }
     return {
       graph: {
-        content: [],
+        children: [],
         usings: [variable]
       },
       mainPredicate: undefined,
@@ -245,7 +245,7 @@ function calculate(tree: Tree): Graph {
     else delete variableTable[character];
     return {
       graph: {
-        content: [],
+        children: [],
         usings: [variable]
       },
       mainPredicate: undefined,
@@ -256,7 +256,7 @@ function calculate(tree: Tree): Graph {
     let variable = issueVariable();
     return {
       graph: {
-        content: [],
+        children: [],
         usings: [variable]
       },
       mainPredicate: undefined,
@@ -267,7 +267,7 @@ function calculate(tree: Tree): Graph {
     let predicate = Predicate(name, []);
     return {
       graph: {
-        content: [predicate],
+        children: [predicate],
         usings: []
       },
       mainPredicate: predicate,
