@@ -140,16 +140,212 @@ function parse(tokens: Token[]): Tree {
 interface Variable {
   name: string;
 }
+interface Predicate {
+  formulaType: "predicate";
+  subgraphType: "predicate";
+  name: string;
+  args: {casus:string, variable:Variable}[];
+}
+interface Cut {
+  subgraphType: "cut";
+  content: Graph;
+}
+type SubGraph = Predicate | Cut;
+interface Graph {
+  content: SubGraph[];
+  usings: Variable[];
+}
+
+interface Value {
+  graph: Graph,
+  mainVariable: Variable | undefined,
+  mainPredicate: Predicate | undefined
+};
+interface NounValue extends Value {
+  mainVariable: Variable
+}
+interface PredicateValue extends Value {
+  mainPredicate: Predicate
+}
+
+function calculate(tree: Tree): Graph {
+  let variableTable: { [key: string]: Variable } = {};
+  let variableCount: number = 0;
+
+  function issueVariable(): Variable { return {name: "" + variableCount++ }; }
+
+  function Predicate(name: string, args: {casus:string, variable:Variable}[]): Predicate {
+    return {
+      formulaType: "predicate",
+      subgraphType: "predicate",
+      name,
+      args
+    };
+  }
+  function cut(graph: Graph): Graph{
+    return {
+      content: [{
+        subgraphType: "cut",
+        content: graph
+      }],
+      usings: graph.usings
+    };
+  }
+  function merge(a:Graph, b:Graph): Graph {
+    return {
+      content: [...a.content, ...b.content],
+      usings: [...a.usings, ...b.usings]
+    }
+  }
+
+  function isNounValue(value : Value): value is NounValue { return value.mainVariable !== undefined; }
+  function isPredicateValue(value : Value): value is PredicateValue {return value.mainPredicate !== undefined; }
+
+  function convertToNoun(a: Value): NounValue {
+    if (isNounValue(a)) return a;
+    if (!isPredicateValue(a)) throw new Error("CalcError: Unexpected Value");
+
+    return calcRelative("", a, calcSingleVariable());
+  }
+
+  function calcNewVariable(character: string): NounValue {
+    let variable = issueVariable();
+    variableTable[character] = variable;
+    return {
+      graph: {
+        content: [],
+        usings: [variable]
+      },
+      mainPredicate: undefined,
+      mainVariable: variable
+    };
+  }
+  function calcContinuedVariable(character: string): NounValue {
+    let variable = variableTable[character];
+    if (variable === undefined) {
+      console.warn();
+      variable = issueVariable();
+      variableTable[character] = variable;
+    }
+    return {
+      graph: {
+        content: [],
+        usings: [variable]
+      },
+      mainPredicate: undefined,
+      mainVariable: variable
+    };
+  }
+  function calcLastVariable(character: string): NounValue {
+    let variable = variableTable[character];
+    if (variable === undefined) {
+      console.warn();
+      variable = issueVariable();
+    }
+    else delete variableTable[character];
+    return {
+      graph: {
+        content: [],
+        usings: [variable]
+      },
+      mainPredicate: undefined,
+      mainVariable: variable
+    };
+  }
+  function calcSingleVariable(): NounValue {
+    let variable = issueVariable();
+    return {
+      graph: {
+        content: [],
+        usings: [variable]
+      },
+      mainPredicate: undefined,
+      mainVariable: variable
+    };
+  }
+  function calcPredicate(name: string): PredicateValue {
+    let predicate = Predicate(name, []);
+    return {
+      graph: {
+        content: [predicate],
+        usings: []
+      },
+      mainPredicate: predicate,
+      mainVariable: undefined
+    };
+  }
+  function calcRelative(casus: string, a: Value, b: Value): NounValue {
+    if (!isPredicateValue(a)) throw new Error("CalcError: Unexpected Value");
+    let bb: NounValue = convertToNoun(b);
+    a.mainPredicate.args.unshift({casus: casus, variable: bb.mainVariable});
+
+    return {
+      graph: merge(a.graph, bb.graph),
+      mainPredicate: undefined,
+      mainVariable: bb.mainVariable
+    };
+  }
+  function calcPreposition(casus: string, a: Value, b: Value): PredicateValue {
+    let aa: NounValue = convertToNoun(a);
+    if (!isPredicateValue(b)) throw new Error("CalcError: Unexpected Value");
+    b.mainPredicate.args.unshift({casus: casus, variable: aa.mainVariable});
+
+    return {
+      graph: merge(aa.graph, b.graph),
+      mainPredicate: b.mainPredicate,
+      mainVariable: undefined
+    };
+  }
+  function calcSingleNegation(value: Value): Value {
+    return {
+      graph: cut(value.graph),
+      mainPredicate: value.mainPredicate,
+      mainVariable: value.mainVariable
+    };
+  }
+  function calcNegation (values: Value[]): Value {
+    return {
+      graph: cut(values.map(x=>x.graph).reduce(merge)),
+      mainPredicate: undefined,
+      mainVariable: undefined
+    };
+  }
+  function calcSentence(values: Value[]): Value {
+    return {
+      graph: values.map(x=>x.graph).reduce(merge),
+      mainPredicate: undefined,
+      mainVariable: undefined
+    };
+  }
+
+  function recursion(tree: Tree): Value {
+    let values: Value[] = tree.children.map(x => recursion(x));
+    switch(tree.token.tokenType){
+      case "new_variable": return calcNewVariable(tree.token.character);
+      case "continued_variable": return calcContinuedVariable(tree.token.character);
+      case "last_variable": return calcLastVariable(tree.token.character);
+      case "single_variable": return calcSingleVariable();
+      case "predicate": return calcPredicate(tree.token.name);
+      case "relative": return calcRelative(tree.token.casus, values[0], values[1]);
+      case "preposition": return calcPreposition(tree.token.casus, values[0], values[1]);
+      case "single_negation": return calcSingleNegation(values[0]);
+      case "open_negation": return calcNegation(values);
+      case "open_sentence": return calcSentence(values);
+      // parseでふくめてないので来ないはず
+      case "close_negation":
+      case "close_sentence": throw 0;
+    }
+  }
+  let result = recursion(tree);
+  return result.graph;
+}
+
+//述語論理式
 interface TrueFormula {
   formulaType: "true";
 }
 interface FalseFormula {
   formulaType: "false";
-}
-interface PredicateFormula {
-  formulaType: "predicate",
-  name: string,
-  args: {casus:string, variable:Variable}[]
 }
 interface NegationFormula {
   formulaType: "negation",
@@ -174,7 +370,7 @@ interface DisjunctionFormula {
   formulas: Formula[]
 }
 
-type Formula = TrueFormula | FalseFormula | PredicateFormula | EquationFormula | NegationFormula | ExistFormula | AllFormula | ConjunctionFormula | DisjunctionFormula ;
+type Formula = TrueFormula | FalseFormula | Predicate | NegationFormula | ExistFormula | AllFormula | ConjunctionFormula | DisjunctionFormula ;
 
 function T(): TrueFormula {
   return { formulaType: "true" };
@@ -225,189 +421,8 @@ function disjunction(formulas: Formula[]): Formula {
     formulas
   };
 }
-function predicate(name: string, args: {casus:string, variable:Variable}[]): PredicateFormula {
-  return { formulaType: "predicate", name, args };
-}
-interface Value {
-  formula: Formula,
-  mainVariable: Variable | undefined,
-  mainPredicate: PredicateFormula | undefined
-};
-interface NounValue extends Value {
-  mainVariable: Variable
-}
-interface PredicateValue extends Value {
-  mainPredicate: PredicateFormula
-}
+function formularize(graph:Graph): Formula{
 
-function calculate(tree: Tree): Formula {
-  let variableTable: { [key: string]: Variable } = {};
-  let variableCount: number = 0;
-
-  function issueVariable(): Variable { return {name: "" + variableCount++ }; }
-
-  function combine(formulas: Formula[]): Formula {
-    let variables = formulas.map(x=>enumrateQuantify(x)).reduce((acc: Variable[], cur)=>[...acc, ...cur], []);
-    let duplication = variables.filter((x, i, self) => self.indexOf(x) === i && i !== self.lastIndexOf(x));
-
-    return duplication.reduce((acc:Formula, cur:Variable) => exist(cur, acc),
-        duplication.reduce((acc:Formula, cur:Variable) => removeQuantify(acc, cur), conjunction(formulas)));
-
-    function enumrateQuantify(formula: Formula): Variable[]{
-      if (formula.formulaType === "exist")
-        return [formula.variable, ...enumrateQuantify(formula.formula)];
-      else if (formula.formulaType === "negation")
-        return enumrateQuantify(formula.formula);
-      else if (formula.formulaType === "conjunction")
-        return formula.formulas.map(x=>enumrateQuantify(x)).reduce((cur, acc)=>[...cur, ...acc]);
-      else return [];
-    }
-
-    function removeQuantify (formula: Formula, variable: Variable): Formula{
-      if (formula.formulaType === "exist") {
-        if (variable === formula.variable)
-          return formula.formula;
-        else return exist(formula.variable, removeQuantify(formula.formula, variable));
-      }
-      else if (formula.formulaType === "negation")
-        return negation(removeQuantify(formula.formula, variable));
-      else if (formula.formulaType === "conjunction")
-        return conjunction(formula.formulas.map(x=>removeQuantify(x, variable)));
-      return formula;
-    }
-  }
-
-  function isNounValue(value : Value): value is NounValue { return value.mainVariable !== undefined; }
-  function isPredicateValue(value : Value): value is PredicateValue {return value.mainPredicate !== undefined; }
-
-  function calcNewVariable(character: string): NounValue {
-    let variable = issueVariable();
-    variableTable[character] = variable;
-    return {
-      formula: exist(variable, T()),
-      mainPredicate: undefined,
-      mainVariable: variable
-    };
-  }
-  function calcContinuedVariable(character: string): NounValue {
-    let variable = variableTable[character];
-    if (variable === undefined) {
-      console.warn();
-      variable = issueVariable();
-      variableTable[character] = variable;
-    }
-    return {
-      formula: exist(variable, T()),
-      mainPredicate: undefined,
-      mainVariable: variable
-    };
-  }
-  function calcLastVariable(character: string): NounValue {
-    let variable = variableTable[character];
-    if (variable === undefined) {
-      console.warn();
-      variable = issueVariable();
-    }
-    else delete variableTable[character];
-    return {
-      formula: exist(variable, T()),
-      mainPredicate: undefined,
-      mainVariable: variable
-    };
-  }
-  function calcSingleVariable(): NounValue {
-    let variable = issueVariable();
-    return {
-      formula: exist(variable, T()),
-      mainPredicate: undefined,
-      mainVariable: variable
-    };
-  }
-  function calcPredicate(name: string): PredicateValue {
-    let formula: Formula = predicate(name, []);
-    return {
-      formula: formula,
-      mainPredicate: formula,
-      mainVariable: undefined
-    };
-  }
-  function convertToNoun(a: Value): NounValue {
-    if (isNounValue(a)) return a;
-
-    if (!isPredicateValue(a)) throw new Error("CalcError: Unexpected Value");
-    let variable = issueVariable();
-    a.mainPredicate.args.unshift({casus: "", variable: variable});
-    return {
-      formula: exist(variable, a.formula),
-      mainPredicate: undefined,
-      mainVariable: variable
-    };
-  }
-  function calcRelative(casus: string, a: Value, b: Value): NounValue {
-    if (!isPredicateValue(a)) throw new Error("CalcError: Unexpected Value");
-    let bb: NounValue = convertToNoun(b);
-    a.mainPredicate.args.unshift({casus: casus, variable: bb.mainVariable});
-
-    return {
-      formula: combine([a.formula, bb.formula]),
-      mainPredicate: undefined,
-      mainVariable: bb.mainVariable
-    };
-  }
-  function calcPreposition(casus: string, a: Value, b: Value): PredicateValue {
-    let aa: NounValue = convertToNoun(a);
-    if (!isPredicateValue(b)) throw new Error("CalcError: Unexpected Value");
-    b.mainPredicate.args.unshift({casus: casus, variable: aa.mainVariable});
-
-    return {
-      formula: combine([aa.formula, b.formula]),
-      mainPredicate: b.mainPredicate,
-      mainVariable: undefined
-    };
-  }
-  function calcSingleNegation(value: Value): Value {
-    return {
-      formula: negation(value.formula),
-      mainPredicate: value.mainPredicate,
-      mainVariable: value.mainVariable
-    };
-  }
-  function calcNegation (values: Value[]): Value {
-    return {
-      formula: negation(combine(values.map(x=>x.formula))),
-      mainPredicate: undefined,
-      mainVariable: undefined
-    };
-  }
-
-  function calcSentence(values: Value[]): Value {
-    return {
-      formula: combine(values.map(x=>x.formula)),
-      mainPredicate: undefined,
-      mainVariable: undefined
-    };
-  }
-
-  function recursion(tree: Tree): Value {
-    let values: Value[] = tree.children.map(x => recursion(x));
-    switch(tree.token.tokenType){
-      case "new_variable": return calcNewVariable(tree.token.character);
-      case "continued_variable": return calcContinuedVariable(tree.token.character);
-      case "last_variable": return calcLastVariable(tree.token.character);
-      case "single_variable": return calcSingleVariable();
-      case "predicate": return calcPredicate(tree.token.name);
-      case "relative": return calcRelative(tree.token.casus, values[0], values[1]);
-      case "preposition": return calcPreposition(tree.token.casus, values[0], values[1]);
-      case "single_negation": return calcSingleNegation(values[0]);
-      case "open_negation": return calcNegation(values);
-      case "open_sentence": return calcSentence(values);
-      // parseでふくめてないので来ないはず
-      case "close_negation":
-      case "close_sentence": throw 0;
-    }
-  }
-  let result = recursion(tree);
-  return result.formula;
 }
 
 //標準化
@@ -544,8 +559,8 @@ function test(): void {
   ];
   inputs.forEach(x=>{
     console.log(">"+x);
-    console.log(stringify(calculate(parse(tokenize(x)))));
-    console.log(stringify(normalize(calculate(parse(tokenize(x))))));
+    console.log(stringify(formularize(calculate(parse(tokenize(x)))));
+    console.log(stringify(normalize(formularize(calculate(parse(tokenize(x))))));
   });
 }
 
@@ -636,7 +651,7 @@ function update(): void {
   gebi("error").innerText = "";
   let input = gebi("input").value;
   try {
-    gebi("output").innerText = stringify((calculate(parse(tokenize(input)))));
+    gebi("output").innerText = stringify(formularize(calculate(parse(tokenize(input)))));
   } catch(e) {
     gebi("error").innerText = e.message;
   }
