@@ -567,7 +567,6 @@ function stringify(formula: Formula): string {
 
 function test(): void {
   let inputs = [
-    /*
     "a",
     "moku",
     "no moku",
@@ -576,13 +575,13 @@ function test(): void {
     "be au no moku",
     "be pina moku",
     "fe rana be pina moku",
-    "e bei fe rana moku pina",*/
+    "e bei fe rana moku au pina",
     "fe rana be pina moku",
     "fe rana be no pina moku",
     "fe rana no be pina moku",
     "no fe no rana no be pina no moku",
-    "e bei fe rana moku pina",
-    "e bei fe no rana moku pina",
+    "e bei fe rana moku au pina",
+    "e bei fe no rana moku au pina",
   ];
   inputs.forEach(x=>{
     console.log(">"+x);

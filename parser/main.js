@@ -100,6 +100,174 @@ function parse(tokens) {
         }
     }
 }
+;
+function calculate(tree) {
+    let variableTable = {};
+    let variableCount = 0;
+    function issueVariable() { return { name: "" + variableCount++ }; }
+    function Predicate(name, args) {
+        return {
+            formulaType: "predicate",
+            subgraphType: "predicate",
+            name,
+            args
+        };
+    }
+    function cut(graph) {
+        return {
+            children: [{
+                    subgraphType: "cut",
+                    content: graph
+                }],
+            usings: graph.usings
+        };
+    }
+    function merge(a, b) {
+        return {
+            children: [...a.children, ...b.children],
+            usings: [...a.usings, ...b.usings]
+        };
+    }
+    function isNounValue(value) { return value.mainVariable !== undefined; }
+    function isPredicateValue(value) { return value.mainPredicate !== undefined; }
+    function convertToNoun(a) {
+        if (isNounValue(a))
+            return a;
+        if (!isPredicateValue(a))
+            throw new Error("CalcError: Unexpected Value");
+        return calcRelative("", a, calcSingleVariable());
+    }
+    function calcNewVariable(character) {
+        let variable = issueVariable();
+        variableTable[character] = variable;
+        return {
+            graph: {
+                children: [],
+                usings: [variable]
+            },
+            mainPredicate: undefined,
+            mainVariable: variable
+        };
+    }
+    function calcContinuedVariable(character) {
+        let variable = variableTable[character];
+        if (variable === undefined) {
+            console.warn();
+            variable = issueVariable();
+            variableTable[character] = variable;
+        }
+        return {
+            graph: {
+                children: [],
+                usings: [variable]
+            },
+            mainPredicate: undefined,
+            mainVariable: variable
+        };
+    }
+    function calcLastVariable(character) {
+        let variable = variableTable[character];
+        if (variable === undefined) {
+            console.warn();
+            variable = issueVariable();
+        }
+        else
+            delete variableTable[character];
+        return {
+            graph: {
+                children: [],
+                usings: [variable]
+            },
+            mainPredicate: undefined,
+            mainVariable: variable
+        };
+    }
+    function calcSingleVariable() {
+        let variable = issueVariable();
+        return {
+            graph: {
+                children: [],
+                usings: [variable]
+            },
+            mainPredicate: undefined,
+            mainVariable: variable
+        };
+    }
+    function calcPredicate(name) {
+        let predicate = Predicate(name, []);
+        return {
+            graph: {
+                children: [predicate],
+                usings: []
+            },
+            mainPredicate: predicate,
+            mainVariable: undefined
+        };
+    }
+    function calcRelative(casus, a, b) {
+        if (!isPredicateValue(a))
+            throw new Error("CalcError: Unexpected Value");
+        let bb = convertToNoun(b);
+        a.mainPredicate.args.unshift({ casus: casus, variable: bb.mainVariable });
+        return {
+            graph: merge(a.graph, bb.graph),
+            mainPredicate: undefined,
+            mainVariable: bb.mainVariable
+        };
+    }
+    function calcPreposition(casus, a, b) {
+        let aa = convertToNoun(a);
+        if (!isPredicateValue(b))
+            throw new Error("CalcError: Unexpected Value");
+        b.mainPredicate.args.unshift({ casus: casus, variable: aa.mainVariable });
+        return {
+            graph: merge(aa.graph, b.graph),
+            mainPredicate: b.mainPredicate,
+            mainVariable: undefined
+        };
+    }
+    function calcSingleNegation(value) {
+        return {
+            graph: cut(value.graph),
+            mainPredicate: value.mainPredicate,
+            mainVariable: value.mainVariable
+        };
+    }
+    function calcNegation(values) {
+        return {
+            graph: cut(values.map(x => x.graph).reduce(merge)),
+            mainPredicate: undefined,
+            mainVariable: undefined
+        };
+    }
+    function calcSentence(values) {
+        return {
+            graph: values.map(x => x.graph).reduce(merge),
+            mainPredicate: undefined,
+            mainVariable: undefined
+        };
+    }
+    function recursion(tree) {
+        let values = tree.children.map(x => recursion(x));
+        switch (tree.token.tokenType) {
+            case "new_variable": return calcNewVariable(tree.token.character);
+            case "continued_variable": return calcContinuedVariable(tree.token.character);
+            case "last_variable": return calcLastVariable(tree.token.character);
+            case "single_variable": return calcSingleVariable();
+            case "predicate": return calcPredicate(tree.token.name);
+            case "relative": return calcRelative(tree.token.casus, values[0], values[1]);
+            case "preposition": return calcPreposition(tree.token.casus, values[0], values[1]);
+            case "single_negation": return calcSingleNegation(values[0]);
+            case "open_negation": return calcNegation(values);
+            case "open_sentence": return calcSentence(values);
+            // parseでふくめてないので来ないはず
+            case "close_negation":
+            case "close_sentence": throw 0;
+        }
+    }
+    let result = recursion(tree);
+    return result.graph;
+}
 function T() {
     return { formulaType: "true" };
 }
@@ -153,175 +321,35 @@ function disjunction(formulas) {
         formulas
     };
 }
-function predicate(name, args) {
-    return { formulaType: "predicate", name, args };
-}
-function equation(a, b) {
-    return { formulaType: "equation", a, b };
-}
-;
-function calculate(tree) {
-    let variableTable = {};
-    let variableCount = 0;
-    function issueVariable() { return { name: "" + variableCount++ }; }
-    function combine(formulas) {
-        let variables = formulas.map(x => enumrateQuantify(x)).reduce((acc, cur) => [...acc, ...cur], []);
-        let duplication = variables.filter((x, i, self) => self.indexOf(x) === i && i !== self.lastIndexOf(x));
-        return duplication.reduce((acc, cur) => exist(cur, acc), duplication.reduce((acc, cur) => removeQuantify(acc, cur), conjunction(formulas)));
-        function enumrateQuantify(formula) {
-            if (formula.formulaType === "exist")
-                return [formula.variable, ...enumrateQuantify(formula.formula)];
-            else if (formula.formulaType === "negation")
-                return enumrateQuantify(formula.formula);
-            else if (formula.formulaType === "conjunction")
-                return formula.formulas.map(x => enumrateQuantify(x)).reduce((cur, acc) => [...cur, ...acc]);
-            else
-                return [];
-        }
-        function removeQuantify(formula, variable) {
-            if (formula.formulaType === "exist") {
-                if (variable === formula.variable)
-                    return formula.formula;
-                else
-                    return exist(formula.variable, removeQuantify(formula.formula, variable));
+function formularize(graph) {
+    function recursion(graph, inner) {
+        let core = conjunction(graph.children.map(subgraph => {
+            switch (subgraph.subgraphType) {
+                case "cut": {
+                    //数があったものを抽出
+                    /*
+                    var a = inner.filter(x=>count(x, subgraph.content.using)===count(x, inner));
+                    inner = inner.filter(x=>count(x, subgraph.content.using)!==count(x, inner));
+                    return negation(recursion(subgraph.content, a));
+                    */
+                    var a = [];
+                    var b = [];
+                    inner.forEach(x => count(x, subgraph.content.usings) === count(x, inner) ? a.push(x) : b.push(x));
+                    inner = b;
+                    return negation(recursion(subgraph.content, a));
+                }
+                case "predicate":
+                    //predicateはsubgraphとformulaを兼ねてる
+                    return subgraph;
             }
-            else if (formula.formulaType === "negation")
-                return negation(removeQuantify(formula.formula, variable));
-            else if (formula.formulaType === "conjunction")
-                return conjunction(formula.formulas.map(x => removeQuantify(x, variable)));
-            return formula;
-        }
+        }));
+        //どこのcutでも数が合わなかった（複数のcutで使われてるか、定名詞が直置きされてる）変数のみ量化
+        return inner.filter((x, i) => i === inner.indexOf(x)).reduce((a, c) => exist(c, a), core);
     }
-    function isNounValue(value) { return value.mainVariable !== undefined; }
-    function isPredicateValue(value) { return value.mainPredicate !== undefined; }
-    function calcNewVariable(character) {
-        let variable = issueVariable();
-        variableTable[character] = variable;
-        return {
-            formula: exist(variable, T()),
-            mainPredicate: undefined,
-            mainVariable: variable
-        };
+    function count(element, array) {
+        return array.filter(x => x === element).length;
     }
-    function calcContinuedVariable(character) {
-        let variable = variableTable[character];
-        if (variable === undefined) {
-            console.warn();
-            variable = issueVariable();
-            variableTable[character] = variable;
-        }
-        return {
-            formula: exist(variable, T()),
-            mainPredicate: undefined,
-            mainVariable: variable
-        };
-    }
-    function calcLastVariable(character) {
-        let variable = variableTable[character];
-        if (variable === undefined) {
-            console.warn();
-            variable = issueVariable();
-        }
-        else
-            delete variableTable[character];
-        return {
-            formula: exist(variable, T()),
-            mainPredicate: undefined,
-            mainVariable: variable
-        };
-    }
-    function calcSingleVariable() {
-        let variable = issueVariable();
-        return {
-            formula: exist(variable, T()),
-            mainPredicate: undefined,
-            mainVariable: variable
-        };
-    }
-    function calcPredicate(name) {
-        let formula = predicate(name, []);
-        return {
-            formula: formula,
-            mainPredicate: formula,
-            mainVariable: undefined
-        };
-    }
-    function convertToNoun(a) {
-        if (isNounValue(a))
-            return a;
-        if (!isPredicateValue(a))
-            throw new Error("CalcError: Unexpected Value");
-        let variable = issueVariable();
-        a.mainPredicate.args.unshift({ casus: "", variable: variable });
-        return {
-            formula: exist(variable, a.formula),
-            mainPredicate: undefined,
-            mainVariable: variable
-        };
-    }
-    function calcRelative(casus, a, b) {
-        if (!isPredicateValue(a))
-            throw new Error("CalcError: Unexpected Value");
-        let bb = convertToNoun(b);
-        a.mainPredicate.args.unshift({ casus: casus, variable: bb.mainVariable });
-        return {
-            formula: combine([a.formula, bb.formula]),
-            mainPredicate: undefined,
-            mainVariable: bb.mainVariable
-        };
-    }
-    function calcPreposition(casus, a, b) {
-        let aa = convertToNoun(a);
-        if (!isPredicateValue(b))
-            throw new Error("CalcError: Unexpected Value");
-        b.mainPredicate.args.unshift({ casus: casus, variable: aa.mainVariable });
-        return {
-            formula: combine([aa.formula, b.formula]),
-            mainPredicate: b.mainPredicate,
-            mainVariable: undefined
-        };
-    }
-    function calcSingleNegation(value) {
-        return {
-            formula: negation(value.formula),
-            mainPredicate: value.mainPredicate,
-            mainVariable: value.mainVariable
-        };
-    }
-    function calcNegation(values) {
-        return {
-            formula: negation(combine(values.map(x => x.formula))),
-            mainPredicate: undefined,
-            mainVariable: undefined
-        };
-    }
-    function calcSentence(values) {
-        return {
-            formula: combine(values.map(x => x.formula)),
-            mainPredicate: undefined,
-            mainVariable: undefined
-        };
-    }
-    function recursion(tree) {
-        let values = tree.children.map(x => recursion(x));
-        switch (tree.token.tokenType) {
-            case "new_variable": return calcNewVariable(tree.token.character);
-            case "continued_variable": return calcContinuedVariable(tree.token.character);
-            case "last_variable": return calcLastVariable(tree.token.character);
-            case "single_variable": return calcSingleVariable();
-            case "predicate": return calcPredicate(tree.token.name);
-            case "relative": return calcRelative(tree.token.casus, values[0], values[1]);
-            case "preposition": return calcPreposition(tree.token.casus, values[0], values[1]);
-            case "single_negation": return calcSingleNegation(values[0]);
-            case "open_negation": return calcNegation(values);
-            case "open_sentence": return calcSentence(values);
-            // parseでふくめてないので来ないはず
-            case "close_negation":
-            case "close_sentence": throw 0;
-        }
-    }
-    let result = recursion(tree);
-    return result.formula;
+    return recursion(graph, [...graph.usings]);
 }
 //標準化
 function normalize(formula) {
@@ -426,14 +454,11 @@ function stringify(formula) {
         return "￢" + stringify(formula.formula);
     if (formula.formulaType === "predicate")
         return formula.name + "(" + formula.args.map(x => (x.casus + ":" + x.variable.name)).join(", ") + ")";
-    if (formula.formulaType === "equation")
-        return "(" + formula.a.name + "=" + formula.b.name + ")";
     let exhaustion = formula;
     return "";
 }
 function test() {
     let inputs = [
-        /*
         "a",
         "moku",
         "no moku",
@@ -442,18 +467,18 @@ function test() {
         "be au no moku",
         "be pina moku",
         "fe rana be pina moku",
-        "e bei fe rana moku pina",*/
+        "e bei fe rana moku au pina",
         "fe rana be pina moku",
         "fe rana be no pina moku",
         "fe rana no be pina moku",
         "no fe no rana no be pina no moku",
-        "e bei fe rana moku pina",
-        "e bei fe no rana moku pina",
+        "e bei fe rana moku au pina",
+        "e bei fe no rana moku au pina",
     ];
     inputs.forEach(x => {
         console.log(">" + x);
-        console.log(stringify(calculate(parse(tokenize(x)))));
-        console.log(stringify(normalize(calculate(parse(tokenize(x))))));
+        console.log(stringify(formularize(calculate(parse(tokenize(x))))));
+        console.log(stringify(normalize(formularize(calculate(parse(tokenize(x)))))));
     });
 }
 function gebi(id) {
@@ -520,7 +545,7 @@ function update() {
     gebi("error").innerText = "";
     let input = gebi("input").value;
     try {
-        gebi("output").innerText = stringify((calculate(parse(tokenize(input)))));
+        gebi("output").innerText = stringify(formularize(calculate(parse(tokenize(input)))));
     }
     catch (e) {
         gebi("error").innerText = e.message;
