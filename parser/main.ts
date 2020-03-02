@@ -421,20 +421,17 @@ function disjunction(formulas: Formula[]): Formula {
     formulas
   };
 }
+//存在グラフを論理式に変換。主に量化が難点
 function formularize(graph:Graph): Formula{
   function recursion(graph: Graph, inner: Variable[]): Formula {
     let core: Formula = conjunction(graph.children.map(subgraph => {
       switch (subgraph.subgraphType) {
         case "cut": {
-          //数があったものを抽出
-          /*
-          var a = inner.filter(x=>count(x, subgraph.content.using)===count(x, inner));
-          inner = inner.filter(x=>count(x, subgraph.content.using)!==count(x, inner));
-          return negation(recursion(subgraph.content, a));
-          */
+          //内部の数が全体の数と一致するもの、一致しないものに分ける
           var a: Variable[] = [];
           var b: Variable[] = [];
           inner.forEach(x=>count(x, subgraph.content.usings)===count(x, inner)?a.push(x):b.push(x));
+          //一致しないものはinnerに戻し、一致するものを使って内部で再帰
           inner = b;
           return negation(recursion(subgraph.content, a));
         }
