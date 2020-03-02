@@ -151,11 +151,6 @@ interface PredicateFormula {
   name: string,
   args: {casus:string, variable:Variable}[]
 }
-interface EquationFormula {
-  formulaType: "equation",
-  a: Variable,
-  b: Variable
-}
 interface NegationFormula {
   formulaType: "negation",
   formula: Formula
@@ -232,9 +227,6 @@ function disjunction(formulas: Formula[]): Formula {
 }
 function predicate(name: string, args: {casus:string, variable:Variable}[]): PredicateFormula {
   return { formulaType: "predicate", name, args };
-}
-function equation(a: Variable, b: Variable): EquationFormula {
-  return { formulaType: "equation", a, b };
 }
 interface Value {
   formula: Formula,
@@ -527,8 +519,6 @@ function stringify(formula: Formula): string {
     return "￢" + stringify(formula.formula);
   if (formula.formulaType === "predicate")
     return formula.name + "(" + formula.args.map(x=>(x.casus + ":" + x.variable.name)).join(", ") + ")";
-  if (formula.formulaType === "equation")
-    return "(" + formula.a.name + "=" + formula.b.name + ")";
   let exhaustion: never = formula;
   return "";
 }
