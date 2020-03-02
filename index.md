@@ -26,67 +26,27 @@ Varhil(VARiable-HIding Logic)[ˈvɑ˞ .hɪl]は述語論理に基づいた人工
     2. [辞書](lexicology/dictionaly)
 
 <!--
-## 生成文法
-
-C
-: Clause
-
-P
-: Predicate
-
-N
-: Noun
-
-PN
-: PredicateNoun
-
-T
-: Term
-
-SS
-: SingleSentence
-
-CJ
-: Conjunctive
-
-S
-: Sentence
-
+##　生成文法
 ```
-    [Sentence] -> [Conjunctive] .?
+文
+ 単文*
 
-    [Conjunctive] -> [SingleSentence] ,? [Conjunctive]
-    [Conjunctive] -> [Variable] ,? [Conjunctive]
-    [Conjunctive] -> [SingleSentence]
+単文
+  述語句
+  名詞句
+  否定開始 単文* 否定終止
 
-    [SingleSentence] -> no [SingleSentence]
-    [SingleSentence] -> [Predicate]
-    [SingleSentence] -> [Clause] ([Variable] | [Noun])
-    [SingleSentence] -> nou [Conjunctive] noi
+述語句
+  前置詞 名詞句 述語句
+  単独否定 述語句
+  述語
 
-    [Noun] -> no [Noun]
-    [Noun] -> o ([Variable] | [Noun]) [Noun]
-    [Noun] -> [PredicateNoun]
-    [Noun] -> [Clause]
-
-    [PredicateNoun] -> no [PredicateNoun]
-    [PredicateNoun] -> [Article] [Predicate]
-    [PredicateNoun] -> [Preposition] ([Variable] | [Noun]) [PredicateNoun]
-    [PredicateNoun] -> [Predicate]
-    [PredicateNoun] -> poi
-
-    [Predicate] -> [ContentWord]
-    [Predicate] -> po ([Variable] | [Noun])
-    [Predicate] -> no [Predicate]
-    [Predicate] -> [Preposition] ([Variable] | [Noun]) [Predicate]
-
-    [Clause] -> ro [SingleSentence]
-    [Clause] -> rou [Conjunctive] roi
-
-    [ContentWord] -> pina rana lora ...
-    [Variable] -> au a i u a'a i'a u'a ...
-    [Preposition] -> e be fe ...
-    [Article] -> ei bei fei ...
+名詞句
+  関係詞 述語句 名詞句
+  単独否定 名詞句
+  述語句
+  定名詞
+  不定名詞
 ```
 -->
 
