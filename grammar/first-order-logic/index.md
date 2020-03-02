@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Varhil/grammer/first-order-logic
+title: Varhil/grammar/first-order-logic
 ---
 
 ## 述語記号と述語
