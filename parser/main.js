@@ -1,6 +1,6 @@
 "use strict";
 //字句解析
-let tokenPattern;
+let separatorPattern;
 let isSingleVariable;
 let isNewVariable;
 let newVariableToCharacter;
@@ -17,10 +17,9 @@ let prepositionToCasus;
 let isSingleNegation;
 let isOpenNegation;
 let isCloseNegation;
+//トークン単位に分割し、必要な情報を付加する
 function tokenize(input) {
-    let literals = input.match(tokenPattern);
-    if (literals === null)
-        literals = [];
+    let literals = input.split(separatorPattern).filter(x => x !== "");
     let tokens = literals.map(literal => {
         if (isSingleVariable(literal))
             return { literal, tokenType: "single_variable" };
@@ -461,7 +460,7 @@ function gebi(id) {
     return document.getElementById(id);
 }
 function updatePattern() {
-    tokenPattern = new RegExp(gebi("token_pattern").value, "g");
+    separatorPattern = new RegExp(gebi("separator_pattern").value);
     let singleVariablePattern = new RegExp("^" + gebi("single_variable_pattern").value + "$");
     isSingleVariable = literal => singleVariablePattern.test(literal);
     let newVariablePattern = new RegExp("^" + gebi("new_variable_pattern").value + "$");
@@ -497,7 +496,7 @@ function updatePattern() {
     update();
 }
 function reset1() {
-    gebi("token_pattern").value = "[a-z']+";
+    gebi("separator_pattern").value = "[,. ]+";
     gebi("single_variable_pattern").value = "au";
     gebi("new_variable_pattern").value = "a('[aeiou])*";
     gebi("new_variable_replacer").value = "$1";
@@ -529,7 +528,7 @@ function update() {
 }
 window.onload = () => {
     gebi("input").oninput = update;
-    gebi("token_pattern").oninput = updatePattern;
+    gebi("separator_pattern").oninput = updatePattern;
     gebi("single_variable_pattern").oninput = updatePattern;
     gebi("new_variable_pattern").oninput = updatePattern;
     gebi("new_variable_replacer").oninput = updatePattern;

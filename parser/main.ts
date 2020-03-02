@@ -16,7 +16,7 @@ type Token = {
 };
 
 //字句解析
-let tokenPattern: RegExp;
+let separatorPattern: RegExp;
 
 let isSingleVariable: (literal :string)=>boolean;
 
@@ -42,10 +42,9 @@ let isSingleNegation: (literal :string)=>boolean;
 let isOpenNegation: (literal :string)=>boolean;
 let isCloseNegation: (literal :string)=>boolean;
 
-
+//トークン単位に分割し、必要な情報を付加する
 function tokenize(input: string): Token[] {
-  let literals = input.match(tokenPattern);
-  if (literals === null) literals = [];
+  let literals = input.split(separatorPattern).filter(x=>x!=="");
 
   let tokens: Token[] = literals.map(literal => {
     if (isSingleVariable(literal))
@@ -565,7 +564,8 @@ function gebi(id :string) {
 }
 
 function updatePattern() {
-  tokenPattern = new RegExp(gebi("token_pattern").value, "g");
+  separatorPattern = new RegExp(gebi("separator_pattern").value);
+
   let singleVariablePattern = new RegExp("^" + gebi("single_variable_pattern").value + "$");
   isSingleVariable = literal => singleVariablePattern.test(literal);
 
@@ -612,7 +612,7 @@ function updatePattern() {
 }
 
 function reset1(): void {
-  gebi("token_pattern").value = "[a-z']+";
+  gebi("separator_pattern").value = "[,. ]+";
 
   gebi("single_variable_pattern").value = "au";
 
@@ -654,7 +654,7 @@ function update(): void {
 
 window.onload = () => {
   gebi("input").oninput = update;
-  gebi("token_pattern").oninput = updatePattern;
+  gebi("separator_pattern").oninput = updatePattern;
   gebi("single_variable_pattern").oninput = updatePattern;
   gebi("new_variable_pattern").oninput = updatePattern;
   gebi("new_variable_replacer").oninput = updatePattern;
