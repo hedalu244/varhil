@@ -99,7 +99,7 @@ function parse(tokens: Token[]): Tree {
   let children: Tree[] = [];
   if (arity === "(") {
     while (true) {
-      var next: Token = tokens[0];
+      let next: Token = tokens[0];
       if (next === undefined) throw new Error("ParseError: Unxpected End of Tokens");
       if (getArity(next) === ")") {
         if(token.tokenType === "open_negation" && next.tokenType === "close_negation"
@@ -113,7 +113,7 @@ function parse(tokens: Token[]): Tree {
     }
   }
   else {
-    for(var i = 0; i < arity; i++)
+    for(let i = 0; i < arity; i++)
       children.push(parse(tokens));
   }
   return {token: token, children: children};
@@ -428,8 +428,8 @@ function formularize(graph:Graph): Formula{
       switch (subgraph.subgraphType) {
         case "cut": {
           //内部の数が全体の数と一致するもの、一致しないものに分ける
-          var a: Variable[] = [];
-          var b: Variable[] = [];
+          let a: Variable[] = [];
+          let b: Variable[] = [];
           inner.forEach(x=>(count(x, subgraph.content.usings)===count(x, inner)?a:b).push(x));
           //一致しないものはinnerに戻し、一致するものを使って内部で再帰
           inner = b;
