@@ -518,7 +518,7 @@ function updatePattern() {
     update();
 }
 function reset1() {
-    gebi("separator_pattern").value = "[,.\s]";
+    gebi("separator_pattern").value = "[,.\\s]";
     gebi("single_variable_pattern").value = "au";
     gebi("new_variable_pattern").value = "a('[aeiou])*";
     gebi("new_variable_replacer").value = "$1";

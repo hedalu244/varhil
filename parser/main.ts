@@ -640,7 +640,7 @@ function updatePattern() {
 }
 
 function reset1(): void {
-  gebi("separator_pattern").value = "[,.\s]";
+  gebi("separator_pattern").value = "[,.\\s]";
 
   gebi("single_variable_pattern").value = "au";
 
