@@ -71,6 +71,14 @@ code {
   font-family: SFMono-Regular,Consolas,Liberation Mono,Menlo,Courier,monospace;
 }
 
+ul.breadcrumbs > li {
+  display: inline;
+  list-style: none;
+}
+ul.breadcrumbs > li::before {
+  content: "/";
+}
+
 dl.example {
   width: 80%;
   list-style: none;
