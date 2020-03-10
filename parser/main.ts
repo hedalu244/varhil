@@ -449,6 +449,9 @@ function formularize(graph:Graph): Formula{
   function removeDup<T>(array: T[]): T[]{
     return array.filter((x,i)=>i === array.indexOf(x));
   }
+  function removeDup<T>(array: T[]): T[]{
+    return Array.from(new Set(array));
+  }
   return recursion(graph, [...graph.usings]);
 }
 

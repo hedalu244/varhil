@@ -347,7 +347,7 @@ function formularize(graph) {
         return array.filter(x => x === element).length;
     }
     function removeDup(array) {
-        return array.filter((x, i) => i === array.indexOf(x));
+        return Array.from(new Set(array));
     }
     return recursion(graph, [...graph.usings]);
 }
