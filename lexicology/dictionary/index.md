@@ -1,7 +1,8 @@
 ---
 layout: default
-title: Varhil/lexicology/dictionaly
+title: dictionaly
 ---
+Varhil/lexicology/dictionaly
 
 ここでは具体的な語形を書く。
 

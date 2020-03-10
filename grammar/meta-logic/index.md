@@ -1,7 +1,8 @@
 ---
 layout: default
-title: Varhil/grammar/meta-logic
+title: meta-logic
 ---
+Varhil/grammar/meta-logic
 
 ## 従属節
 **従属開始語** `{?` と **従属終止語** `}?` は、連言を間に挟み、ゲーデル数化を表す。これを **従属節** と呼ぶ。

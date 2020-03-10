@@ -1,7 +1,8 @@
 ---
 layout: default
-title: Varhil/lexicology/morphology
+title: morphology
 ---
+Varhil/lexicology/morphology
 
 語彙に要求する形態論を述べる。
 
