@@ -19,8 +19,8 @@ let isOpenNegation;
 let isCloseNegation;
 //トークン単位に分割し、必要な情報を付加する
 function tokenize(input) {
-    let literals = input.split(separatorPattern).filter(x => x !== "");
-    let tokens = literals.map(literal => {
+    const literals = input.split(separatorPattern).filter(x => x !== "");
+    const tokens = literals.map(literal => {
         if (isSingleVariable(literal))
             return { literal, tokenType: "single_variable" };
         if (isNewVariable(literal))
@@ -55,16 +55,16 @@ function tokenize(input) {
 }
 // ポーランド記法を解く
 function parse(tokens) {
-    let token = tokens.shift();
+    const token = tokens.shift();
     if (token === undefined)
         throw new Error("ParseError: Unxpected End of Tokens");
-    let arity = getArity(token);
+    const arity = getArity(token);
     if (arity === ")")
         throw new Error("ParseError: Unxpected Token " + token.literal);
-    let children = [];
+    const children = [];
     if (arity === "(") {
         while (true) {
-            let next = tokens[0];
+            const next = tokens[0];
             if (next === undefined)
                 throw new Error("ParseError: Unxpected End of Tokens");
             if (getArity(next) === ")") {
@@ -102,7 +102,7 @@ function parse(tokens) {
 }
 ;
 function calculate(tree) {
-    let variableTable = {};
+    const variableTable = {};
     let variableCount = 0;
     function issueVariable() { return { name: "" + variableCount++ }; }
     function Predicate(name, args) {
@@ -138,7 +138,7 @@ function calculate(tree) {
         return calcRelative("", a, calcSingleVariable());
     }
     function calcNewVariable(character) {
-        let variable = issueVariable();
+        const variable = issueVariable();
         variableTable[character] = variable;
         return {
             graph: {
@@ -183,7 +183,7 @@ function calculate(tree) {
         };
     }
     function calcSingleVariable() {
-        let variable = issueVariable();
+        const variable = issueVariable();
         return {
             graph: {
                 children: [],
@@ -194,7 +194,7 @@ function calculate(tree) {
         };
     }
     function calcPredicate(name) {
-        let predicate = Predicate(name, []);
+        const predicate = Predicate(name, []);
         return {
             graph: {
                 children: [predicate],
@@ -207,7 +207,7 @@ function calculate(tree) {
     function calcRelative(casus, a, b) {
         if (!isPredicateValue(a))
             throw new Error("CalcError: Unexpected Value");
-        let bb = convertToNoun(b);
+        const bb = convertToNoun(b);
         a.mainPredicate.args.unshift({ casus: casus, variable: bb.mainVariable });
         return {
             graph: merge(a.graph, bb.graph),
@@ -216,7 +216,7 @@ function calculate(tree) {
         };
     }
     function calcPreposition(casus, a, b) {
-        let aa = convertToNoun(a);
+        const aa = convertToNoun(a);
         if (!isPredicateValue(b))
             throw new Error("CalcError: Unexpected Value");
         b.mainPredicate.args.unshift({ casus: casus, variable: aa.mainVariable });
@@ -248,7 +248,7 @@ function calculate(tree) {
         };
     }
     function recursion(tree) {
-        let values = tree.children.map(x => recursion(x));
+        const values = tree.children.map(x => recursion(x));
         switch (tree.token.tokenType) {
             case "new_variable": return calcNewVariable(tree.token.character);
             case "continued_variable": return calcContinuedVariable(tree.token.character);
@@ -265,7 +265,7 @@ function calculate(tree) {
             case "close_sentence": throw 0;
         }
     }
-    let result = recursion(tree);
+    const result = recursion(tree);
     return result.graph;
 }
 function T() {
@@ -324,12 +324,12 @@ function disjunction(formulas) {
 //存在グラフを論理式に変換。主に量化が難点
 function formularize(graph) {
     function recursion(graph, inner) {
-        let core = conjunction(graph.children.map(subgraph => {
+        const core = conjunction(graph.children.map(subgraph => {
             switch (subgraph.subgraphType) {
                 case "cut": {
                     //内部の数が全体の数と一致するもの、一致しないものに分ける
-                    let a = [];
-                    let b = [];
+                    const a = [];
+                    const b = [];
                     inner.forEach(x => (count(x, subgraph.content.usings) === count(x, inner) ? a : b).push(x));
                     //一致しないものはinnerに戻し、一致するものを使って内部で再帰
                     inner = b;
@@ -351,7 +351,7 @@ function formularize(graph) {
 //標準化
 function normalize(formula) {
     if (formula.formulaType === "negation") {
-        let f = normalize(formula.formula);
+        const f = normalize(formula.formula);
         //￢￢φ → φ
         if (f.formulaType === "negation")
             return f.formula;
@@ -375,7 +375,7 @@ function normalize(formula) {
         return all(formula.variable, normalize(formula.formula));
     if (formula.formulaType === "conjunction") {
         let fs = formula.formulas.map(x => normalize(x));
-        let q = [];
+        const q = [];
         //それぞれの項から量化を剥ぐ
         fs = fs.map(x => {
             while (true) {
@@ -392,7 +392,7 @@ function normalize(formula) {
             }
             return x;
         });
-        let formula2 = fs.reduce((acc, cur) => {
+        const formula2 = fs.reduce((acc, cur) => {
             if (cur.formulaType === "conjunction" && acc.formulaType === "conjunction")
                 return conjunction([acc, cur]);
             if (cur.formulaType === "disjunction" && acc.formulaType === "conjunction")
@@ -408,7 +408,7 @@ function normalize(formula) {
     }
     if (formula.formulaType === "disjunction") {
         let fs = formula.formulas.map(x => normalize(x));
-        let q = [];
+        const q = [];
         //それぞれの項から量化を剥ぐ
         fs = fs.map(x => {
             while (true) {
@@ -425,7 +425,7 @@ function normalize(formula) {
             }
             return x;
         });
-        let formula2 = fs.reduce((acc, cur) => {
+        const formula2 = fs.reduce((acc, cur) => {
             return disjunction([acc, cur]);
         }, F());
         //剥いだ量化を被せる
@@ -451,11 +451,11 @@ function stringify(formula) {
         return "￢" + stringify(formula.formula);
     if (formula.formulaType === "predicate")
         return formula.name + "(" + formula.args.map(x => (x.casus + ":" + x.variable.name)).join(", ") + ")";
-    let exhaustion = formula;
+    const exhaustion = formula;
     return "";
 }
 function test() {
-    let inputs = [
+    const inputs = [
         "a",
         "moku",
         "no moku",
@@ -483,37 +483,37 @@ function gebi(id) {
 }
 function updatePattern() {
     separatorPattern = new RegExp(gebi("separator_pattern").value);
-    let singleVariablePattern = new RegExp("^" + gebi("single_variable_pattern").value + "$");
+    const singleVariablePattern = new RegExp("^" + gebi("single_variable_pattern").value + "$");
     isSingleVariable = literal => singleVariablePattern.test(literal);
-    let newVariablePattern = new RegExp("^" + gebi("new_variable_pattern").value + "$");
-    let newVariableReplacer = gebi("new_variable_replacer").value;
+    const newVariablePattern = new RegExp("^" + gebi("new_variable_pattern").value + "$");
+    const newVariableReplacer = gebi("new_variable_replacer").value;
     isNewVariable = literal => newVariablePattern.test(literal);
     newVariableToCharacter = literal => literal.replace(newVariablePattern, newVariableReplacer);
-    let continuedVariablePattern = new RegExp("^" + gebi("continued_variable_pattern").value + "$");
-    let continuedVariableReplacer = gebi("continued_variable_replacer").value;
+    const continuedVariablePattern = new RegExp("^" + gebi("continued_variable_pattern").value + "$");
+    const continuedVariableReplacer = gebi("continued_variable_replacer").value;
     isContinuedVariable = literal => continuedVariablePattern.test(literal);
     continuedVariableToCharacter = literal => literal.replace(continuedVariablePattern, continuedVariableReplacer);
-    let lastVariablePattern = new RegExp("^" + gebi("last_variable_pattern").value + "$");
-    let lastVariableReplacer = gebi("last_variable_replacer").value;
+    const lastVariablePattern = new RegExp("^" + gebi("last_variable_pattern").value + "$");
+    const lastVariableReplacer = gebi("last_variable_replacer").value;
     isLastVariable = literal => lastVariablePattern.test(literal);
     lastVariableToCharacter = literal => literal.replace(lastVariablePattern, lastVariableReplacer);
-    let predicatePattern = new RegExp("^" + gebi("predicate_pattern").value + "$");
-    let predicateReplacer = gebi("predicate_replacer").value;
+    const predicatePattern = new RegExp("^" + gebi("predicate_pattern").value + "$");
+    const predicateReplacer = gebi("predicate_replacer").value;
     isPredicate = literal => predicatePattern.test(literal);
     predicateToName = literal => literal.replace(predicatePattern, predicateReplacer);
-    let relativePattern = new RegExp("^" + gebi("relative_pattern").value + "$");
-    let relativeReplacer = gebi("relative_replacer").value;
+    const relativePattern = new RegExp("^" + gebi("relative_pattern").value + "$");
+    const relativeReplacer = gebi("relative_replacer").value;
     isRelative = literal => relativePattern.test(literal);
     relativeToCasus = literal => literal.replace(relativePattern, relativeReplacer);
-    let prepositionPattern = new RegExp("^" + gebi("preposition_pattern").value + "$");
-    let prepositionReplacer = gebi("preposition_replacer").value;
+    const prepositionPattern = new RegExp("^" + gebi("preposition_pattern").value + "$");
+    const prepositionReplacer = gebi("preposition_replacer").value;
     isPreposition = literal => prepositionPattern.test(literal);
     prepositionToCasus = literal => literal.replace(prepositionPattern, prepositionReplacer);
-    let singleNegationPattern = new RegExp("^" + gebi("single_negation_pattern").value + "$");
+    const singleNegationPattern = new RegExp("^" + gebi("single_negation_pattern").value + "$");
     isSingleNegation = literal => singleNegationPattern.test(literal);
-    let openNegationPattern = new RegExp("^" + gebi("open_negation_pattern").value + "$");
+    const openNegationPattern = new RegExp("^" + gebi("open_negation_pattern").value + "$");
     isOpenNegation = literal => openNegationPattern.test(literal);
-    let closeNegationPattern = new RegExp("^" + gebi("close_negation_pattern").value + "$");
+    const closeNegationPattern = new RegExp("^" + gebi("close_negation_pattern").value + "$");
     isCloseNegation = literal => closeNegationPattern.test(literal);
     update();
 }
@@ -540,7 +540,7 @@ function reset1() {
 function update() {
     gebi("output").innerText = "";
     gebi("error").innerText = "";
-    let input = gebi("input").value;
+    const input = gebi("input").value;
     try {
         gebi("output").innerText = stringify(formularize(calculate(parse(tokenize(input)))));
     }
