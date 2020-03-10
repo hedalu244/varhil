@@ -2,7 +2,6 @@
 layout: default
 title: Parser
 ---
-Varhil/parser
 
 Varhil文法案に従った構文/意味解析器です。JavaScriptで動作しています。
 
