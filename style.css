@@ -71,7 +71,7 @@ code {
   font-family: SFMono-Regular,Consolas,Liberation Mono,Menlo,Courier,monospace;
 }
 
-dl.examples {
+dl.example {
   width: 80%;
   list-style: none;
   padding: 5px;
@@ -79,18 +79,18 @@ dl.examples {
   background-color: rgb(220, 238, 245);
   border-radius: 5px;
 }
-dl.examples > dt {
+dl.example > dt {
   margin: 5px;
   padding: 5px 5px 5px 20px;
   position: relative;
 }
-dl.examples > dd {
+dl.example > dd {
   border-radius: 6px;
   margin: 5px 5px 5px 30px;
   padding: 5px 5px 5px 20px;
   position: relative;
 }
-dl.examples > dd::before {
+dl.example > dd::before {
     content: "\f105";
     font-family: 'Font Awesome 5 Free';
     position: absolute;
