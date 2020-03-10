@@ -441,10 +441,13 @@ function formularize(graph:Graph): Formula{
       }
     }));
     //どこのcutでも数が合わなかった（複数のcutで使われてるか、定名詞が直置きされてる）変数のみ量化
-    return inner.filter((x,i)=>i===inner.indexOf(x)).reduce((a, c)=>exist(c, a), core);
+    return removeDup(inner).reduce((a, c)=>exist(c, a), core);
   }
-  function count<T>(element: T, array:T[]):number{
+  function count<T>(element: T, array: T[]): number{
     return array.filter(x=>x===element).length;
+  }
+  function removeDup<T>(array: T[]): T[]{
+    return array.filter((x,i)=>i === array.indexOf(x));
   }
   return recursion(graph, [...graph.usings]);
 }

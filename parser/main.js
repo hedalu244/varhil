@@ -341,10 +341,13 @@ function formularize(graph) {
             }
         }));
         //どこのcutでも数が合わなかった（複数のcutで使われてるか、定名詞が直置きされてる）変数のみ量化
-        return inner.filter((x, i) => i === inner.indexOf(x)).reduce((a, c) => exist(c, a), core);
+        return removeDup(inner).reduce((a, c) => exist(c, a), core);
     }
     function count(element, array) {
         return array.filter(x => x === element).length;
+    }
+    function removeDup(array) {
+        return array.filter((x, i) => i === array.indexOf(x));
     }
     return recursion(graph, [...graph.usings]);
 }
