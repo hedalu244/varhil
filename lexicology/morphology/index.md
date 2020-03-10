@@ -2,7 +2,6 @@
 layout: default
 title: Morphology
 ---
-Varhil/lexicology/morphology
 
 語彙に要求する形態論を述べる。
 

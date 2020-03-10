@@ -2,7 +2,6 @@
 layout: default
 title: Dictionaly
 ---
-Varhil/lexicology/dictionaly
 
 ここでは具体的な語形を書く。
 

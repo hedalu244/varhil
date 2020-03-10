@@ -2,7 +2,6 @@
 layout: default
 title: Phonology
 ---
-Varhil/lexicology/phonology
 
 ここまでは記号と日本語を併用した記法を使っていたが、より人工言語らしく、発音できるようにしたい。文法を実現するうえでは単語をトークンに復元できれば何でもよいのだが、一応公式の辞書をつけることにする。
 

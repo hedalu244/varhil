@@ -2,7 +2,6 @@
 layout: default
 title: Syntax
 ---
-Varhil/grammar/syntax
 
 語彙の更新に対して文法の記述が影響を受けないように、暫定的な記法を用いて記述し、それを置き換える形で語彙を設定する。
 
