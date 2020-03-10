@@ -1,5 +1,5 @@
 ---
-layout: def<>lt
+layout: default
 title: Varhil/grammar/first-order-logic
 ---
 
