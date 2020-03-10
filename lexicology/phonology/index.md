@@ -1,6 +1,6 @@
 ---
 layout: default
-title: phonology
+title: Phonology
 ---
 Varhil/lexicology/phonology
 

@@ -1,6 +1,6 @@
 ---
 layout: default
-title: morphology
+title: Morphology
 ---
 Varhil/lexicology/morphology
 

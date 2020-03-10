@@ -1,6 +1,6 @@
 ---
 layout: default
-title: syntax
+title: Syntax
 ---
 Varhil/grammar/syntax
 

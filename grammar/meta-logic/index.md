@@ -1,6 +1,6 @@
 ---
 layout: default
-title: meta-logic
+title: Meta-logic
 ---
 Varhil/grammar/meta-logic
 

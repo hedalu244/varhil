@@ -1,6 +1,6 @@
 ---
 layout: default
-title: dictionaly
+title: Dictionaly
 ---
 Varhil/lexicology/dictionaly
 
