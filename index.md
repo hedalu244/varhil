@@ -25,6 +25,8 @@ Varhil(VARiable-HIding Logic)[ˈvɑ˞ .hɪl]は述語論理に基づいた人工
     2. [形態論](lexicology/morphology)
     2. [辞書](lexicology/dictionaly)
 
+3. [パーサ](parser)
+
 <!--
 ##　生成文法
 ```
