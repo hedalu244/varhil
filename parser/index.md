@@ -6,7 +6,7 @@ title: Parser
 Varhil文法案に従った構文/意味解析器です。JavaScriptで動作しています。
 
 <textarea id="input" rows="8" cols="80"></textarea>
-<div id="output"></div>
+<div id="output" class="logic"></div>
 <div id="error"></div>
 
 | separator | <input type="text" id="separator_pattern"> |

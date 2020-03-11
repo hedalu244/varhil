@@ -129,3 +129,13 @@ dl.words > dd {
   margin-left: 140px;
   position: relative;
 }
+
+.varhil {
+  font-family: sans-serif;
+}
+.gloss {
+  font-family: monospace;
+}
+.logic {
+  font-family: monospace;
+}
