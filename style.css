@@ -89,7 +89,7 @@ dl.example {
   list-style: none;
   padding: 5px;
   margin: 10px auto;
-  background-color: rgb(220, 238, 245);
+  background-color: #eee;
   border-radius: 5px;
 }
 dl.example > dt {
@@ -104,12 +104,11 @@ dl.example > dd {
   position: relative;
 }
 dl.example > dd::before {
-    content: "\f105";
-    font-family: 'Font Awesome 5 Free';
-    position: absolute;
-    font-weight: 900;
-    left: 0;
-    color: rgb(48, 124, 171);
+  content: ">";
+  font-family: monospace;
+  position: absolute;
+  left: 0;
+  color: #ccc;
 }
 
 dl.words {
