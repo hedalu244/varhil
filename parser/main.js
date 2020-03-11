@@ -235,14 +235,14 @@ function calculate(tree) {
     }
     function calcNegation(values) {
         return {
-            graph: cut(values.map(x => x.graph).reduce(merge)),
+            graph: cut(calcSentence(values).graph),
             mainPredicate: undefined,
             mainVariable: undefined
         };
     }
     function calcSentence(values) {
         return {
-            graph: values.map(x => x.graph).reduce(merge),
+            graph: values.map(x => x.graph).reduce(merge, { children: [], usings: [] }),
             mainPredicate: undefined,
             mainVariable: undefined
         };
