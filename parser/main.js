@@ -439,9 +439,9 @@ function normalize(formula) {
 //文字列化
 function stringify(formula) {
     if (formula.formulaType === "true")
-        return "T";
+        return "⊤";
     if (formula.formulaType === "false")
-        return "F";
+        return "⊥";
     if (formula.formulaType === "exist")
         return "∃" + formula.variable.name + ";" + stringify(formula.formula);
     if (formula.formulaType === "all")
