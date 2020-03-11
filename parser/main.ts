@@ -221,11 +221,10 @@ function calculate(tree: Tree): Graph {
     };
   }
   function calcContinuedVariable(character: string): NounValue {
-    let variable = variableTable[character];
+    const variable = variableTable[character];
     if (variable === undefined) {
       console.warn();
-      variable = issueVariable();
-      variableTable[character] = variable;
+      return calcNewVariable(character);
     }
     return {
       graph: {
@@ -237,10 +236,10 @@ function calculate(tree: Tree): Graph {
     };
   }
   function calcLastVariable(character: string): NounValue {
-    let variable = variableTable[character];
+    const variable = variableTable[character];
     if (variable === undefined) {
       console.warn();
-      variable = issueVariable();
+      return calcSingleVariable();
     }
     else delete variableTable[character];
     return {

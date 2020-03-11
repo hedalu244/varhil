@@ -150,11 +150,10 @@ function calculate(tree) {
         };
     }
     function calcContinuedVariable(character) {
-        let variable = variableTable[character];
+        const variable = variableTable[character];
         if (variable === undefined) {
             console.warn();
-            variable = issueVariable();
-            variableTable[character] = variable;
+            return calcNewVariable(character);
         }
         return {
             graph: {
@@ -166,10 +165,10 @@ function calculate(tree) {
         };
     }
     function calcLastVariable(character) {
-        let variable = variableTable[character];
+        const variable = variableTable[character];
         if (variable === undefined) {
             console.warn();
-            variable = issueVariable();
+            return calcSingleVariable();
         }
         else
             delete variableTable[character];
