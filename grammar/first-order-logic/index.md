@@ -142,11 +142,11 @@ Varhilにおける述語記号は、アリティの代わりに、格集合と�
 ある変数がその否定部の中でのみ使われている場合（否定部の外にその変数を指す定名詞も、その変数が渡される述語もない場合）、その変数は否定の内部で存在量化される。（￢∃と考えても良いし、∀￢と考えても良い）。
 
 {:.example}
-{:.glossed} <ruby>nou<rt>{NEG</rt></ruby> <ruby>e<rt>//PREは</rt></ruby> <ruby>a<rt>VAR+0</rt></ruby> <ruby>pina<rt>リンゴだ</rt></ruby>, <ruby>e<rt>//PREは</rt></ruby> <ruby>u<rt>VAR-0</rt></ruby> <ruby>jana<rt>人間だ</rt></ruby> <ruby>noi<rt>}NEG</rt></ruby>
+{:.glossed} <ruby>nou<rt>{NEG</rt></ruby> <ruby>e<rt>//PREは</rt></ruby> <ruby>a<rt>VAR+0</rt></ruby> <ruby>pina<rt>リンゴだ</rt></ruby> <ruby>e<rt>//PREは</rt></ruby> <ruby>u<rt>VAR-0</rt></ruby> <ruby>jana<rt>人間だ</rt></ruby> <ruby>noi<rt>}NEG</rt></ruby>
 : {:.logic} ￢ (∃ x リンゴだ(は:x) ∧ 人間だ(は:x))
 ^
 {:.example}
-{:.glossed} <ruby>nou<rt>{NEG</rt></ruby> <ruby>e<rt>//PREは</rt></ruby> <ruby>a<rt>VAR+0</rt></ruby> <ruby>pina<rt>リンゴだ</rt></ruby>, <ruby>e<rt>//PREは</rt></ruby> <ruby>i<rt>VAREL0</rt></ruby> <ruby>jana<rt>人間だ</rt></ruby> <ruby>noi<rt>}NEG</rt></ruby> <ruby>u<rt>VAR-0</rt></ruby>
+{:.glossed} <ruby>nou<rt>{NEG</rt></ruby> <ruby>e<rt>//PREは</rt></ruby> <ruby>a<rt>VAR+0</rt></ruby> <ruby>pina<rt>リンゴだ</rt></ruby> <ruby>e<rt>//PREは</rt></ruby> <ruby>i<rt>VAREL0</rt></ruby> <ruby>jana<rt>人間だ</rt></ruby> <ruby>noi<rt>}NEG</rt></ruby> <ruby>u<rt>VAR-0</rt></ruby>
 : {:.logic} ∃ x ￢ ( リンゴだ(は:x) ∧ 人間だ(は:x))
 
 ### 単独否定
