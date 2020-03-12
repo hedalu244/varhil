@@ -1,6 +1,6 @@
 ---
 layout: default
-title: First-order-formula
+title: First-order-logic
 ---
 
 ## グロスについて

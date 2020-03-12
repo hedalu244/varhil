@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Meta-formula
+title: Meta-logic
 ---
 
 ## 従属節
