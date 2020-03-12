@@ -166,5 +166,5 @@ dl.words > dd {
 	src: url("STIX2Math.otf");
 }
 .formula > span.symbol {
-  font-family: "Math";
+  font-family: "Math" serif;
 }
