@@ -134,9 +134,16 @@ dl.words > dd {
 .varhil {
   font-family: sans-serif;
 }
-.logic {
-  font-family: monospace;
+.formula {
+  font-family: "Times New Roman", "IPA P明朝", "YuMincho", "Yu Mincho", serif;
 }
+.formula > span.variable {
+  font-style: italic;
+}
+.formula > span.symbol {
+
+}
+
 .glossed > ruby {
   display:inline-block;
   position: relative;
