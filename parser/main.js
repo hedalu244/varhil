@@ -1,13 +1,13 @@
 "use strict";
 //字句解析
 let separatorPattern;
-let isSingleVariable;
-let isNewVariable;
-let newVariableToCharacter;
-let isContinuedVariable;
-let continuedVariableToCharacter;
-let isLastVariable;
-let lastVariableToCharacter;
+let isIndefinite;
+let isCreateDefinite;
+let createDefiniteToCharacter;
+let isInheritDefinite;
+let inheritDefiniteToCharacter;
+let isTerminateDefinite;
+let terminateDefiniteToCharacter;
 let isPredicate;
 let predicateToName;
 let isRelative;
@@ -21,14 +21,14 @@ let isCloseNegation;
 function tokenize(input) {
     const literals = input.split(separatorPattern).filter(x => x !== "");
     const tokens = literals.map(literal => {
-        if (isSingleVariable(literal))
-            return { literal, tokenType: "single_variable" };
-        if (isNewVariable(literal))
-            return { literal, tokenType: "new_variable", character: newVariableToCharacter(literal) };
-        if (isContinuedVariable(literal))
-            return { literal, tokenType: "continued_variable", character: continuedVariableToCharacter(literal) };
-        if (isLastVariable(literal))
-            return { literal, tokenType: "last_variable", character: lastVariableToCharacter(literal) };
+        if (isIndefinite(literal))
+            return { literal, tokenType: "indefinite" };
+        if (isCreateDefinite(literal))
+            return { literal, tokenType: "create_definite", character: createDefiniteToCharacter(literal) };
+        if (isInheritDefinite(literal))
+            return { literal, tokenType: "inherit_definite", character: inheritDefiniteToCharacter(literal) };
+        if (isTerminateDefinite(literal))
+            return { literal, tokenType: "terminate_definite", character: terminateDefiniteToCharacter(literal) };
         if (isPredicate(literal))
             return { literal, tokenType: "predicate", name: predicateToName(literal) };
         if (isRelative(literal))
@@ -85,10 +85,10 @@ function parse(tokens) {
     return { token: token, children: children };
     function getArity(token) {
         switch (token.tokenType) {
-            case "new_variable": return 0;
-            case "continued_variable": return 0;
-            case "last_variable": return 0;
-            case "single_variable": return 0;
+            case "create_definite": return 0;
+            case "inherit_definite": return 0;
+            case "terminate_definite": return 0;
+            case "indefinite": return 0;
             case "predicate": return 0;
             case "relative": return 2;
             case "preposition": return 2;
@@ -135,9 +135,9 @@ function calculate(tree) {
             return a;
         if (!isPredicateValue(a))
             throw new Error("CalcError: Unexpected Value");
-        return calcRelative("", a, calcSingleVariable());
+        return calcRelative("", a, calcIndefinite());
     }
-    function calcNewVariable(character) {
+    function calcCreateDefinite(character) {
         const variable = issueVariable();
         variableTable[character] = variable;
         return {
@@ -149,11 +149,11 @@ function calculate(tree) {
             mainVariable: variable
         };
     }
-    function calcContinuedVariable(character) {
+    function calcInheritDefinite(character) {
         const variable = variableTable[character];
         if (variable === undefined) {
             console.warn();
-            return calcNewVariable(character);
+            return calcCreateDefinite(character);
         }
         return {
             graph: {
@@ -164,11 +164,11 @@ function calculate(tree) {
             mainVariable: variable
         };
     }
-    function calcLastVariable(character) {
+    function calcTerminateDefinite(character) {
         const variable = variableTable[character];
         if (variable === undefined) {
             console.warn();
-            return calcSingleVariable();
+            return calcIndefinite();
         }
         else
             delete variableTable[character];
@@ -181,7 +181,7 @@ function calculate(tree) {
             mainVariable: variable
         };
     }
-    function calcSingleVariable() {
+    function calcIndefinite() {
         const variable = issueVariable();
         return {
             graph: {
@@ -249,10 +249,10 @@ function calculate(tree) {
     function recursion(tree) {
         const values = tree.children.map(x => recursion(x));
         switch (tree.token.tokenType) {
-            case "new_variable": return calcNewVariable(tree.token.character);
-            case "continued_variable": return calcContinuedVariable(tree.token.character);
-            case "last_variable": return calcLastVariable(tree.token.character);
-            case "single_variable": return calcSingleVariable();
+            case "create_definite": return calcCreateDefinite(tree.token.character);
+            case "inherit_definite": return calcInheritDefinite(tree.token.character);
+            case "terminate_definite": return calcTerminateDefinite(tree.token.character);
+            case "indefinite": return calcIndefinite();
             case "predicate": return calcPredicate(tree.token.name);
             case "relative": return calcRelative(tree.token.casus, values[0], values[1]);
             case "preposition": return calcPreposition(tree.token.casus, values[0], values[1]);
@@ -485,20 +485,20 @@ function gebi(id) {
 }
 function updatePattern() {
     separatorPattern = new RegExp(gebi("separator_pattern").value);
-    const singleVariablePattern = new RegExp("^" + gebi("single_variable_pattern").value + "$");
-    isSingleVariable = literal => singleVariablePattern.test(literal);
-    const newVariablePattern = new RegExp("^" + gebi("new_variable_pattern").value + "$");
-    const newVariableReplacer = gebi("new_variable_replacer").value;
-    isNewVariable = literal => newVariablePattern.test(literal);
-    newVariableToCharacter = literal => literal.replace(newVariablePattern, newVariableReplacer);
-    const continuedVariablePattern = new RegExp("^" + gebi("continued_variable_pattern").value + "$");
-    const continuedVariableReplacer = gebi("continued_variable_replacer").value;
-    isContinuedVariable = literal => continuedVariablePattern.test(literal);
-    continuedVariableToCharacter = literal => literal.replace(continuedVariablePattern, continuedVariableReplacer);
-    const lastVariablePattern = new RegExp("^" + gebi("last_variable_pattern").value + "$");
-    const lastVariableReplacer = gebi("last_variable_replacer").value;
-    isLastVariable = literal => lastVariablePattern.test(literal);
-    lastVariableToCharacter = literal => literal.replace(lastVariablePattern, lastVariableReplacer);
+    const indefinitePattern = new RegExp("^" + gebi("indefinite_pattern").value + "$");
+    isIndefinite = literal => indefinitePattern.test(literal);
+    const createDefinitePattern = new RegExp("^" + gebi("create_definite_pattern").value + "$");
+    const createDefiniteReplacer = gebi("create_definite_replacer").value;
+    isCreateDefinite = literal => createDefinitePattern.test(literal);
+    createDefiniteToCharacter = literal => literal.replace(createDefinitePattern, createDefiniteReplacer);
+    const inheritDefinitePattern = new RegExp("^" + gebi("inherit_definite_pattern").value + "$");
+    const inheritDefiniteReplacer = gebi("inherit_definite_replacer").value;
+    isInheritDefinite = literal => inheritDefinitePattern.test(literal);
+    inheritDefiniteToCharacter = literal => literal.replace(inheritDefinitePattern, inheritDefiniteReplacer);
+    const terminateDefinitePattern = new RegExp("^" + gebi("terminate_definite_pattern").value + "$");
+    const terminateDefiniteReplacer = gebi("terminate_definite_replacer").value;
+    isTerminateDefinite = literal => terminateDefinitePattern.test(literal);
+    terminateDefiniteToCharacter = literal => literal.replace(terminateDefinitePattern, terminateDefiniteReplacer);
     const predicatePattern = new RegExp("^" + gebi("predicate_pattern").value + "$");
     const predicateReplacer = gebi("predicate_replacer").value;
     isPredicate = literal => predicatePattern.test(literal);
@@ -521,13 +521,13 @@ function updatePattern() {
 }
 function reset1() {
     gebi("separator_pattern").value = "[,.\\s]";
-    gebi("single_variable_pattern").value = "au";
-    gebi("new_variable_pattern").value = "a('[aeiou])*";
-    gebi("new_variable_replacer").value = "$1";
-    gebi("continued_variable_pattern").value = "i('[aeiou])*";
-    gebi("continued_variable_replacer").value = "$1";
-    gebi("last_variable_pattern").value = "u('[aeiou])*";
-    gebi("last_variable_replacer").value = "$1";
+    gebi("indefinite_pattern").value = "au";
+    gebi("create_definite_pattern").value = "a('[aeiou])*";
+    gebi("create_definite_replacer").value = "$1";
+    gebi("inherit_definite_pattern").value = "i('[aeiou])*";
+    gebi("inherit_definite_replacer").value = "$1";
+    gebi("terminate_definite_pattern").value = "u('[aeiou])*";
+    gebi("terminate_definite_replacer").value = "$1";
     gebi("predicate_pattern").value = "(([^aeiou'][aeiou]){2,})";
     gebi("predicate_replacer").value = "$1";
     gebi("relative_pattern").value = "([^aeiou]?)ei";
@@ -553,13 +553,13 @@ function update() {
 window.onload = () => {
     gebi("input").oninput = update;
     gebi("separator_pattern").oninput = updatePattern;
-    gebi("single_variable_pattern").oninput = updatePattern;
-    gebi("new_variable_pattern").oninput = updatePattern;
-    gebi("new_variable_replacer").oninput = updatePattern;
-    gebi("continued_variable_pattern").oninput = updatePattern;
-    gebi("continued_variable_replacer").oninput = updatePattern;
-    gebi("last_variable_pattern").oninput = updatePattern;
-    gebi("last_variable_replacer").oninput = updatePattern;
+    gebi("indefinite_pattern").oninput = updatePattern;
+    gebi("create_definite_pattern").oninput = updatePattern;
+    gebi("create_definite_replacer").oninput = updatePattern;
+    gebi("inherit_definite_pattern").oninput = updatePattern;
+    gebi("inherit_definite_replacer").oninput = updatePattern;
+    gebi("terminate_definite_pattern").oninput = updatePattern;
+    gebi("terminate_definite_replacer").oninput = updatePattern;
     gebi("predicate_pattern").oninput = updatePattern;
     gebi("predicate_replacer").oninput = updatePattern;
     gebi("relative_pattern").oninput = updatePattern;

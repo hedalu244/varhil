@@ -10,10 +10,10 @@ Varhil文法案に従った構文/意味解析器です。JavaScriptで動作し
 <div id="error"></div>
 
 | separator | <input type="text" id="separator_pattern"> |
-| single_variable | <input type="text" id="single_variable_pattern"> |
-| new_variable | <input type="text" id="new_variable_pattern"> | character | <input type="text" id="new_variable_replacer"> |
-| continued_variable | <input type="text" id="continued_variable_pattern"> | character | <input type="text" id="continued_variable_replacer"> |
-| last_variable | <input type="text" id="last_variable_pattern"> | character | <input type="text" id="last_variable_replacer"> |
+| indefinite | <input type="text" id="indefinite_pattern"> |
+| create_definite | <input type="text" id="create_definite_pattern"> | character | <input type="text" id="create_definite_replacer"> |
+| inherit_definite | <input type="text" id="inherit_definite_pattern"> | character | <input type="text" id="inherit_definite_replacer"> |
+| terminate_definite | <input type="text" id="terminate_definite_pattern"> | character | <input type="text" id="terminate_definite_replacer"> |
 | predicate | <input type="text" id="predicate_pattern"> | name | <input type="text" id="predicate_replacer"> |
 | preposition | <input type="text" id="preposition_pattern"> | casus | <input type="text" id="preposition_replacer"> |
 | relative | <input type="text" id="relative_pattern"> | casus | <input type="text" id="relative_replacer"> |
