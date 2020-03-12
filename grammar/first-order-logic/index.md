@@ -63,11 +63,11 @@ Varhilにおける述語記号は、アリティの代わりに、格集合と�
 述語句は単独で単文になり、構成された論理式を表す。
 
 {:.example}
-{:.glossed} <ruby>e<rt>//PREは</rt></ruby> <ruby>au<rt>VAR</rt></ruby> <ruby>pina<rt>リンゴだ</rt></ruby>
+{:.glossed} e://PREは au:VAR pina:リンゴだ
 : {:.formula} リンゴだ(は:x)
 ^
 {:.example}
-{:.glossed} <ruby>fe<rt>//PREが</rt></ruby> <ruby>a<rt>VAR+0</rt></ruby> <ruby>be<rt>//PREを</rt></ruby> <ruby>a'a<rt>VAR+1</rt></ruby> <ruby>moku<rt>食べる</rt></ruby>
+{:.glossed} fe://PREが a:VAR+0 be://PREを a'a:VAR+1 moku:食べる
 : {:.formula} 食べる(が:x, を:y)
 
 ## 関係詞と名詞句
@@ -83,25 +83,25 @@ Varhilにおける述語記号は、アリティの代わりに、格集合と�
 例えば、 名詞句`//RELは リンゴだ VAR` は論理式 `リンゴだ(は:x)`を表しつつ、その変数xを指す定名詞の代わりとして、前置詞の第一引数や、関係詞の第二引数として使うことができる。
 
 {:.example}
-{:.glossed} <ruby>e<rt>//PREは</rt></ruby> <ruby>ei<rt>//RELは</rt></ruby> <ruby>pina<rt>リンゴだ</rt></ruby> <ruby>au<rt>VAR</rt></ruby> <ruby>loja<rt>赤い</rt></ruby>
+{:.glossed} e://PREは ei://RELは pina:リンゴだ au:VAR loja:赤い
 : {:.formula}  リンゴだ(は:x) ∧ 赤い(は:x)
 ^
 {:.example}
-{:.glossed} <ruby>fe<rt>//PREが</rt></ruby> <ruby>ei<rt>//RELは</rt></ruby> <ruby>jana<rt>人間だ</rt></ruby> <ruby>au<rt>VAR</rt></ruby> <ruby>be<rt>//PREを</rt></ruby> <ruby>ei<rt>//RELは</rt></ruby> <ruby>loja<rt>赤い</rt></ruby> <ruby>ei<rt>//RELは</rt></ruby> <ruby>pina<rt>リンゴだ</rt></ruby> <ruby>au<rt>VAR</rt></ruby> <ruby>moku<rt>食べる</rt></ruby>
+{:.glossed} fe://PREが ei://RELは jana:人間だ au:VAR be://PREを ei://RELは loja:赤い ei://RELは pina:リンゴだ au:VAR moku:食べる
 : {:.formula} 人間だ(は:x) ∧ リンゴだ(は:y) ∧ 赤い(は:y) ∧ 食べる(が:x, を:y)
 
 また名詞句は単独で単文になることもでき、構成された論理式を表す。
 
 {:.example}
-{:.glossed} <ruby>ei<rt>//RELは</rt></ruby> <ruby>pina<rt>リンゴだ</rt></ruby> <ruby>au<rt>VAR</rt></ruby>
+{:.glossed} ei://RELは pina:リンゴだ au:VAR
 : {:.formula} リンゴだ(は:x)
 ^
 {:.example}
-{:.glossed} <ruby>ei<rt>//RELは</rt></ruby> <ruby>loja<rt>赤い</rt></ruby> <ruby>ei<rt>//RELは</rt></ruby> <ruby>pina<rt>リンゴだ</rt></ruby> <ruby>au<rt>VAR</rt></ruby>
+{:.glossed} ei://RELは loja:赤い ei://RELは pina:リンゴだ au:VAR
 : {:.formula} リンゴだ(は:x) ∧ 赤い(は:x)
 ^
 {:.example}
-{:.glossed} <ruby>au<rt>VAR</rt></ruby>
+{:.glossed} au:VAR
 : {:.formula} ⊤
 
 ### 一般名詞
@@ -113,11 +113,11 @@ Varhilにおける述語記号は、アリティの代わりに、格集合と�
 これを読むときは、名詞句であるべきところ（前置詞の第一引数や関係詞の第二引数）に述語句が置かれていたとき（またその時に限って）、無標格と不定名詞（つまりその場限りの変数）を補えばよい。
 
 {:.example}
-{:.glossed} <ruby>e<rt>//PREは</rt></ruby> <ruby>pina<rt>リンゴだ</rt></ruby> <ruby>loja<rt>赤い</rt></ruby>
+{:.glossed} e://PREは pina:リンゴだ loja:赤い
 : {:.formula} リンゴだ(は:x) ∧ 赤い(は:x)
 ^
 {:.example}
-{:.glossed} <ruby>be<rt>//PREを</rt></ruby> <ruby>ei<rt>//RELは</rt></ruby> <ruby>loja<rt>赤い</rt></ruby> <ruby>pina<rt>リンゴだ</rt></ruby> <ruby>moku<rt>食べる</rt></ruby>
+{:.glossed} be://PREを ei://RELは loja:赤い pina:リンゴだ moku:食べる
 : {:.formula} リンゴだ(は:x) ∧ 赤い(は:x) ∧ 食べる(を:x)
 
 ## 文
@@ -127,11 +127,11 @@ Varhilにおける述語記号は、アリティの代わりに、格集合と�
 文は、各単文が表す論理式の論理積の、すべての変数を存在量化した論理式を表す。但し、否定を含む場合はその限りではない（後述）。
 
 {:.example}
-{:.glossed} <ruby>e<rt>//PREは</rt></ruby> <ruby>a<rt>VAR+0</rt></ruby> <ruby>pina<rt>リンゴだ</rt></ruby> <ruby>e<rt>//PREは</rt></ruby> <ruby>u<rt>VAR-0</rt></ruby> <ruby>loja<rt>赤い</rt></ruby>
+{:.glossed} e://PREは a:VAR+0 pina:リンゴだ e://PREは u:VAR-0 loja:赤い
 : {:.formula} ∃x リンゴだ(は:x) ∧ 赤い(は:x)
 ^
 {:.example}
-{:.glossed} <ruby>fe<rt>//PREが</rt></ruby> <ruby>ei<rt>//RELは</rt></ruby> <ruby>jana<rt>人間だ</rt></ruby> <ruby>au<rt>VAR</rt></ruby> <ruby>be<rt>//PREを</rt></ruby> <ruby>ei<rt>//RELは</rt></ruby> <ruby>pina<rt>リンゴだ</rt></ruby> <ruby>au<rt>VAR</rt></ruby> <ruby>moku<rt>食べる</rt></ruby>
+{:.glossed} fe://PREが ei://RELは jana:人間だ au:VAR be://PREを ei://RELは pina:リンゴだ au:VAR moku:食べる
 : {:.formula} ∃x∃y 人間だ(は:x) ∧ リンゴだ(は:y) ∧ 食べる(が:x, を:y)
 
 ## 否定と量化
@@ -142,11 +142,11 @@ Varhilにおける述語記号は、アリティの代わりに、格集合と�
 ある変数がその否定部の中でのみ使われている場合（否定部の外にその変数を指す定名詞も、その変数が渡される述語もない場合）、その変数は否定の内部で存在量化される。（￢∃と考えても良いし、∀￢と考えても良い）。
 
 {:.example}
-{:.glossed} <ruby>nou<rt>{NEG</rt></ruby> <ruby>e<rt>//PREは</rt></ruby> <ruby>a<rt>VAR+0</rt></ruby> <ruby>pina<rt>リンゴだ</rt></ruby> <ruby>e<rt>//PREは</rt></ruby> <ruby>u<rt>VAR-0</rt></ruby> <ruby>jana<rt>人間だ</rt></ruby> <ruby>noi<rt>}NEG</rt></ruby>
+{:.glossed} nou:{NEG e://PREは a:VAR+0 pina:リンゴだ e://PREは u:VAR-0 jana:人間だ noi:}NEG
 : {:.formula} ￢ (∃ x リンゴだ(は:x) ∧ 人間だ(は:x))
 ^
 {:.example}
-{:.glossed} <ruby>nou<rt>{NEG</rt></ruby> <ruby>e<rt>//PREは</rt></ruby> <ruby>a<rt>VAR+0</rt></ruby> <ruby>pina<rt>リンゴだ</rt></ruby> <ruby>e<rt>//PREは</rt></ruby> <ruby>i<rt>VAREL0</rt></ruby> <ruby>jana<rt>人間だ</rt></ruby> <ruby>noi<rt>}NEG</rt></ruby> <ruby>u<rt>VAR-0</rt></ruby>
+{:.glossed} nou:{NEG e://PREは a:VAR+0 pina:リンゴだ e://PREは i:VAREL0 jana:人間だ noi:}NEG u:VAR-0
 : {:.formula} ∃ x ￢ ( リンゴだ(は:x) ∧ 人間だ(は:x))
 
 ### 単独否定
@@ -156,19 +156,19 @@ Varhilにおける述語記号は、アリティの代わりに、格集合と�
 また、`{NEG` ～ `}NEG` 同様、否定される範囲でのみ使用される変数は否定の中で存在量化され、外側でも使用される変数は否定の外で量化される。
 
 {:.example}
-{:.glossed} <ruby>no<rt>/NEG</rt></ruby> <ruby>fe<rt>//PREが</rt></ruby> <ruby>au<rt>VAR</rt></ruby> <ruby>be<rt>//PREを</rt></ruby> <ruby>pina<rt>リンゴだ</rt></ruby> <ruby>moku<rt>食べる</rt></ruby>
+{:.glossed} no:/NEG fe://PREが au:VAR be://PREを pina:リンゴだ moku:食べる
 : {:.formula} ￢ ∃x ∃y (リンゴだ(は:y) ∧ 食べる(x, y))
 ^
 {:.example}
-{:.glossed} <ruby>fe<rt>//PREが</rt></ruby> <ruby>au<rt>VAR</rt></ruby>　<ruby>no<rt>/NEG</rt></ruby> <ruby>be<rt>//PREを</rt></ruby> <ruby>pina<rt>リンゴだ</rt></ruby> <ruby>moku<rt>食べる</rt></ruby>
+{:.glossed} fe://PREが au:VAR　no:/NEG be://PREを pina:リンゴだ moku:食べる
 : {:.formula} ∃x ￢ ∃y (リンゴだ(は:y) ∧ 食べる(x, y))
 ^
 {:.example}
-{:.glossed} <ruby>fe<rt>//PREが</rt></ruby> <ruby>au<rt>VAR</rt></ruby> <ruby>be<rt>//PREを</rt></ruby> <ruby>pina<rt>リンゴだ</rt></ruby> <ruby>no<rt>/NEG</rt></ruby> <ruby>moku<rt>食べる</rt></ruby>
+{:.glossed} fe://PREが au:VAR be://PREを pina:リンゴだ no:/NEG moku:食べる
 : {:.formula} ∃x ∃y (リンゴだ(は:y) ∧ ￢食べる(x, y))
 ^
 {:.example}
-{:.glossed} <ruby>fe<rt>//PREが</rt></ruby> <ruby>au<rt>VAR</rt></ruby> <ruby>be<rt>//PREを</rt></ruby> <ruby>no<rt>/NEG</rt></ruby> <ruby>pina<rt>リンゴだ</rt></ruby> <ruby>moku<rt>食べる</rt></ruby>
+{:.glossed} fe://PREが au:VAR be://PREを no:/NEG pina:リンゴだ moku:食べる
 : {:.formula} ∃x ∃y (￢リンゴだ(は:y) ∧ 食べる(x, y))
 
 
@@ -181,25 +181,25 @@ Varhilにおける述語記号は、アリティの代わりに、格集合と�
 論理和 `P∨Q` は古典論理上で `￢(￢P∧￢Q)` と等価であるので、Varhilではこの組み合わせで表現する。
 
 {:.example}
-{:.glossed} <ruby>nou<rt>{NEG</rt></ruby> <ruby>nou<rt>{NEG</rt></ruby> ～ <ruby>noi<rt>}NEG</rt></ruby> <ruby>nou<rt>{NEG</rt></ruby> … <ruby>noi<rt>}NEG</rt></ruby> <ruby>noi<rt>}NEG</rt></ruby>
+{:.glossed} nou:{NEG nou:{NEG ～ noi:}NEG nou:{NEG … noi:}NEG noi:}NEG
 : {:.formula} ～ ∨ …
 
 含意 `P⇒Q` は古典論理上で`￢(P∧￢Q)` と等価であるので、Varhilではこの組み合わせで表現する。
 
 {:.example}
-{:.glossed} <ruby>nou<rt>{NEG</rt></ruby> ～ <ruby>nou<rt>{NEG</rt></ruby> … <ruby>noi<rt>}NEG</rt></ruby> <ruby>noi<rt>}NEG</rt></ruby>
+{:.glossed} nou:{NEG ～ nou:{NEG … noi:}NEG noi:}NEG
 : {:.formula} ～ ⇒ …
 
 同値 `P⇔Q` は `(P⇒Q)∧(Q⇒P)` の糖衣構文であり、古典論理上で `￢(P∧￢Q)∧￢(￢P∧Q)` と等価であるので、Varhilではこの組み合わせで表現する。
 
 {:.example}
-{:.glossed} <ruby>nou<rt>{NEG</rt></ruby> ～ <ruby>nou<rt>{NEG</rt></ruby> … <ruby>noi<rt>}NEG</rt></ruby> <ruby>noi<rt>}NEG</rt></ruby> <ruby>nou<rt>{NEG</rt></ruby> <ruby>nou<rt>{NEG</rt></ruby> ～ <ruby>noi<rt>}NEG</rt></ruby> … <ruby>noi<rt>}NEG</rt></ruby>
+{:.glossed} nou:{NEG ～ nou:{NEG … noi:}NEG noi:}NEG nou:{NEG nou:{NEG ～ noi:}NEG … noi:}NEG
 : {:.formula} ～ ⇔ …
 
 全称量化は `∀x; P` は古典論理上で  `￢∃x￢P`と等価であるので、Varhilではこの組み合わせで表現する。（定名詞も名詞句であるから単文になれるので、二重の否定の間に定名詞を置けばよい）
 
 {:.example}
-{:.glossed} <ruby>nou<rt>{NEG</rt></ruby> <ruby>a<rt>VAR+0</rt></ruby> <ruby>nou<rt>{NEG</rt></ruby> ～ <ruby>noi<rt>}NEG</rt></ruby> <ruby>noi<rt>}NEG</rt></ruby>
+{:.glossed} nou:{NEG a:VAR+0 nou:{NEG ～ noi:}NEG noi:}NEG
 : {:.formula} ∀x ～
 
 従って、以上のような古典論理に従った同一視を行えば、開論理式を除く一階述語論理のすべての論理式と等価な表現をVarhilでも表現できるといえる。
@@ -207,17 +207,20 @@ Varhilにおける述語記号は、アリティの代わりに、格集合と�
 なお、これらは任意のVarhil文同士の結合ができることを示しているのみで、条件が整えば（単独否定を使える場合などは）より短い形で書くことができる。
 
 {:.example}
-{:.glossed} <ruby>no<rt>/NEG</rt></ruby> <ruby>e<rt>//PREは</rt></ruby> <ruby>au<rt>VAR</rt></ruby> <ruby>no<rt>/NEG</rt></ruby> <ruby>pina<rt>リンゴだ</rt></ruby>
+{:.glossed} no:/NEG e://PREは au:VAR no:/NEG pina:リンゴだ
 : {:.formula} ∀x リンゴだ(は:x)
 ^
 {:.example}
-{:.glossed} <ruby>no<rt>/NEG</rt></ruby> <ruby>e<rt>//PREは</rt></ruby> <ruby>pina<rt>リンゴだ</rt></ruby> <ruby>no<rt>/NEG</rt></ruby> <ruby>loja<rt>赤い</rt></ruby>
+{:.glossed} no:/NEG e://PREは pina:リンゴだ no:/NEG loja:赤い
 : {:.formula} ∀x リンゴだ(は:x)⇒赤い(は:x)
 ^
 {:.example}
-{:.glossed} <ruby>no<rt>/NEG</rt></ruby> <ruby>e<rt>//PREは</rt></ruby> <ruby>no<rt>/NEG</rt></ruby> <ruby>pina<rt>リンゴだ</rt></ruby> <ruby>no<rt>/NEG</rt></ruby> <ruby>jana<rt>人間だ</rt></ruby>
+{:.glossed} no:/NEG e://PREは no:/NEG pina:リンゴだ no:/NEG jana:人間だ
 : {:.formula} ∀x リンゴだ(は:x)∨人間だ(は:x)
 
 また、述語論理には述語記号の他に定数記号や関数記号が存在するが、定数記号は、ある一つの値に対して真となる1変数述語記号として、アリティnの関数記号は、ある引数が一つの値に対してのみ真となるアリティn+1の述語記号として、表現できる。
 
-<script>markupAllFormulas()</script>
+<script>
+  markupAllFormulas();
+  markupAllGlosses();
+</script>

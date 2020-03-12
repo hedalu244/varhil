@@ -9,3 +9,11 @@ function markupFormula(formulaText) {
 function markupAllFormulas() {
   Array.from(document.getElementsByClassName("formula")).forEach(x=>x.innerHTML=markupFormula(x.innerText));
 }
+
+function markupGloss(text) {
+  return text.replace(/(\S+):(\S+)/g, "<ruby>$1<rt>$2</rt></ruby>");
+}
+
+function markupAllGlosses() {
+  Array.from(document.getElementsByClassName("glossed")).forEach(x=>x.innerHTML=markupGloss(x.innerText));
+}
