@@ -16,15 +16,14 @@ Varhil(VARiable-HIding Logic)[ˈvɑ˞ .hɪl]は述語論理に基づいた人工
 
 ## 目次
 
-1. 文法
-    2. [一階階述語論理](grammar/first-order-logic)
-    3. [メタ論理](grammar/meta-logic)（暫定）
-2. 語形（暫定）
+1. 語形（暫定）
     1. [音韻論](lexicology/phonology)
     2. [形態論](lexicology/morphology)
-    2. [辞書](lexicology/dictionaly)
-
-3. [パーサ](parser)
+2. 文法
+    2. [一階階述語論理](grammar/first-order-logic)
+    3. [メタ論理](grammar/meta-logic)（暫定）
+3. [辞書](dictionaly)
+4. [パーサ](parser)
 
 <!--
 ##　生成文法
