@@ -11,14 +11,14 @@ Varhil文法案に従った構文/意味解析器です。JavaScriptで動作し
 
 | separator | <input type="text" id="separator_pattern"> |
 | indefinite | <input type="text" id="indefinite_pattern"> |
-| create_definite | <input type="text" id="create_definite_pattern"> | character | <input type="text" id="create_definite_replacer"> |
-| inherit_definite | <input type="text" id="inherit_definite_pattern"> | character | <input type="text" id="inherit_definite_replacer"> |
-| terminate_definite | <input type="text" id="terminate_definite_pattern"> | character | <input type="text" id="terminate_definite_replacer"> |
+| create definite | <input type="text" id="create_definite_pattern"> | character | <input type="text" id="create_definite_replacer"> |
+| inherit definite | <input type="text" id="inherit_definite_pattern"> | character | <input type="text" id="inherit_definite_replacer"> |
+| terminate definite | <input type="text" id="terminate_definite_pattern"> | character | <input type="text" id="terminate_definite_replacer"> |
 | predicate | <input type="text" id="predicate_pattern"> | name | <input type="text" id="predicate_replacer"> |
 | preposition | <input type="text" id="preposition_pattern"> | casus | <input type="text" id="preposition_replacer"> |
 | relative | <input type="text" id="relative_pattern"> | casus | <input type="text" id="relative_replacer"> |
-| single_negation | <input type="text" id="single_negation_pattern"> |
-| open_negation | <input type="text" id="open_negation_pattern"> |
-| close_negation | <input type="text" id="close_negation_pattern"> |
+| single negation | <input type="text" id="single_negation_pattern"> |
+| open negation | <input type="text" id="open_negation_pattern"> |
+| close negation | <input type="text" id="close_negation_pattern"> |
 
 <script type="text/javascript" src="main.js"></script>
