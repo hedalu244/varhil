@@ -544,7 +544,7 @@ function update() {
     gebi("error").innerText = "";
     const input = gebi("input").value;
     try {
-        gebi("output").innerText = stringify(formularize(calculate(parse(tokenize(input)))));
+        gebi("output").innerHTML = markupFormula(stringify(formularize(calculate(parse(tokenize(input))))));
     }
     catch (e) {
         gebi("error").innerText = e.message;
