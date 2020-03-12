@@ -134,19 +134,6 @@ dl.words > dd {
 .varhil {
   font-family: sans-serif;
 }
-.formula {
-  font-family: "Times New Roman", "IPA P明朝", "YuMincho", "Yu Mincho", serif;
-}
-.formula > span.variable {
-  font-style: italic;
-}
-@font-face {
-	font-family: "Math";
-	src: url("STIX2Math.otf");
-}
-.formula > span.symbol {
-  font-family: "Math";
-}
 
 .glossed > ruby {
   display:inline-block;
@@ -164,4 +151,19 @@ dl.words > dd {
   line-height: 2em;
   font-size: 80%;
   font-family: monospace;
+}
+
+
+.formula {
+  font-family: "Times New Roman", "IPA P明朝", "YuMincho", "Yu Mincho", serif;
+}
+.formula > span.variable {
+  font-style: italic;
+}
+@font-face {
+	font-family: "Math";
+	src: url("STIX2Math.otf");
+}
+.formula > span.symbol {
+  font-family: "Math";
 }
