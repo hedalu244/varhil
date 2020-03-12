@@ -122,14 +122,12 @@ dl.words {
   border-radius: 5px;
 }
 dl.words > dt {
-  float: left;
   padding: 5px;
   font-weight: bold;
 }
 dl.words > dd {
   padding: 5px;
   margin-left: 140px;
-  position: relative;
 }
 
 .varhil {
