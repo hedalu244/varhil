@@ -157,19 +157,19 @@ Varhilにおける述語記号は、アリティの代わりに、格集合と�
 
 {:.example}
 {:.glossed} no:/NEG fe://PREが au:VAR be://PREを pina:リンゴだ moku:食べる
-: {:.formula} ￢ ∃x ∃y (リンゴだ(は:y) ∧ 食べる(x, y))
+: {:.formula} ￢ ∃x ∃y (リンゴだ(は:y) ∧ 食べる(が:x, をy))
 ^
 {:.example}
 {:.glossed} fe://PREが au:VAR　no:/NEG be://PREを pina:リンゴだ moku:食べる
-: {:.formula} ∃x ￢ ∃y (リンゴだ(は:y) ∧ 食べる(x, y))
+: {:.formula} ∃x ￢ ∃y (リンゴだ(は:y) ∧ 食べる(が:x, を:y))
 ^
 {:.example}
 {:.glossed} fe://PREが au:VAR be://PREを pina:リンゴだ no:/NEG moku:食べる
-: {:.formula} ∃x ∃y (リンゴだ(は:y) ∧ ￢食べる(x, y))
+: {:.formula} ∃x ∃y (リンゴだ(は:y) ∧ ￢食べる(が:x, を:y))
 ^
 {:.example}
 {:.glossed} fe://PREが au:VAR be://PREを no:/NEG pina:リンゴだ moku:食べる
-: {:.formula} ∃x ∃y (￢リンゴだ(は:y) ∧ 食べる(x, y))
+: {:.formula} ∃x ∃y (￢リンゴだ(は:y) ∧ 食べる(が:x, を:y))
 
 
 ## 論理表現
