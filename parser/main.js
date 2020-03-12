@@ -102,7 +102,7 @@ function parse(tokens) {
 }
 ;
 function calculate(tree) {
-    const variableTable = {};
+    const variableMap = new Map();
     let variableCount = 0;
     function issueVariable() { return { name: "" + variableCount++ }; }
     function Predicate(name, args) {
@@ -139,7 +139,7 @@ function calculate(tree) {
     }
     function calcCreateDeterminer(character) {
         const variable = issueVariable();
-        variableTable[character] = variable;
+        variableMap.set(character, variable);
         return {
             graph: {
                 children: [],
@@ -150,7 +150,7 @@ function calculate(tree) {
         };
     }
     function calcInheritDeterminer(character) {
-        const variable = variableTable[character];
+        const variable = variableMap.get(character);
         if (variable === undefined) {
             console.warn();
             return calcCreateDeterminer(character);
@@ -165,13 +165,13 @@ function calculate(tree) {
         };
     }
     function calcTerminateDeterminer(character) {
-        const variable = variableTable[character];
+        const variable = variableMap.get(character);
         if (variable === undefined) {
             console.warn();
             return calcIsolatedDeterminer();
         }
         else
-            delete variableTable[character];
+            variableMap.delete(character);
         return {
             graph: {
                 children: [],

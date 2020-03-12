@@ -169,7 +169,7 @@ interface PredicateValue extends Value {
 }
 
 function calculate(tree: Tree): Graph {
-  const variableTable: { [key: string]: Variable } = {};
+  const variableMap = new Map<string, Variable>();
   let variableCount: number = 0;
 
   function issueVariable(): Variable { return {name: "" + variableCount++ }; }
@@ -210,7 +210,7 @@ function calculate(tree: Tree): Graph {
 
   function calcCreateDeterminer(character: string): NounValue {
     const variable = issueVariable();
-    variableTable[character] = variable;
+    variableMap.set(character, variable);
     return {
       graph: {
         children: [],
@@ -221,7 +221,7 @@ function calculate(tree: Tree): Graph {
     };
   }
   function calcInheritDeterminer(character: string): NounValue {
-    const variable = variableTable[character];
+    const variable = variableMap.get(character);
     if (variable === undefined) {
       console.warn();
       return calcCreateDeterminer(character);
@@ -236,12 +236,12 @@ function calculate(tree: Tree): Graph {
     };
   }
   function calcTerminateDeterminer(character: string): NounValue {
-    const variable = variableTable[character];
+    const variable = variableMap.get(character);
     if (variable === undefined) {
       console.warn();
       return calcIsolatedDeterminer();
     }
-    else delete variableTable[character];
+    else variableMap.delete(character);
     return {
       graph: {
         children: [],
