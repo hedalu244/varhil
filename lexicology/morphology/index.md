@@ -49,8 +49,8 @@ title: Morphology
 ## 機能語の分類一覧
   + 格
     + 前置詞 /{子音}a('[aeiou])\*$/
-    + 冠詞 /{子音}ua('[aeiou])\*$/  
-  + 変項語
+    + 関係詞 /{子音}ua('[aeiou])\*$/  
+  + 限定詞
     + 初期化 /^ai('[aeiou])\*$/
     + 継続 /^ei('[aeiou])\*$/
     + 削除 /^oi('[aeiou])\*$/
@@ -59,7 +59,7 @@ title: Morphology
     + 否定開始 `nau`
     + 否定終止 `nou`
     + 単独否定 `nu`
-  + 統合語 `i`
+  <!--
   + 従属
     + 従属開始 `lau`
     + 従属終止 `lou`
@@ -72,3 +72,4 @@ title: Morphology
     + 継続 /[^aeiou']ei('[aeiou])\*$/
     + 削除 /[^aeiou']oi('[aeiou])\*$/
     + 孤立 [^aeiou']i$/
+  -->
