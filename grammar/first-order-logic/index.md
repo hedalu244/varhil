@@ -67,7 +67,7 @@ Varhilにおける述語記号は、アリティの代わりに、格集合と�
 : {:.logic} リンゴだ(は:x)
 ^
 {:.example}
-{:.glossed} <ruby>fe<rt>//PREが</rt></ruby> <ruby>a<rt>VAR+.0</rt></ruby> <ruby>be<rt>//PREを</rt></ruby> <ruby>a'a<rt>VAR+.1</rt></ruby> <ruby>moku<rt>食べる</rt></ruby>
+{:.glossed} <ruby>fe<rt>//PREが</rt></ruby> <ruby>a<rt>VAR+0</rt></ruby> <ruby>be<rt>//PREを</rt></ruby> <ruby>a'a<rt>VAR+1</rt></ruby> <ruby>moku<rt>食べる</rt></ruby>
 : {:.logic} 食べる(が:x, を:y)
 
 ## 関係詞と名詞句
@@ -127,7 +127,7 @@ Varhilにおける述語記号は、アリティの代わりに、格集合と�
 文は、各単文が表す論理式の論理積の、すべての変数を存在量化した論理式を表す。但し、否定を含む場合はその限りではない（後述）。
 
 {:.example}
-{:.glossed} <ruby>e<rt>//PREは</rt></ruby> <ruby>a<rt>VAR+.0</rt></ruby> <ruby>pina<rt>リンゴだ</rt></ruby> <ruby>e<rt>//PREは</rt></ruby> <ruby>u<rt>VAR-.0</rt></ruby> <ruby>loja<rt>赤い</rt></ruby>
+{:.glossed} <ruby>e<rt>//PREは</rt></ruby> <ruby>a<rt>VAR+0</rt></ruby> <ruby>pina<rt>リンゴだ</rt></ruby> <ruby>e<rt>//PREは</rt></ruby> <ruby>u<rt>VAR-0</rt></ruby> <ruby>loja<rt>赤い</rt></ruby>
 : {:.logic} ∃x リンゴだ(は:x) ∧ 赤い(は:x)
 ^
 {:.example}
@@ -142,11 +142,11 @@ Varhilにおける述語記号は、アリティの代わりに、格集合と�
 ある変数がその否定部の中でのみ使われている場合（否定部の外にその変数を指す定名詞も、その変数が渡される述語もない場合）、その変数は否定の内部で存在量化される。（￢∃と考えても良いし、∀￢と考えても良い）。
 
 {:.example}
-{:.glossed} <ruby>nou<rt>{NEG</rt></ruby> <ruby>e<rt>//PREは</rt></ruby> <ruby>a<rt>VAR+.0</rt></ruby> <ruby>pina<rt>リンゴだ</rt></ruby>, <ruby>e<rt>//PREは</rt></ruby> <ruby>u<rt>VAR-.0</rt></ruby> <ruby>jana<rt>人間だ</rt></ruby> <ruby>noi<rt>}NEG</rt></ruby>
+{:.glossed} <ruby>nou<rt>{NEG</rt></ruby> <ruby>e<rt>//PREは</rt></ruby> <ruby>a<rt>VAR+0</rt></ruby> <ruby>pina<rt>リンゴだ</rt></ruby>, <ruby>e<rt>//PREは</rt></ruby> <ruby>u<rt>VAR-0</rt></ruby> <ruby>jana<rt>人間だ</rt></ruby> <ruby>noi<rt>}NEG</rt></ruby>
 : {:.logic} ￢ (∃ x リンゴだ(は:x) ∧ 人間だ(は:x))
 ^
 {:.example}
-{:.glossed} <ruby>nou<rt>{NEG</rt></ruby> <ruby>e<rt>//PREは</rt></ruby> <ruby>a<rt>VAR+.0</rt></ruby> <ruby>pina<rt>リンゴだ</rt></ruby>, <ruby>e<rt>//PREは</rt></ruby> <ruby>i<rt>VAREL0</rt></ruby> <ruby>jana<rt>人間だ</rt></ruby> <ruby>noi<rt>}NEG</rt></ruby> <ruby>u<rt>VAR-.0</rt></ruby>
+{:.glossed} <ruby>nou<rt>{NEG</rt></ruby> <ruby>e<rt>//PREは</rt></ruby> <ruby>a<rt>VAR+0</rt></ruby> <ruby>pina<rt>リンゴだ</rt></ruby>, <ruby>e<rt>//PREは</rt></ruby> <ruby>i<rt>VAREL0</rt></ruby> <ruby>jana<rt>人間だ</rt></ruby> <ruby>noi<rt>}NEG</rt></ruby> <ruby>u<rt>VAR-0</rt></ruby>
 : {:.logic} ∃ x ￢ ( リンゴだ(は:x) ∧ 人間だ(は:x))
 
 ### 単独否定
@@ -199,7 +199,7 @@ Varhilにおける述語記号は、アリティの代わりに、格集合と�
 全称量化は `∀x; P` は古典論理上で  `￢∃x￢P`と等価であるので、Varhilではこの組み合わせで表現する。（定名詞も名詞句であるから単文になれるので、二重の否定の間に定名詞を置けばよい）
 
 {:.example}
-{:.glossed} <ruby>nou<rt>{NEG</rt></ruby> <ruby>a<rt>VAR+.0</rt></ruby> <ruby>nou<rt>{NEG</rt></ruby> ～ <ruby>noi<rt>}NEG</rt></ruby> <ruby>noi<rt>}NEG</rt></ruby>
+{:.glossed} <ruby>nou<rt>{NEG</rt></ruby> <ruby>a<rt>VAR+0</rt></ruby> <ruby>nou<rt>{NEG</rt></ruby> ～ <ruby>noi<rt>}NEG</rt></ruby> <ruby>noi<rt>}NEG</rt></ruby>
 : {:.logic} ∀x ～
 
 従って、以上のような古典論理に従った同一視を行えば、開論理式を除く一階述語論理のすべての論理式と等価な表現をVarhilでも表現できるといえる。
