@@ -168,7 +168,7 @@ Varhilにおける述語記号は、アリティの代わりに、格集合と�
 : {:.logic} ∃x ∃y (リンゴだ(は:y) ∧ ￢食べる(x, y))
 ^
 {:.example}
-{:.glossed} <ruby>no<rt>/NEG</rt></ruby> <ruby>fe<rt>//PREが</rt></ruby> <ruby>au<rt>VAR</rt></ruby> <ruby>be<rt>//PREを</rt></ruby> ￢ <ruby>pina<rt>リンゴだ</rt></ruby> <ruby>moku<rt>食べる</rt></ruby>
+{:.glossed} <ruby>fe<rt>//PREが</rt></ruby> <ruby>au<rt>VAR</rt></ruby> <ruby>be<rt>//PREを</rt></ruby> <ruby>no<rt>/NEG</rt></ruby> <ruby>pina<rt>リンゴだ</rt></ruby> <ruby>moku<rt>食べる</rt></ruby>
 : {:.logic} ∃x ∃y (￢リンゴだ(は:y) ∧ 食べる(x, y))
 
 
