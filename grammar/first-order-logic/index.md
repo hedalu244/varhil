@@ -160,7 +160,7 @@ Varhilにおける述語記号は、アリティの代わりに、格集合と�
 : {:.formula} ￢ ∃x ∃y (リンゴだ(は:y) ∧ 食べる(が:x, をy))
 ^
 {:.example}
-{:.glossed} fe://PREが au:VAR　no:/NEG be://PREを pina:リンゴだ moku:食べる
+{:.glossed} fe://PREが au:VAR no:/NEG be://PREを pina:リンゴだ moku:食べる
 : {:.formula} ∃x ￢ ∃y (リンゴだ(は:y) ∧ 食べる(が:x, を:y))
 ^
 {:.example}
