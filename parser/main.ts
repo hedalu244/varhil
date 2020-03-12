@@ -208,6 +208,17 @@ function calculate(tree: Tree): Graph {
     return calcRelative("", a, calcIsolatedDeterminer());
   }
 
+  function calcIsolatedDeterminer(): NounValue {
+    const variable = issueVariable();
+    return {
+      graph: {
+        children: [],
+        usings: [variable]
+      },
+      mainPredicate: undefined,
+      mainVariable: variable
+    };
+  }
   function calcCreateDeterminer(character: string): NounValue {
     const variable = issueVariable();
     variableMap.set(character, variable);
@@ -242,17 +253,6 @@ function calculate(tree: Tree): Graph {
       return calcIsolatedDeterminer();
     }
     else variableMap.delete(character);
-    return {
-      graph: {
-        children: [],
-        usings: [variable]
-      },
-      mainPredicate: undefined,
-      mainVariable: variable
-    };
-  }
-  function calcIsolatedDeterminer(): NounValue {
-    const variable = issueVariable();
     return {
       graph: {
         children: [],

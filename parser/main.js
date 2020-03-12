@@ -137,6 +137,17 @@ function calculate(tree) {
             throw new Error("CalcError: Unexpected Value");
         return calcRelative("", a, calcIsolatedDeterminer());
     }
+    function calcIsolatedDeterminer() {
+        const variable = issueVariable();
+        return {
+            graph: {
+                children: [],
+                usings: [variable]
+            },
+            mainPredicate: undefined,
+            mainVariable: variable
+        };
+    }
     function calcCreateDeterminer(character) {
         const variable = issueVariable();
         variableMap.set(character, variable);
@@ -172,17 +183,6 @@ function calculate(tree) {
         }
         else
             variableMap.delete(character);
-        return {
-            graph: {
-                children: [],
-                usings: [variable]
-            },
-            mainPredicate: undefined,
-            mainVariable: variable
-        };
-    }
-    function calcIsolatedDeterminer() {
-        const variable = issueVariable();
         return {
             graph: {
                 children: [],
