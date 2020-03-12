@@ -153,6 +153,7 @@ dl.words > dd {
   position: relative;
   height: 4em;
   line-height: 2em;
+  margin: 0 0.5em;
 }
 .glossed > ruby > rt {
   display:block;
