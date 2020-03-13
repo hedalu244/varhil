@@ -2,7 +2,7 @@ body {
   color: #444;
   font-size: 16px;
   font-family: sans-serif;
-  background-color: #f0f0f0;
+  background-color: #eee;
   margin: 0px;
   padding: 0px;
   line-height: 2em;
@@ -14,7 +14,7 @@ a {
   border-bottom: 1px dashed #444;
 }
 a:hover{ color: #999; }
-a:active{ color:#faa700; }
+a:active{ color:#999; }
 
 p{margin:1em 0;}
 
@@ -56,8 +56,6 @@ li {line-height: 2em; }
 em {
   font-size:1em;
   font-style: italic;
-  padding: 0 0.4em;
-  background: linear-gradient(to bottom, rgba(255, 153, 142, 0) 40%, rgba(255, 153, 142, 0.5) 40%)
 }
 strong {
   font-size:1em;
