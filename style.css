@@ -62,8 +62,6 @@ em {
 strong {
   font-size:1em;
   font-weight: bold;
-  padding: 0 0.4em;
-  background: linear-gradient(to bottom, rgba(255, 224, 116, 0) 40%, rgba(255, 224, 116, 0.5) 40%);
 }
 
 code {
