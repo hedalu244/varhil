@@ -41,7 +41,7 @@ li p:last-child { margin:0 }
 img { border: 0; -ms-interpolation-mode: bicubic; vertical-align: middle; }
 
 .content {
-  width: 60%;
+  max-width: 800px;
   margin:auto;
   padding: 50px;
   background-color: white;
