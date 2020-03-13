@@ -11,9 +11,9 @@ Varhil文法案に従った構文/意味解析器です。JavaScriptで動作し
 
 | separator | <input type="text" id="separator_pattern"> |
 | isolated determiner | <input type="text" id="isolated_determiner_pattern"> |
-| create determiner | <input type="text" id="create_determiner_pattern"> | character | <input type="text" id="create_determiner_replacer"> |
-| inherit determiner | <input type="text" id="inherit_determiner_pattern"> | character | <input type="text" id="inherit_determiner_replacer"> |
-| terminate determiner | <input type="text" id="terminate_determiner_pattern"> | character | <input type="text" id="terminate_determiner_replacer"> |
+| create determiner | <input type="text" id="create_determiner_pattern"> | label | <input type="text" id="create_determiner_replacer"> |
+| inherit determiner | <input type="text" id="inherit_determiner_pattern"> | label | <input type="text" id="inherit_determiner_replacer"> |
+| terminate determiner | <input type="text" id="terminate_determiner_pattern"> | label | <input type="text" id="terminate_determiner_replacer"> |
 | predicate | <input type="text" id="predicate_pattern"> | name | <input type="text" id="predicate_replacer"> |
 | preposition | <input type="text" id="preposition_pattern"> | casus | <input type="text" id="preposition_replacer"> |
 | relative | <input type="text" id="relative_pattern"> | casus | <input type="text" id="relative_replacer"> |

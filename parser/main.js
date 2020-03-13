@@ -3,11 +3,11 @@
 let separatorPattern;
 let isIsolatedDeterminer;
 let isCreateDeterminer;
-let createDeterminerToCharacter;
+let createDeterminerToLabel;
 let isInheritDeterminer;
-let inheritDeterminerToCharacter;
+let inheritDeterminerToLabel;
 let isTerminateDeterminer;
-let terminateDeterminerToCharacter;
+let terminateDeterminerToLabel;
 let isPredicate;
 let predicateToName;
 let isRelative;
@@ -24,11 +24,11 @@ function tokenize(input) {
         if (isIsolatedDeterminer(literal))
             return { literal, tokenType: "isolatedDeterminer" };
         if (isCreateDeterminer(literal))
-            return { literal, tokenType: "create_determiner", character: createDeterminerToCharacter(literal) };
+            return { literal, tokenType: "create_determiner", label: createDeterminerToLabel(literal) };
         if (isInheritDeterminer(literal))
-            return { literal, tokenType: "inherit_determiner", character: inheritDeterminerToCharacter(literal) };
+            return { literal, tokenType: "inherit_determiner", label: inheritDeterminerToLabel(literal) };
         if (isTerminateDeterminer(literal))
-            return { literal, tokenType: "terminate_determiner", character: terminateDeterminerToCharacter(literal) };
+            return { literal, tokenType: "terminate_determiner", label: terminateDeterminerToLabel(literal) };
         if (isPredicate(literal))
             return { literal, tokenType: "predicate", name: predicateToName(literal) };
         if (isRelative(literal))
@@ -148,9 +148,9 @@ function calculate(tree) {
             mainVariable: variable
         };
     }
-    function calcCreateDeterminer(character) {
+    function calcCreateDeterminer(label) {
         const variable = issueVariable();
-        variableMap.set(character, variable);
+        variableMap.set(label, variable);
         return {
             graph: {
                 children: [],
@@ -160,11 +160,11 @@ function calculate(tree) {
             mainVariable: variable
         };
     }
-    function calcInheritDeterminer(character) {
-        const variable = variableMap.get(character);
+    function calcInheritDeterminer(label) {
+        const variable = variableMap.get(label);
         if (variable === undefined) {
             console.warn();
-            return calcCreateDeterminer(character);
+            return calcCreateDeterminer(label);
         }
         return {
             graph: {
@@ -175,14 +175,14 @@ function calculate(tree) {
             mainVariable: variable
         };
     }
-    function calcTerminateDeterminer(character) {
-        const variable = variableMap.get(character);
+    function calcTerminateDeterminer(label) {
+        const variable = variableMap.get(label);
         if (variable === undefined) {
             console.warn();
             return calcIsolatedDeterminer();
         }
         else
-            variableMap.delete(character);
+            variableMap.delete(label);
         return {
             graph: {
                 children: [],
@@ -249,9 +249,9 @@ function calculate(tree) {
     function recursion(tree) {
         const values = tree.children.map(x => recursion(x));
         switch (tree.token.tokenType) {
-            case "create_determiner": return calcCreateDeterminer(tree.token.character);
-            case "inherit_determiner": return calcInheritDeterminer(tree.token.character);
-            case "terminate_determiner": return calcTerminateDeterminer(tree.token.character);
+            case "create_determiner": return calcCreateDeterminer(tree.token.label);
+            case "inherit_determiner": return calcInheritDeterminer(tree.token.label);
+            case "terminate_determiner": return calcTerminateDeterminer(tree.token.label);
             case "isolatedDeterminer": return calcIsolatedDeterminer();
             case "predicate": return calcPredicate(tree.token.name);
             case "relative": return calcRelative(tree.token.casus, values[0], values[1]);
@@ -490,15 +490,15 @@ function updatePattern() {
     const createDeterminerPattern = new RegExp("^" + gebi("create_determiner_pattern").value + "$");
     const createDeterminerReplacer = gebi("create_determiner_replacer").value;
     isCreateDeterminer = literal => createDeterminerPattern.test(literal);
-    createDeterminerToCharacter = literal => literal.replace(createDeterminerPattern, createDeterminerReplacer);
+    createDeterminerToLabel = literal => literal.replace(createDeterminerPattern, createDeterminerReplacer);
     const inheritDeterminerPattern = new RegExp("^" + gebi("inherit_determiner_pattern").value + "$");
     const inheritDeterminerReplacer = gebi("inherit_determiner_replacer").value;
     isInheritDeterminer = literal => inheritDeterminerPattern.test(literal);
-    inheritDeterminerToCharacter = literal => literal.replace(inheritDeterminerPattern, inheritDeterminerReplacer);
+    inheritDeterminerToLabel = literal => literal.replace(inheritDeterminerPattern, inheritDeterminerReplacer);
     const terminateDeterminerPattern = new RegExp("^" + gebi("terminate_determiner_pattern").value + "$");
     const terminateDeterminerReplacer = gebi("terminate_determiner_replacer").value;
     isTerminateDeterminer = literal => terminateDeterminerPattern.test(literal);
-    terminateDeterminerToCharacter = literal => literal.replace(terminateDeterminerPattern, terminateDeterminerReplacer);
+    terminateDeterminerToLabel = literal => literal.replace(terminateDeterminerPattern, terminateDeterminerReplacer);
     const predicatePattern = new RegExp("^" + gebi("predicate_pattern").value + "$");
     const predicateReplacer = gebi("predicate_replacer").value;
     isPredicate = literal => predicatePattern.test(literal);
