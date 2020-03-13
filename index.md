@@ -1,6 +1,5 @@
 ---
 layout: home
-title: Varhil
 ---
 
 Varhil(VARiable-HIding Logic)[ˈvɑ˞ .hɪl]は述語論理に基づいた人工言語です。
