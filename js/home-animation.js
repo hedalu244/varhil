@@ -7,8 +7,8 @@ document.addEventListener("DOMContentLoaded", function() {
   }
   //サイト外から来たとき
   else {
-    forbid_scroll();
     scrollTo(0, 0);
+    forbid_scroll();
     $("#key-visual").css("margin-top", (window.innerHeight - $("#key-visual").outerHeight()) / 2 + "px");
     $("#draw-svg").css("opacity", 1)
 
