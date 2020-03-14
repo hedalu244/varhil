@@ -7,11 +7,28 @@
 <link rel="stylesheet" href="{{ site.baseurl }}/style.css">
 <link rel="icon" href="{{ site.baseurl }}/image/favicon.svg" type="image/svg+xml">
 <link rel="icon alternate" href="{{ site.baseurl }}/image/favicon.png" type="image/png">
-<script src="{{ site.baseurl }}/script/automarkup.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script src="{{ site.baseurl }}/script/jquery.drawsvg.min.js"></script>
 </head>
 <body>
 <div class="content">
-<img src="image/key-visual.svg" style="width:100%">
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="420" id="key-visual">
+  <g fill="none" stroke="#000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M100 142.5 a30 30 0 0 1 30 30 30 30 0 0 1 -30 30 30 30 0 0 1 -30 -30 30 30 0 0 1 30 -30 z"/>
+    <path d="M221.5 144 h57 v57 H221.5 z"/>
+    <path d="M355 172.5 c7.5 -7.5 7.5 -7.5 15 0 s7.5 7.5 15 0 7.5 -7.5 15 0 7.5 7.5 15 0 7.5 -7.5 15 0 7.5 7.5 15 0"/>
+    <path d="M512.5 172.5 L550 135l37.5 37.5 L550 210 z"/>
+    <path d="M655 172.5 c7.5 -7.5 7.5 -7.5 15 0 s7.5 7.5 15 0 7.5 -7.5 15 0 7.5 7.5 15 0 7.5 -7.5 15 0 7.5 7.5 15 0"/>
+    <path d="M100 135 c0 -15 0 -15 15 -37.5 l15 -22.5 15 -22.5 c7.5 -11.25 15 -22.5 30 -22.5 H310 c15 0 22.5 11.25 30 22.5 7.5 11.25 15 22.5 30 22.5"/>
+    <path d="M250 135 c0 -15 0 -15 15 -37.5 7.5 -11.25 15 -22.5 30 -22.5 h210 c15 0 22.5 11.25 30 22.5 l15 22.5"/>
+    <path d="M250 210 c0 15 0 15 15 37.5 7.5 11.25 15 22.5 30 22.5 h45 c15 0 22.5 -11.25 30 -22.5 l15 -22.5 15 -22.5"/>
+    <path d="M100 210 c0 15 0 15 15 37.5 l15 22.5 15 22.5 c7.5 11.25 15 22.5 30 22.5 H610 c15 0 22.5 -11.25 30 -22.5 l15 -22.5 15 -22.5 15 -22.5 15 -22.5"/>
+    <path d="M265 315 c -15 0 -22.5 11.25 -30 22.5 -7.5 11.25 -15 22.5 -30 22.5 H100"/>
+  </g>
+</svg>
+<script>
+var svg = $('#key-visual').drawsvg().drawsvg('animate');
+</script>
 <h1><img src="image/logo01.svg" alt="Varhil, a simple logical language" style="width:100%"></h1>
 {{ content }}
 </div>
