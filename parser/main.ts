@@ -156,15 +156,15 @@ interface Graph {
   usings: Variable[];
 }
 
-interface Phrase {
+interface Value {
   graph: Graph,
   mainVariable: Variable | undefined,
   mainPredicate: Predicate | undefined
 };
-interface NounPhrase extends Phrase {
+interface NounValue extends Value {
   mainVariable: Variable
 }
-interface PredicatePhrase extends Phrase {
+interface PredicateValue extends Value {
   mainPredicate: Predicate
 }
 
@@ -198,17 +198,17 @@ function calculate(tree: Tree): Graph {
     }
   }
 
-  function isNounPhrase(phrase : Phrase): phrase is NounPhrase { return phrase.mainVariable !== undefined; }
-  function isPredicatePhrase(phrase : Phrase): phrase is PredicatePhrase {return phrase.mainPredicate !== undefined; }
+  function isNounValue(value : Value): value is NounValue { return value.mainVariable !== undefined; }
+  function isPredicateValue(value : Value): value is PredicateValue {return value.mainPredicate !== undefined; }
 
-  function convertToNoun(a: Phrase): NounPhrase {
-    if (isNounPhrase(a)) return a;
-    if (!isPredicatePhrase(a)) throw new Error("CalcError: Unexpected Phrase");
+  function convertToNoun(a: Value): NounValue {
+    if (isNounValue(a)) return a;
+    if (!isPredicateValue(a)) throw new Error("CalcError: Unexpected Value");
 
     return calcRelative("", a, calcIsolatedDeterminer());
   }
 
-  function calcIsolatedDeterminer(): NounPhrase {
+  function calcIsolatedDeterminer(): NounValue {
     const variable = issueVariable();
     return {
       graph: {
@@ -219,7 +219,7 @@ function calculate(tree: Tree): Graph {
       mainVariable: variable
     };
   }
-  function calcCreateDeterminer(label: string): NounPhrase {
+  function calcCreateDeterminer(label: string): NounValue {
     const variable = issueVariable();
     variableMap.set(label, variable);
     return {
@@ -231,7 +231,7 @@ function calculate(tree: Tree): Graph {
       mainVariable: variable
     };
   }
-  function calcInheritDeterminer(label: string): NounPhrase {
+  function calcInheritDeterminer(label: string): NounValue {
     const variable = variableMap.get(label);
     if (variable === undefined) {
       console.warn();
@@ -246,7 +246,7 @@ function calculate(tree: Tree): Graph {
       mainVariable: variable
     };
   }
-  function calcTerminateDeterminer(label: string): NounPhrase {
+  function calcTerminateDeterminer(label: string): NounValue {
     const variable = variableMap.get(label);
     if (variable === undefined) {
       console.warn();
@@ -262,7 +262,7 @@ function calculate(tree: Tree): Graph {
       mainVariable: variable
     };
   }
-  function calcPredicate(name: string): PredicatePhrase {
+  function calcPredicate(name: string): PredicateValue {
     const predicate = Predicate(name, []);
     return {
       graph: {
@@ -273,9 +273,9 @@ function calculate(tree: Tree): Graph {
       mainVariable: undefined
     };
   }
-  function calcRelative(casus: string, a: Phrase, b: Phrase): NounPhrase {
-    if (!isPredicatePhrase(a)) throw new Error("CalcError: Unexpected Phrase");
-    const bb: NounPhrase = convertToNoun(b);
+  function calcRelative(casus: string, a: Value, b: Value): NounValue {
+    if (!isPredicateValue(a)) throw new Error("CalcError: Unexpected Value");
+    const bb: NounValue = convertToNoun(b);
     a.mainPredicate.args.unshift({casus: casus, variable: bb.mainVariable});
 
     return {
@@ -284,9 +284,9 @@ function calculate(tree: Tree): Graph {
       mainVariable: bb.mainVariable
     };
   }
-  function calcPreposition(casus: string, a: Phrase, b: Phrase): PredicatePhrase {
-    const aa: NounPhrase = convertToNoun(a);
-    if (!isPredicatePhrase(b)) throw new Error("CalcError: Unexpected Phrase");
+  function calcPreposition(casus: string, a: Value, b: Value): PredicateValue {
+    const aa: NounValue = convertToNoun(a);
+    if (!isPredicateValue(b)) throw new Error("CalcError: Unexpected Value");
     b.mainPredicate.args.unshift({casus: casus, variable: aa.mainVariable});
 
     return {
@@ -295,41 +295,41 @@ function calculate(tree: Tree): Graph {
       mainVariable: undefined
     };
   }
-  function calcSingleNegation(phrase: Phrase): Phrase {
+  function calcSingleNegation(value: Value): Value {
     return {
-      graph: cut(phrase.graph),
-      mainPredicate: phrase.mainPredicate,
-      mainVariable: phrase.mainVariable
+      graph: cut(value.graph),
+      mainPredicate: value.mainPredicate,
+      mainVariable: value.mainVariable
     };
   }
-  function calcNegation (phrases: Phrase[]): Phrase {
+  function calcNegation (values: Value[]): Value {
     return {
-      graph: cut(calcSentence(phrases).graph),
+      graph: cut(calcSentence(values).graph),
       mainPredicate: undefined,
       mainVariable: undefined
     };
   }
-  function calcSentence(phrases: Phrase[]): Phrase {
+  function calcSentence(values: Value[]): Value {
     return {
-      graph: phrases.map(x=>x.graph).reduce(merge, {children:[], usings:[]}),
+      graph: values.map(x=>x.graph).reduce(merge, {children:[], usings:[]}),
       mainPredicate: undefined,
       mainVariable: undefined
     };
   }
 
-  function recursion(tree: Tree): Phrase {
-    const phrases: Phrase[] = tree.children.map(x => recursion(x));
+  function recursion(tree: Tree): Value {
+    const values: Value[] = tree.children.map(x => recursion(x));
     switch(tree.token.tokenType){
       case "create_determiner": return calcCreateDeterminer(tree.token.label);
       case "inherit_determiner": return calcInheritDeterminer(tree.token.label);
       case "terminate_determiner": return calcTerminateDeterminer(tree.token.label);
       case "isolatedDeterminer": return calcIsolatedDeterminer();
       case "predicate": return calcPredicate(tree.token.name);
-      case "relative": return calcRelative(tree.token.casus, phrases[0], phrases[1]);
-      case "preposition": return calcPreposition(tree.token.casus, phrases[0], phrases[1]);
-      case "single_negation": return calcSingleNegation(phrases[0]);
-      case "open_negation": return calcNegation(phrases);
-      case "open_sentence": return calcSentence(phrases);
+      case "relative": return calcRelative(tree.token.casus, values[0], values[1]);
+      case "preposition": return calcPreposition(tree.token.casus, values[0], values[1]);
+      case "single_negation": return calcSingleNegation(values[0]);
+      case "open_negation": return calcNegation(values);
+      case "open_sentence": return calcSentence(values);
       // parseでふくめてないので来ないはず
       case "close_negation":
       case "close_sentence": throw 0;
@@ -594,79 +594,79 @@ function gebi(id :string) {
 }
 
 function updatePattern() {
-  separatorPattern = new RegExp(gebi("separator_pattern").phrase);
+  separatorPattern = new RegExp(gebi("separator_pattern").value);
 
-  const isolatedDeterminerPattern = new RegExp("^" + gebi("isolated_determiner_pattern").phrase + "$");
+  const isolatedDeterminerPattern = new RegExp("^" + gebi("isolated_determiner_pattern").value + "$");
   isIsolatedDeterminer = literal => isolatedDeterminerPattern.test(literal);
 
-  const createDeterminerPattern = new RegExp("^" + gebi("create_determiner_pattern").phrase + "$");
-  const createDeterminerReplacer = gebi("create_determiner_replacer").phrase;
+  const createDeterminerPattern = new RegExp("^" + gebi("create_determiner_pattern").value + "$");
+  const createDeterminerReplacer = gebi("create_determiner_replacer").value;
   isCreateDeterminer = literal => createDeterminerPattern.test(literal);
   createDeterminerToLabel = literal => literal.replace(createDeterminerPattern, createDeterminerReplacer);
 
-  const inheritDeterminerPattern = new RegExp("^" + gebi("inherit_determiner_pattern").phrase + "$");
-  const inheritDeterminerReplacer = gebi("inherit_determiner_replacer").phrase;
+  const inheritDeterminerPattern = new RegExp("^" + gebi("inherit_determiner_pattern").value + "$");
+  const inheritDeterminerReplacer = gebi("inherit_determiner_replacer").value;
   isInheritDeterminer = literal => inheritDeterminerPattern.test(literal);
   inheritDeterminerToLabel = literal => literal.replace(inheritDeterminerPattern, inheritDeterminerReplacer);
 
-  const terminateDeterminerPattern = new RegExp("^" + gebi("terminate_determiner_pattern").phrase + "$");
-  const terminateDeterminerReplacer = gebi("terminate_determiner_replacer").phrase;
+  const terminateDeterminerPattern = new RegExp("^" + gebi("terminate_determiner_pattern").value + "$");
+  const terminateDeterminerReplacer = gebi("terminate_determiner_replacer").value;
   isTerminateDeterminer = literal => terminateDeterminerPattern.test(literal);
   terminateDeterminerToLabel = literal => literal.replace(terminateDeterminerPattern, terminateDeterminerReplacer);
 
-  const predicatePattern = new RegExp("^" + gebi("predicate_pattern").phrase + "$");
-  const predicateReplacer = gebi("predicate_replacer").phrase;
+  const predicatePattern = new RegExp("^" + gebi("predicate_pattern").value + "$");
+  const predicateReplacer = gebi("predicate_replacer").value;
   isPredicate = literal => predicatePattern.test(literal);
   predicateToName = literal => literal.replace(predicatePattern, predicateReplacer);
 
-  const relativePattern = new RegExp("^" + gebi("relative_pattern").phrase + "$");
-  const relativeReplacer = gebi("relative_replacer").phrase;
+  const relativePattern = new RegExp("^" + gebi("relative_pattern").value + "$");
+  const relativeReplacer = gebi("relative_replacer").value;
   isRelative = literal => relativePattern.test(literal);
   relativeToCasus = literal => literal.replace(relativePattern, relativeReplacer);
 
-  const prepositionPattern = new RegExp("^" + gebi("preposition_pattern").phrase + "$");
-  const prepositionReplacer = gebi("preposition_replacer").phrase;
+  const prepositionPattern = new RegExp("^" + gebi("preposition_pattern").value + "$");
+  const prepositionReplacer = gebi("preposition_replacer").value;
   isPreposition = literal => prepositionPattern.test(literal);
   prepositionToCasus = literal => literal.replace(prepositionPattern, prepositionReplacer);
 
-  const singleNegationPattern = new RegExp("^" + gebi("single_negation_pattern").phrase + "$");
+  const singleNegationPattern = new RegExp("^" + gebi("single_negation_pattern").value + "$");
   isSingleNegation = literal => singleNegationPattern.test(literal);
 
-  const openNegationPattern = new RegExp("^" + gebi("open_negation_pattern").phrase + "$");
+  const openNegationPattern = new RegExp("^" + gebi("open_negation_pattern").value + "$");
   isOpenNegation = literal => openNegationPattern.test(literal);
 
-  const closeNegationPattern = new RegExp("^" + gebi("close_negation_pattern").phrase + "$");
+  const closeNegationPattern = new RegExp("^" + gebi("close_negation_pattern").value + "$");
   isCloseNegation = literal => closeNegationPattern.test(literal);
 
   update();
 }
 
 function reset1(): void {
-  gebi("separator_pattern").phrase = "[,.\\s]";
+  gebi("separator_pattern").value = "[,.\\s]";
 
-  gebi("isolated_determiner_pattern").phrase = "au";
+  gebi("isolated_determiner_pattern").value = "au";
 
-  gebi("create_determiner_pattern").phrase = "a('[aeiou])*";
-  gebi("create_determiner_replacer").phrase = "$1";
+  gebi("create_determiner_pattern").value = "a('[aeiou])*";
+  gebi("create_determiner_replacer").value = "$1";
 
-  gebi("inherit_determiner_pattern").phrase = "i('[aeiou])*";
-  gebi("inherit_determiner_replacer").phrase = "$1";
+  gebi("inherit_determiner_pattern").value = "i('[aeiou])*";
+  gebi("inherit_determiner_replacer").value = "$1";
 
-  gebi("terminate_determiner_pattern").phrase = "u('[aeiou])*";
-  gebi("terminate_determiner_replacer").phrase = "$1";
+  gebi("terminate_determiner_pattern").value = "u('[aeiou])*";
+  gebi("terminate_determiner_replacer").value = "$1";
 
-  gebi("predicate_pattern").phrase = "(([^aeiou'][aeiou]){2,})";
-  gebi("predicate_replacer").phrase = "$1";
+  gebi("predicate_pattern").value = "(([^aeiou'][aeiou]){2,})";
+  gebi("predicate_replacer").value = "$1";
 
-  gebi("relative_pattern").phrase = "([^aeiou]?)ei";
-  gebi("relative_replacer").phrase = "$1";
+  gebi("relative_pattern").value = "([^aeiou]?)ei";
+  gebi("relative_replacer").value = "$1";
 
-  gebi("preposition_pattern").phrase = "([^aeiou]?)e";
-  gebi("preposition_replacer").phrase = "$1";
+  gebi("preposition_pattern").value = "([^aeiou]?)e";
+  gebi("preposition_replacer").value = "$1";
 
-  gebi("single_negation_pattern").phrase = "no";
-  gebi("open_negation_pattern").phrase = "nou";
-  gebi("close_negation_pattern").phrase = "noi";
+  gebi("single_negation_pattern").value = "no";
+  gebi("open_negation_pattern").value = "nou";
+  gebi("close_negation_pattern").value = "noi";
 
   updatePattern();
 }
@@ -674,7 +674,7 @@ function reset1(): void {
 function update(): void {
   gebi("output").innerText = "";
   gebi("error").innerText = "";
-  const input = gebi("input").phrase;
+  const input = gebi("input").value;
   try {
     gebi("output").innerHTML = markupFormula(stringify(formularize(calculate(parse(tokenize(input))))));
   } catch(e) {
