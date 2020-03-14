@@ -1,6 +1,6 @@
 ---
 layout: default
-title: First-order-logic
+title: First order logic
 ---
 
 ## グロスについて

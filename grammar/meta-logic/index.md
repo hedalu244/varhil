@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Meta-logic
+title: Meta logic
 ---
 
 ## 従属節
