@@ -1,12 +1,15 @@
 document.addEventListener("DOMContentLoaded", function() {
-  $('#draw-svg').drawsvg().drawsvg('animate');
-  setTimeout(()=>$('#logo').animate({opacity:1}), 2300);
+  $()
   //サイト内リンクで来たとき
   if (new URL(document.referrer).hostname === location.hostname){
-
+    $('#logo').animate({opacity:1});
+    $('#draw-svg').animate({opacity:1});
   }
   //サイト外から来たとき
   else {
+    $("#draw-svg").css("opacity", 1);
+    $('#draw-svg').drawsvg().drawsvg('animate');
+    setTimeout(()=>$('#logo').animate({opacity:1}), 2300);
   }
   // スクロール禁止
   function forbid_scroll() {
@@ -22,7 +25,6 @@ document.addEventListener("DOMContentLoaded", function() {
     // スマホ
     document.removeEventListener('touchmove', scroll_control, { passive: false });
   }
-
   function scroll_control (event) {
     event.preventDefault();
   }
