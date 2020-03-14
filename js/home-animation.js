@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", function() {
     $('#draw-svg').drawsvg().drawsvg('animate');
     setTimeout(()=>$('#logo').animate({opacity:1}, { duration: 400, easing: 'swing' }), 2300);
 
-    setTimeout(()=>$("#key-visual").animate({"margin-top":0}, { duration: 1000, easing: 'swing' }), 3000);
+    setTimeout(()=>$("#key-visual").animate({"margin-top":0}, { duration: 1000, easing: 'swing' }), 2700);
     setTimeout(()=>$('#content').animate({opacity:1}, { duration: 400, easing: 'swing' }), 3000);
     setTimeout(permit_scroll, 3000);
   }
