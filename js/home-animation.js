@@ -1,8 +1,8 @@
 document.addEventListener("DOMContentLoaded", function() {
   //直接来たとき||サイト内リンクで来たとき
   if (document.referrer === "" || new URL(document.referrer).hostname === location.hostname){
-    $('#draw-svg').animate({opacity:1}, { duration: 1000, easing: 'swing' });
-    setTimeout(()=>$('#logo').animate({opacity:1}, { duration: 1000, easing: 'swing' }), 200);
+    $('#draw-svg').animate({opacity:1}, { duration: 600, easing: 'swing' });
+    setTimeout(()=>$('#logo').animate({opacity:1}, { duration: 400, easing: 'swing' }), 200);
     setTimeout(()=>$('#content').animate({opacity:1}, { duration: 400, easing: 'swing' }), 400);
   }
   //サイト外から来たとき
