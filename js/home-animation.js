@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", function() {
   else {
     forbid_scroll();
     scrollTo(0, 0);
-    $("#key-visual").css("margin-top", (window.innerHeignt - $(".key-visual").outerHeight()) / 2 + "px");
+    $("#key-visual").css("margin-top", (window.innerHeight - $("#key-visual").outerHeight()) / 2 + "px");
     $("#draw-svg").css("opacity", 1)
 
     $('#draw-svg').drawsvg().drawsvg('animate');
