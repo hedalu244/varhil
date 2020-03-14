@@ -12,8 +12,8 @@
 <script src="{{ site.baseurl }}/js/jquery.drawsvg.min.js"></script>
 </head>
 <body>
-<div class="content">
-<svg xmlns="http://www.w3.org/2000/svg" width="800" height="420" id="key-visual">
+<div class="key-visual">
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="420" id="draw-svg">
   <g fill="none" stroke="#444" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
     <path d="M100 142.5 a30 30 0 0 1 30 30 30 30 0 0 1 -30 30 30 30 0 0 1 -30 -30 30 30 0 0 1 30 -30 z"/>
     <path d="M221.5 144 h57 v57 H221.5 z"/>
@@ -29,9 +29,10 @@
 </svg>
 <h1 style="width:100%; opacity:0; text-align:center;" id="logo"><img src="image/logo01.svg" alt="Varhil, a simple logical language" style="width:100%;"></h1>
 <script>
-$('#key-visual').drawsvg().drawsvg('animate');
+$('#draw-svg').drawsvg().drawsvg('animate');
 setTimeout(()=>$('#logo').animate({opacity:1}), 2300);
 </script>
+<div class="content">
 {{ content }}
 </div>
 </body>

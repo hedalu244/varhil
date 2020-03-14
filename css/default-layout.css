@@ -1,11 +1,7 @@
 body {
-  color: #444;
-  font-size: 16px;
-  font-family: sans-serif;
   background-color: #eee;
   margin: 0px;
   padding: 0px;
-  line-height: 2em;
 }
 
 .content {

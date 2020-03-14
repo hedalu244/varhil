@@ -1,3 +1,10 @@
+body {  
+  color: #444;
+  font-size: 16px;
+  line-height: 2em;
+  font-family: sans-serif;
+}
+
 a {
   color: #444;
   text-decoration: none;
