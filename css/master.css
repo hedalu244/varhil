@@ -99,12 +99,15 @@ dl.example > dd {
   position: relative;
 }
 dl.example > dd::before {
-  content: "\f105";
-  font-family: 'Font Awesome 5 Free';
-  font-weight: 900;
+  content: "";
   position: absolute;
-  left: 0;
-  color: #ccc;
+  width: 5px;
+  height: 5px;
+  left:0;
+  top: 11px;
+  border-top: solid 3px #CCC;
+  border-right: solid 3px #CCC;
+  transform: rotate(45deg);
 }
 
 dl.words {
