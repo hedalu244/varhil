@@ -26,3 +26,4 @@ document.addEventListener("DOMContentLoaded", function() {
   function scroll_control (event) {
     event.preventDefault();
   }
+});
