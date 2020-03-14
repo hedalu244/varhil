@@ -1,7 +1,6 @@
 document.addEventListener("DOMContentLoaded", function() {
-  $()
-  //サイト内リンクで来たとき
-  if (new URL(document.referrer).hostname === location.hostname){
+  //直接来たとき||サイト内リンクで来たとき
+  if (document.referrer === "" || new URL(document.referrer).hostname === location.hostname){
     $('#logo').animate({opacity:1});
     $('#draw-svg').animate({opacity:1});
   }
