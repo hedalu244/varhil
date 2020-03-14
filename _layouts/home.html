@@ -10,6 +10,7 @@
 <link rel="icon alternate" href="{{ site.baseurl }}/image/favicon.png" type="image/png">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 <script src="{{ site.baseurl }}/js/jquery.drawsvg.min.js"></script>
+<script src="{{ site.baseurl }}/js/home-animation.js">
 </head>
 <body>
 <div class="key-visual">
@@ -28,10 +29,6 @@
   </g>
 </svg>
 <h1 style="width:100%; opacity:0; text-align:center;" id="logo"><img src="image/logo01.svg" alt="Varhil, a simple logical language" style="width:100%;"></h1>
-<script>
-$('#draw-svg').drawsvg().drawsvg('animate');
-setTimeout(()=>$('#logo').animate({opacity:1}), 2300);
-</script>
 <div class="content">
 {{ content }}
 </div>
