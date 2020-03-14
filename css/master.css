@@ -1,8 +1,13 @@
-body {  
+body {
   color: #444;
   font-size: 16px;
   line-height: 2em;
   font-family: sans-serif;
+}
+
+::selection {
+  color: #111;
+  background: #aaa;
 }
 
 a {
@@ -10,8 +15,8 @@ a {
   text-decoration: none;
   border-bottom: 1px dashed #444;
 }
-a:hover{ color: #999; }
-a:active{ color:#999; }
+a:hover{ color: #888; }
+a:active{ color:#888; }
 
 p{margin:1em 0;}
 
@@ -52,6 +57,7 @@ strong {
 
 code {
   background-color: rgba(234, 234, 234, 0.8);
+  color: #111;
   padding: .1em .4em;
   font-family: SFMono-Regular,Consolas,Liberation Mono,Menlo,Courier,monospace;
 }
