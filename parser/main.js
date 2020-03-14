@@ -128,13 +128,13 @@ function calculate(tree) {
             usings: [...a.usings, ...b.usings]
         };
     }
-    function isNounValue(value) { return value.mainVariable !== undefined; }
-    function isPredicateValue(value) { return value.mainPredicate !== undefined; }
+    function isNounPhrase(phrase) { return phrase.mainVariable !== undefined; }
+    function isPredicatePhrase(phrase) { return phrase.mainPredicate !== undefined; }
     function convertToNoun(a) {
-        if (isNounValue(a))
+        if (isNounPhrase(a))
             return a;
-        if (!isPredicateValue(a))
-            throw new Error("CalcError: Unexpected Value");
+        if (!isPredicatePhrase(a))
+            throw new Error("CalcError: Unexpected Phrase");
         return calcRelative("", a, calcIsolatedDeterminer());
     }
     function calcIsolatedDeterminer() {
@@ -204,8 +204,8 @@ function calculate(tree) {
         };
     }
     function calcRelative(casus, a, b) {
-        if (!isPredicateValue(a))
-            throw new Error("CalcError: Unexpected Value");
+        if (!isPredicatePhrase(a))
+            throw new Error("CalcError: Unexpected Phrase");
         const bb = convertToNoun(b);
         a.mainPredicate.args.unshift({ casus: casus, variable: bb.mainVariable });
         return {
@@ -216,8 +216,8 @@ function calculate(tree) {
     }
     function calcPreposition(casus, a, b) {
         const aa = convertToNoun(a);
-        if (!isPredicateValue(b))
-            throw new Error("CalcError: Unexpected Value");
+        if (!isPredicatePhrase(b))
+            throw new Error("CalcError: Unexpected Phrase");
         b.mainPredicate.args.unshift({ casus: casus, variable: aa.mainVariable });
         return {
             graph: merge(aa.graph, b.graph),
@@ -225,40 +225,40 @@ function calculate(tree) {
             mainVariable: undefined
         };
     }
-    function calcSingleNegation(value) {
+    function calcSingleNegation(phrase) {
         return {
-            graph: cut(value.graph),
-            mainPredicate: value.mainPredicate,
-            mainVariable: value.mainVariable
+            graph: cut(phrase.graph),
+            mainPredicate: phrase.mainPredicate,
+            mainVariable: phrase.mainVariable
         };
     }
-    function calcNegation(values) {
+    function calcNegation(phrases) {
         return {
-            graph: cut(calcSentence(values).graph),
+            graph: cut(calcSentence(phrases).graph),
             mainPredicate: undefined,
             mainVariable: undefined
         };
     }
-    function calcSentence(values) {
+    function calcSentence(phrases) {
         return {
-            graph: values.map(x => x.graph).reduce(merge, { children: [], usings: [] }),
+            graph: phrases.map(x => x.graph).reduce(merge, { children: [], usings: [] }),
             mainPredicate: undefined,
             mainVariable: undefined
         };
     }
     function recursion(tree) {
-        const values = tree.children.map(x => recursion(x));
+        const phrases = tree.children.map(x => recursion(x));
         switch (tree.token.tokenType) {
             case "create_determiner": return calcCreateDeterminer(tree.token.label);
             case "inherit_determiner": return calcInheritDeterminer(tree.token.label);
             case "terminate_determiner": return calcTerminateDeterminer(tree.token.label);
             case "isolatedDeterminer": return calcIsolatedDeterminer();
             case "predicate": return calcPredicate(tree.token.name);
-            case "relative": return calcRelative(tree.token.casus, values[0], values[1]);
-            case "preposition": return calcPreposition(tree.token.casus, values[0], values[1]);
-            case "single_negation": return calcSingleNegation(values[0]);
-            case "open_negation": return calcNegation(values);
-            case "open_sentence": return calcSentence(values);
+            case "relative": return calcRelative(tree.token.casus, phrases[0], phrases[1]);
+            case "preposition": return calcPreposition(tree.token.casus, phrases[0], phrases[1]);
+            case "single_negation": return calcSingleNegation(phrases[0]);
+            case "open_negation": return calcNegation(phrases);
+            case "open_sentence": return calcSentence(phrases);
             // parseでふくめてないので来ないはず
             case "close_negation":
             case "close_sentence": throw 0;
