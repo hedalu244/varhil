@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     setTimeout(()=>$("#key-visual").animate({"margin-top":0}, { duration: 600, easing: 'swing' }), 2700);
     setTimeout(()=>$('#content').animate({opacity:1}, { duration: 400, easing: 'swing' }), 3000);
-    setTimeout(permit_scroll, 3000);
+    setTimeout(permit_scroll, 2700);
   }
   // スクロール禁止
   function forbid_scroll() {
