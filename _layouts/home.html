@@ -28,7 +28,8 @@
 </svg>
 <h1 style="width:100%; opacity:0; text-align:center;" id="logo"><img src="image/logo01.svg" alt="Varhil, a simple logical language" style="width:100%;"></h1>
 <script>
-$('#key-visual').drawsvg({callback: function() { $('#logo').animate({opacity:1}); } }).drawsvg('animate');
+$('#key-visual').drawsvg().drawsvg('animate');
+setTimeout(()=>$('#logo').animate({opacity:1}), 2300);
 </script>
 {{ content }}
 </div>
