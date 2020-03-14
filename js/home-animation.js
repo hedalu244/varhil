@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("load", function() {
   //直接来たとき||サイト内リンクで来たとき
   if (document.referrer === "" || new URL(document.referrer).hostname === location.hostname){
     $('#draw-svg').animate({opacity:1}, { duration: 600, easing: 'swing' });
