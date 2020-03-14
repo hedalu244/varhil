@@ -22,7 +22,6 @@ img{display: block; max-width: 100%; margin: auto;}
 
 h1,h2,h3,h4,h5,h6 {
   font-weight:normal;
-  color:#111;
   line-height:1em;
 }
 h2 { font-weight: bold; }
