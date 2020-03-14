@@ -15,7 +15,10 @@
    version="1.1"
    id="svg962"
    inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
-   sodipodi:docname="favicon.svg">
+   sodipodi:docname="favicon.svg"
+   inkscape:export-filename="C:\Users\takayuki\Documents\GitHub\varhil\image\favicon.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96">
   <defs
      id="defs956" />
   <sodipodi:namedview
@@ -25,9 +28,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.3833896"
-     inkscape:cx="29.710733"
-     inkscape:cy="8.2659456"
+     inkscape:zoom="3.8779467"
+     inkscape:cx="118.40468"
+     inkscape:cy="-6.4492743"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -65,10 +68,11 @@
          id="path1519"
          style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.79374999;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0.21395347" />
       <path
-         inkscape:connector-curvature="0"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:22.57777786px;line-height:1.25;font-family:Century;-inkscape-font-specification:Century;text-align:center;letter-spacing:10.58333302px;word-spacing:0px;text-anchor:middle;display:inline;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         d="m 66.180569,139.32799 v 0.49558 h 0.24448 c 0.268765,0 0.479861,0.057 0.63407,0.17156 0.158615,0.11015 0.297551,0.31073 0.416512,0.60152 l 3.449919,8.73693 h 0.09715 0.458319 l 3.026689,-8.17521 c 0.176239,-0.47585 0.372702,-0.81715 0.588594,-1.02423 0.220299,-0.20708 0.440127,-0.31057 0.660425,-0.31057 h 0.290938 v -0.49558 H 72.4391 v 0.49558 h 0.66766 c 0.25114,0 0.434845,0.0925 0.575836,0.22912 0.145397,0.13658 0.218074,0.32841 0.218074,0.57515 0,0.17624 -0.02209,0.32622 -0.06615,0.44959 l -2.208811,6.0661 -2.507857,-6.38824 -0.05323,-0.13901 c -0.07931,-0.17624 -0.118856,-0.31057 -0.118856,-0.40307 0,-0.11896 0.0529,-0.21372 0.158647,-0.28422 0.105744,-0.0705 0.306313,-0.10542 0.601514,-0.10542 h 0.592212 v -0.49558 z"
          id="path6436"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:22.57777786px;line-height:1.25;font-family:Century;-inkscape-font-specification:Century;text-align:center;letter-spacing:10.58333302px;word-spacing:0px;text-anchor:middle;display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.79374999;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.96842107"
-         d="m 66.044133,139.32776 h 4.117383 v 0.49567 h -0.713768 q -0.442801,0 -0.601416,0.10574 -0.158615,0.10575 -0.158615,0.28419 0,0.13878 0.118961,0.40314 l 0.05287,0.1388 2.570886,6.54947 2.280092,-6.25207 q 0.06609,-0.18505 0.06609,-0.44941 0,-0.37011 -0.218096,-0.57498 -0.211486,-0.20488 -0.588197,-0.20488 h -0.667505 v -0.49567 h 3.608493 v 0.49567 h -0.290795 q -0.330448,0 -0.660896,0.31062 -0.323839,0.31062 -0.588198,1.02439 l -3.026904,8.17528 h -0.482451 l -3.449877,-8.73704 q -0.178442,-0.43619 -0.416365,-0.60142 -0.231313,-0.17183 -0.63446,-0.17183 h -0.31723 z" />
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="ccscccccccsccccscsccccscsccc" />
     </g>
   </g>
 </svg>
