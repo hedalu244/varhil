@@ -1,6 +1,6 @@
 ---
 layout: default
-title: First order logic
+title: 一階述語論理
 ---
 
 ## グロスについて

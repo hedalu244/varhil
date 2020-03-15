@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Morphology
+title: 形態
 ---
 
 語彙に要求する形態論を述べます。

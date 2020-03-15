@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Meta logic
+title: メタ論理
 ---
 
 ## 従属節

@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Dictionaly
+title: 辞書
 ---
 
 ここでは具体的な語形を書きます。
