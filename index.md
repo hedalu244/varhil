@@ -11,7 +11,7 @@ layout: home
     1. [音韻論](lexicology/phonology)
     2. [形態論](lexicology/morphology)
 2. 文法
-    2. [一階階述語論理](grammar/first-order-logic)
+    2. [一階述語論理](grammar/first-order-logic)
     3. [メタ論理](grammar/meta-logic)（暫定）
 3. [辞書](dictionary)
 4. [構文解析器](parser)
