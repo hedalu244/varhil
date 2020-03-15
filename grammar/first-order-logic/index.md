@@ -238,25 +238,25 @@ Varhilの文法はポーランド記法と括弧を併用した形をしてい�
 論理和 `P∨Q` は古典論理上で `￢(￢P∧￢Q)` と等価であるので、Varhilではこの組み合わせで表現します。
 
 {:.example}
-{:.glossed} nou:{NEG nou:{NEG ～ noi:}NEG nou:{NEG … noi:}NEG noi:}NEG
+{:.glossed} nou:{NEG nou:{NEG ～:～ noi:}NEG nou:{NEG …:… noi:}NEG noi:}NEG
 : {:.formula} ～ ∨ …
 
 含意 `P⇒Q` は古典論理上で`￢(P∧￢Q)` と等価であるので、Varhilではこの組み合わせで表現します。
 
 {:.example}
-{:.glossed} nou:{NEG ～ nou:{NEG … noi:}NEG noi:}NEG
+{:.glossed} nou:{NEG ～:～ nou:{NEG …:… noi:}NEG noi:}NEG
 : {:.formula} ～ ⇒ …
 
 同値 `P⇔Q` は `(P⇒Q)∧(Q⇒P)` の糖衣構文であり、古典論理上で `￢(P∧￢Q)∧￢(￢P∧Q)` と等価であるので、Varhilではこの組み合わせで表現します。
 
 {:.example}
-{:.glossed} nou:{NEG ～ nou:{NEG … noi:}NEG noi:}NEG nou:{NEG nou:{NEG ～ noi:}NEG … noi:}NEG
+{:.glossed} nou:{NEG ～:～ nou:{NEG …:… noi:}NEG noi:}NEG nou:{NEG nou:{NEG ～:～ noi:}NEG …:… noi:}NEG
 : {:.formula} ～ ⇔ …
 
 全称量化は `∀x; P` は古典論理上で  `￢∃x￢P`と等価であるので、Varhilではこの組み合わせで表現します。（限定詞も否定節と並列することができるので、二重の否定の間に限定詞を置けばよいです）
 
 {:.example}
-{:.glossed} nou:{NEG a:DET0+ nou:{NEG ～ noi:}NEG noi:}NEG
+{:.glossed} nou:{NEG a:DET0+ nou:{NEG ～:～ noi:}NEG noi:}NEG
 : {:.formula} ∀x ～
 
 従って、以上のような古典論理に従った同一視を行えば、開論理式を除く一階述語論理のすべての論理式と等価な表現をVarhilでも表現できるといえます。
