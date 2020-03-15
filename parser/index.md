@@ -3,7 +3,7 @@ layout: default
 title: 構文解析器
 ---
 
-Varhil文法案に従った構文解析器です。JavaScriptで動作しています。
+一階述語論理まで対応した構文解析器です。TypeScriptで実装されています。[ソースコード](main.ts)
 
 <textarea id="input" rows="8" cols="80"></textarea>
 <div id="output" class="formula"></div>
