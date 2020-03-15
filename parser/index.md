@@ -1,9 +1,9 @@
 ---
 layout: default
-title: Parser
+title: 構文解析器
 ---
 
-Varhil文法案に従った構文/意味解析器です。JavaScriptで動作しています。
+Varhil文法案に従った構文解析器です。JavaScriptで動作しています。
 
 <textarea id="input" rows="8" cols="80"></textarea>
 <div id="output" class="formula"></div>
