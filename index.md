@@ -2,7 +2,7 @@
 layout: home
 ---
 
-**Varhil**（発音:[ˈvɑ˞ .hɪl]）はVARiable-HIding Logicの略であり、述語論理をシンプルかつ自然言語的な文法で表現しようとする人工言語です。
+**Varhil**（発音:[ˈvɑ˞ .hɪl]）は述語論理をシンプルかつ自然言語的な文法で表現しようとする人工言語です。名前はVARiable-HIding Logicに由来します。
 
 ## コンテンツ
 
