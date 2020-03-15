@@ -83,6 +83,15 @@ code {
   padding: .1em .4em;
   font-family: "SFMono-Regular", "Consolas", "Liberation Mono", "Menlo", "Courier",monospace;
 }
+pre > code {
+  padding: 10px 15px;
+  display: block;
+  background: rgba(234, 234, 234, 0.8);
+  color: #111;
+  overflow: auto;
+  white-space: pre;
+  font-family: "SFMono-Regular", "Consolas", "Liberation Mono", "Menlo", "Courier",monospace;
+}
 
 ul.breadcrumbs {
   margin-bottom: 100px;
@@ -164,7 +173,7 @@ dl.words > dd {
   height: 2em;
   line-height: 2em;
   font-size: 80%;
-  font-family: monospace;
+  font-family: "SFMono-Regular", "Consolas", "Liberation Mono", "Menlo", "Courier",monospace;
 }
 
 
