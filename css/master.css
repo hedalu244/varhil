@@ -2,7 +2,7 @@ body {
   color: #444;
   font-size: 16px;
   line-height: 2em;
-  font-family: sans-serif;
+  font-family: "ヒラギノ角ゴ ProN W3", "Hiragino Kaku Gothic ProN", "メイリオ", "Meiryo", sans-serif;
 }
 
 ::selection {
@@ -27,14 +27,32 @@ h1,h2,h3,h4,h5,h6 {
   font-weight:bold;
 }
 h1 {
-  font-weight:normal;
-  font-size: 3em;
   margin-bottom: 50px;
-  font-family: "century";
-  letter-spacing: 0.6em;
+
+  font-size: 3em;
+  font-weight: normal;
+  font-family: "Century", "Times New Roman", "IPA P明朝", "YuMincho", "Yu Mincho", serif;
+  letter-spacing: 0.2em;
 }
-h2{ font-size:1.8em; font-weight: bold; border-bottom:1px solid #bbb; padding: 15px; margin: 30px 0 30px; }
-h3{ font-size:1.5em; display: inline-block; border-bottom:1px solid #bbb; padding: 5px; margin: 30px 15px 0; }
+h2{
+  border-bottom: 1px solid #bbb;
+  padding: 15px;
+  margin: 30px 0 30px;
+
+  font-size: 1.8em;
+  font-weight: bold;
+  font-family: "Century", "Times New Roman", "IPA P明朝", "YuMincho", "Yu Mincho", serif;
+  letter-spacing: 0.2em;
+}
+h3{
+  font-size:1.5em;
+  display: inline-block;
+  border-bottom:1px solid #bbb;
+  padding: 5px;
+  margin: 30px 15px 0;
+
+  font-weight: normal;
+}
 h4{ font-size:1.5em; display: inline-block; border-bottom:1px solid #bbb; }
 h5{ font-size:1.2em; }
 h6{ font-size:1em; }
@@ -63,7 +81,7 @@ code {
   background-color: rgba(234, 234, 234, 0.8);
   color: #111;
   padding: .1em .4em;
-  font-family: SFMono-Regular,Consolas,Liberation Mono,Menlo,Courier,monospace;
+  font-family: "SFMono-Regular", "Consolas", "Liberation Mono", "Menlo", "Courier",monospace;
 }
 
 ul.breadcrumbs {
