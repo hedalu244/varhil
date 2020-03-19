@@ -113,3 +113,8 @@ x()
 <ラムダ>
 <評価>
 ```
+
+<script>
+  markupAllFormulas();
+  markupAllGlosses();
+</script>
