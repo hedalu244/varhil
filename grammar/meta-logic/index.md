@@ -33,24 +33,24 @@ x()
 文を **抽象開始** `{ABS` と **抽象終止** `}ABS`で挟むことで、 抽象節を作ることができます。**単独抽象** `/ABS` は直後の述語句または名詞句をとって抽象節を作ります。このとき、抽象節の論理式は文または句の論理式がそのまま使われ、引数リストは空のものが作られます。
 
 {:.example}
-{:.glossed} {ABS fe://PREが a:DET0+ be://PREを a'a:DET1+ moku }ABS
+{:.glossed} {ABS fe://PREが a:DET0+ be://PREを a'a:DET1+ moku:食べる }ABS
 : {:.formula} λ().食べる(が:x, を:y)
 ^
 {:.example}
-{:.glossed} /ABS fe://PREが a:DET0+ be://PREを a'a:DET1+ moku
+{:.glossed} /ABS fe://PREが a:DET0+ be://PREを a'a:DET1+ moku:食べる
 : {:.formula} λ().食べる(が:x, を:y)
 
 前置詞の直後に名詞句、その後ろに抽象節が来た場合、それは抽象節になります（一階述語論理での前置詞の使い方を拡張しています）。この場合、引数リストには前置詞のが表す格と名詞句が表す変数が追加され、論理式は名詞句の論理式ともとの抽象節の論理式の論理積になります。
 
 {:.example}
-{:.glossed} e://PREは a:DET0+ pe://PREの a'a:DET1+ /ABS fe://PREが u:DET0- be://PREを a'a:DET1+ moku
+{:.glossed} e://PREは a:DET0+ pe://PREの a'a:DET1+ /ABS fe://PREが u:DET0- be://PREを a'a:DET1+ moku:食べる
 : {:.formula} λ(は:x, の:y).食べる(が:x, を:y)
 
 
 抽象節に **ラムダ** `/LAM`を前置すると「eは{その抽象節が表す述語}である」のように、変数と述語の定義を結び付ける述語句になります。文中で抽象節がこれ以外の形で現れることはありません。
 
 {:.example}
-{:.glossed} e://PREは au:DET /LAM e://PREは a:DET0+ pe://PREの a'a:DET1+ /ABS fe://PREが u:DET0- be://PREを a'a:DET1+ moku
+{:.glossed} e://PREは au:DET /LAM e://PREは a:DET0+ pe://PREの a'a:DET1+ /ABS fe://PREが u:DET0- be://PREを a'a:DET1+ moku:食べる
 : {:.formula} z = λ(は:x, の:y).食べる(が:x, を:y)
 
 抽象節の内部のみで使われ、また引数リストにも含まれていない変数は、抽象節の内部で量化されます。
