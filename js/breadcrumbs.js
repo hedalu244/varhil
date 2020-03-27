@@ -22,12 +22,11 @@ document.addEventListener("DOMContentLoaded", function() {
 
     //末尾（現在のページ）にはリンクを付けない。拡張子とかもめんどくさいし
     if (i === splited.length - 1) {
-      li.textContent = x.substring(0, 1).toUpperCase() + x.substring(1);
+      li.textContent = x;
     }
     else {
       let a = document.createElement("a");
-      //キャメルケースっぽくする
-      a.textContent = x.substring(0, 1).toUpperCase() + x.substring(1);
+      a.textContent = x;
       //ルートパス指定
       a.setAttribute('href', "/" + splited.slice(0, i+1).join("/")　+ "/");
       li.appendChild(a);
