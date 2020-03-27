@@ -18,5 +18,5 @@ layout: home
 
 ## コンタクト
 
-[GitHub](https://github.com/hedalu244/varhil)  
-[Twitter](https://twitter.com/hedalu244)
+[GitHub hedalu244/varhil](https://github.com/hedalu244/varhil)  
+[Twitter @hedalu244](https://twitter.com/hedalu244)
