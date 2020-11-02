@@ -584,8 +584,8 @@ function test(): void {
   ];
   inputs.forEach(x=>{
     console.log(">"+x);
-    console.log(stringify(formularize(calculate(parse(tokenize(x)))));
-    console.log(stringify(normalize(formularize(calculate(parse(tokenize(x))))));
+    console.log(stringify(formularize(calculate(parse(tokenize(x))))));
+    console.log(stringify(normalize(formularize(calculate(parse(tokenize(x)))))));
   });
 }
 
