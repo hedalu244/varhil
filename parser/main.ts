@@ -169,10 +169,15 @@ interface PredicatePhrase extends Phrase {
 }
 
 function calculate(tree: Tree): Graph {
-  const variableMap = new Map<string, Variable>();
+  const variableMap: Map<string, Variable>[] = [new Map<string, Variable>()];
   let variableCount: number = 0;
 
   function issueVariable(): Variable { return {name: "" + variableCount++ }; }
+
+  function findVariable(label: string): Variable | undefined { 
+    return variableMap.find(map=>map.has(label))?.get(label);
+    //return variableMap.map(map=>map.get(label)).find((x):x is Variable=>x !== undefined);
+  } 
 
   function Predicate(name: string, args: {casus:string, variable:Variable}[]): Predicate {
     return {
@@ -221,7 +226,7 @@ function calculate(tree: Tree): Graph {
   }
   function calcCreateDeterminer(label: string): NounPhrase {
     const variable = issueVariable();
-    variableMap.set(label, variable);
+    variableMap[0].set(label, variable);
     return {
       graph: {
         children: [],
@@ -232,7 +237,7 @@ function calculate(tree: Tree): Graph {
     };
   }
   function calcInheritDeterminer(label: string): NounPhrase {
-    const variable = variableMap.get(label);
+    const variable = findVariable(label);
     if (variable === undefined) {
       console.warn();
       return calcCreateDeterminer(label);
@@ -247,12 +252,12 @@ function calculate(tree: Tree): Graph {
     };
   }
   function calcTerminateDeterminer(label: string): NounPhrase {
-    const variable = variableMap.get(label);
+    const variable = findVariable(label);
     if (variable === undefined) {
       console.warn();
       return calcIsolatedDeterminer();
     }
-    else variableMap.delete(label);
+    else variableMap[0].delete(label);
     return {
       graph: {
         children: [],
@@ -296,15 +301,21 @@ function calculate(tree: Tree): Graph {
     };
   }
   function calcSingleNegation(phrase: Phrase): Phrase {
+    variableMap.unshift(new Map<string, Variable>());
+    const graph = cut(phrase.graph);
+    variableMap.shift();
     return {
-      graph: cut(phrase.graph),
+      graph: graph,
       mainPredicate: phrase.mainPredicate,
       mainVariable: phrase.mainVariable
     };
   }
   function calcNegation (phrases: Phrase[]): Phrase {
+    variableMap.unshift(new Map<string, Variable>());
+    const graph = cut(calcSentence(phrases).graph);
+    variableMap.shift();
     return {
-      graph: cut(calcSentence(phrases).graph),
+      graph: graph,
       mainPredicate: undefined,
       mainVariable: undefined
     };

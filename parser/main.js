@@ -102,9 +102,13 @@ function parse(tokens) {
 }
 ;
 function calculate(tree) {
-    const variableMap = new Map();
+    const variableMap = [new Map()];
     let variableCount = 0;
     function issueVariable() { return { name: "" + variableCount++ }; }
+    function findVariable(label) {
+        return variableMap.find(map => map.has(label)) ? .get(label) : ;
+        //return variableMap.map(map=>map.get(label)).find((x):x is Variable=>x !== undefined);
+    }
     function Predicate(name, args) {
         return {
             formulaType: "predicate",
@@ -150,7 +154,7 @@ function calculate(tree) {
     }
     function calcCreateDeterminer(label) {
         const variable = issueVariable();
-        variableMap.set(label, variable);
+        variableMap[0].set(label, variable);
         return {
             graph: {
                 children: [],
@@ -161,7 +165,7 @@ function calculate(tree) {
         };
     }
     function calcInheritDeterminer(label) {
-        const variable = variableMap.get(label);
+        const variable = findVariable(label);
         if (variable === undefined) {
             console.warn();
             return calcCreateDeterminer(label);
@@ -176,13 +180,13 @@ function calculate(tree) {
         };
     }
     function calcTerminateDeterminer(label) {
-        const variable = variableMap.get(label);
+        const variable = findVariable(label);
         if (variable === undefined) {
             console.warn();
             return calcIsolatedDeterminer();
         }
         else
-            variableMap.delete(label);
+            variableMap[0].delete(label);
         return {
             graph: {
                 children: [],
@@ -226,15 +230,21 @@ function calculate(tree) {
         };
     }
     function calcSingleNegation(phrase) {
+        variableMap.unshift(new Map());
+        const graph = cut(phrase.graph);
+        variableMap.shift();
         return {
-            graph: cut(phrase.graph),
+            graph: graph,
             mainPredicate: phrase.mainPredicate,
             mainVariable: phrase.mainVariable
         };
     }
     function calcNegation(phrases) {
+        variableMap.unshift(new Map());
+        const graph = cut(calcSentence(phrases).graph);
+        variableMap.shift();
         return {
-            graph: cut(calcSentence(phrases).graph),
+            graph: graph,
             mainPredicate: undefined,
             mainVariable: undefined
         };
