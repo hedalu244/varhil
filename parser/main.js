@@ -100,6 +100,59 @@ function parse(tokens) {
         }
     }
 }
+function T() {
+    return { formulaType: "true" };
+}
+function F() {
+    return { formulaType: "false" };
+}
+function negation(formula) {
+    return { formulaType: "negation", formula };
+}
+function exist(variable, formula) {
+    return { formulaType: "exist", variable, formula };
+}
+function all(variable, formula) {
+    return { formulaType: "all", variable, formula };
+}
+function conjunction(formulas) {
+    formulas = formulas.reduce((acc, cur) => {
+        if (cur.formulaType === "true")
+            return acc;
+        if (cur.formulaType === "conjunction")
+            acc.push(...cur.formulas);
+        else
+            acc.push(cur);
+        return acc;
+    }, []);
+    if (formulas.length == 0)
+        return T();
+    if (formulas.length == 1)
+        return formulas[0];
+    return {
+        formulaType: "conjunction",
+        formulas
+    };
+}
+function disjunction(formulas) {
+    formulas = formulas.reduce((acc, cur) => {
+        if (cur.formulaType == "false")
+            return acc;
+        if (cur.formulaType == "disjunction")
+            acc.push(...cur.formulas);
+        else
+            acc.push(cur);
+        return acc;
+    }, []);
+    if (formulas.length == 0)
+        return F();
+    if (formulas.length == 1)
+        return formulas[0];
+    return {
+        formulaType: "disjunction",
+        formulas
+    };
+}
 ;
 function calculate(tree) {
     const variableMap = [new Map()];
@@ -254,59 +307,6 @@ function calculate(tree) {
     }
     const result = recursion(tree);
     return result.formula;
-}
-function T() {
-    return { formulaType: "true" };
-}
-function F() {
-    return { formulaType: "false" };
-}
-function negation(formula) {
-    return { formulaType: "negation", formula };
-}
-function exist(variable, formula) {
-    return { formulaType: "exist", variable, formula };
-}
-function all(variable, formula) {
-    return { formulaType: "all", variable, formula };
-}
-function conjunction(formulas) {
-    formulas = formulas.reduce((acc, cur) => {
-        if (cur.formulaType === "true")
-            return acc;
-        if (cur.formulaType === "conjunction")
-            acc.push(...cur.formulas);
-        else
-            acc.push(cur);
-        return acc;
-    }, []);
-    if (formulas.length == 0)
-        return T();
-    if (formulas.length == 1)
-        return formulas[0];
-    return {
-        formulaType: "conjunction",
-        formulas
-    };
-}
-function disjunction(formulas) {
-    formulas = formulas.reduce((acc, cur) => {
-        if (cur.formulaType == "false")
-            return acc;
-        if (cur.formulaType == "disjunction")
-            acc.push(...cur.formulas);
-        else
-            acc.push(cur);
-        return acc;
-    }, []);
-    if (formulas.length == 0)
-        return F();
-    if (formulas.length == 1)
-        return formulas[0];
-    return {
-        formulaType: "disjunction",
-        formulas
-    };
 }
 //標準化
 function normalize(formula) {

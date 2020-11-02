@@ -1,58 +1,58 @@
 type Token = {
   literal: string,
   tokenType: "create_determiner" | "inherit_determiner" | "terminate_determiner",
-  label: string
+  label: string;
 } | {
   literal: string,
   tokenType: "predicate",
-  name: string
+  name: string;
 } | {
   literal: string,
   tokenType: "relative" | "preposition",
-  casus: string
+  casus: string;
 } | {
   literal: string,
-  tokenType: "isolatedDeterminer" | "single_negation" | "open_negation" | "close_negation" | "open_sentence" | "close_sentence"
+  tokenType: "isolatedDeterminer" | "single_negation" | "open_negation" | "close_negation" | "open_sentence" | "close_sentence";
 };
 
 //字句解析
 let separatorPattern: RegExp;
 
-let isIsolatedDeterminer: (literal :string)=>boolean;
+let isIsolatedDeterminer: (literal: string) => boolean;
 
-let isCreateDeterminer: (literal :string)=>boolean;
-let createDeterminerToLabel: (literal :string)=>string;
+let isCreateDeterminer: (literal: string) => boolean;
+let createDeterminerToLabel: (literal: string) => string;
 
-let isInheritDeterminer: (literal :string)=>boolean;
-let inheritDeterminerToLabel: (literal :string)=>string;
+let isInheritDeterminer: (literal: string) => boolean;
+let inheritDeterminerToLabel: (literal: string) => string;
 
-let isTerminateDeterminer: (literal :string)=>boolean;
-let terminateDeterminerToLabel: (literal :string)=>string;
+let isTerminateDeterminer: (literal: string) => boolean;
+let terminateDeterminerToLabel: (literal: string) => string;
 
-let isPredicate: (literal :string)=>boolean;
-let predicateToName: (literal :string)=>string;
+let isPredicate: (literal: string) => boolean;
+let predicateToName: (literal: string) => string;
 
-let isRelative: (literal :string)=>boolean;
-let relativeToCasus: (literal :string)=>string;
+let isRelative: (literal: string) => boolean;
+let relativeToCasus: (literal: string) => string;
 
-let isPreposition: (literal :string)=>boolean;
-let prepositionToCasus: (literal :string)=>string;
+let isPreposition: (literal: string) => boolean;
+let prepositionToCasus: (literal: string) => string;
 
-let isSingleNegation: (literal :string)=>boolean;
-let isOpenNegation: (literal :string)=>boolean;
-let isCloseNegation: (literal :string)=>boolean;
+let isSingleNegation: (literal: string) => boolean;
+let isOpenNegation: (literal: string) => boolean;
+let isCloseNegation: (literal: string) => boolean;
 
 //トークン単位に分割し、必要な情報を付加する
 function tokenize(input: string): Token[] {
-  const literals = input.split(separatorPattern).filter(x=>x!=="");
+  const literals = input.split(separatorPattern).filter(x => x !== "");
 
   const tokens: Token[] = literals.map(literal => {
     if (isIsolatedDeterminer(literal))
-      return { literal, tokenType: "isolatedDeterminer"};
+      return { literal, tokenType: "isolatedDeterminer" };
     if (isCreateDeterminer(literal))
-      return { literal, tokenType: "create_determiner", label: createDeterminerToLabel(literal)};
+      return { literal, tokenType: "create_determiner", label: createDeterminerToLabel(literal) };
     if (isInheritDeterminer(literal))
-      return { literal, tokenType: "inherit_determiner",  label: inheritDeterminerToLabel(literal) };
+      return { literal, tokenType: "inherit_determiner", label: inheritDeterminerToLabel(literal) };
     if (isTerminateDeterminer(literal))
       return { literal, tokenType: "terminate_determiner", label: terminateDeterminerToLabel(literal) };
     if (isPredicate(literal))
@@ -71,7 +71,7 @@ function tokenize(input: string): Token[] {
   });
 
   tokens.unshift({
-    tokenType:"open_sentence",
+    tokenType: "open_sentence",
     literal: "_SoI_",
   });
 
@@ -85,7 +85,7 @@ function tokenize(input: string): Token[] {
 //構文解析
 interface Tree {
   token: Token,
-  children: Tree[]
+  children: Tree[];
 }
 type Arity = number | "(" | ")";
 // ポーランド記法を解く
@@ -102,8 +102,8 @@ function parse(tokens: Token[]): Tree {
       const next: Token = tokens[0];
       if (next === undefined) throw new Error("ParseError: Unxpected End of Tokens");
       if (getArity(next) === ")") {
-        if(token.tokenType === "open_negation" && next.tokenType === "close_negation"
-        || token.tokenType === "open_sentence" && next.tokenType === "close_sentence") {
+        if (token.tokenType === "open_negation" && next.tokenType === "close_negation"
+          || token.tokenType === "open_sentence" && next.tokenType === "close_sentence") {
           tokens.shift();
           break;
         }
@@ -113,13 +113,13 @@ function parse(tokens: Token[]): Tree {
     }
   }
   else {
-    for(let i = 0; i < arity; i++)
+    for (let i = 0; i < arity; i++)
       children.push(parse(tokens));
   }
-  return {token: token, children: children};
+  return { token: token, children: children };
 
   function getArity(token: Token): Arity {
-    switch(token.tokenType) {
+    switch (token.tokenType) {
       case "create_determiner": return 0;
       case "inherit_determiner": return 0;
       case "terminate_determiner": return 0;
@@ -140,37 +140,118 @@ function parse(tokens: Token[]): Tree {
 interface Variable {
   name: string;
 }
-interface Predicate {
+interface PredicateFormula {
   formulaType: "predicate";
   name: string;
-  args: {casus:string, variable:Variable}[];
+  args: { casus: string, variable: Variable; }[];
+}
+//述語論理式
+interface TrueFormula {
+  formulaType: "true";
+}
+interface FalseFormula {
+  formulaType: "false";
+}
+interface NegationFormula {
+  formulaType: "negation",
+  formula: Formula;
+}
+interface ExistFormula {
+  formulaType: "exist",
+  variable: Variable,
+  formula: Formula;
+}
+interface AllFormula {
+  formulaType: "all",
+  variable: Variable,
+  formula: Formula;
+}
+interface ConjunctionFormula {
+  formulaType: "conjunction",
+  formulas: Formula[];
+}
+interface DisjunctionFormula {
+  formulaType: "disjunction",
+  formulas: Formula[];
+}
+
+type Formula = TrueFormula | FalseFormula | PredicateFormula | NegationFormula | ExistFormula | AllFormula | ConjunctionFormula | DisjunctionFormula;
+
+function T(): TrueFormula {
+  return { formulaType: "true" };
+}
+function F(): FalseFormula {
+  return { formulaType: "false" };
+}
+function negation(formula: Formula): NegationFormula {
+  return { formulaType: "negation", formula };
+}
+function exist(variable: Variable, formula: Formula): ExistFormula {
+  return { formulaType: "exist", variable, formula };
+}
+function all(variable: Variable, formula: Formula): AllFormula {
+  return { formulaType: "all", variable, formula };
+}
+function conjunction(formulas: Formula[]): ConjunctionFormula | Formula {
+  formulas = formulas.reduce((acc: Formula[], cur: Formula) => {
+    if (cur.formulaType === "true") return acc;
+    if (cur.formulaType === "conjunction")
+      acc.push(...cur.formulas);
+    else
+      acc.push(cur);
+    return acc;
+  }, []);
+
+  if (formulas.length == 0) return T();
+  if (formulas.length == 1) return formulas[0];
+  return {
+    formulaType: "conjunction",
+    formulas
+  };
+}
+function disjunction(formulas: Formula[]): Formula {
+  formulas = formulas.reduce((acc: Formula[], cur) => {
+    if (cur.formulaType == "false") return acc;
+    if (cur.formulaType == "disjunction")
+      acc.push(...cur.formulas);
+    else
+      acc.push(cur);
+    return acc;
+  }, []);
+
+  if (formulas.length == 0) return F();
+  if (formulas.length == 1) return formulas[0];
+  return {
+    formulaType: "disjunction",
+    formulas
+  };
 }
 
 interface Phrase {
   formula: Formula,
   mainVariable: Variable | undefined,
-  mainPredicate: Predicate | undefined
+  mainPredicate: PredicateFormula | undefined;
 };
 interface NounPhrase extends Phrase {
-  mainVariable: Variable
+  mainVariable: Variable;
 }
 interface PredicatePhrase extends Phrase {
-  mainPredicate: Predicate
+  mainPredicate: PredicateFormula;
 }
 
 function calculate(tree: Tree): Formula {
   const variableMap: Map<string, Variable>[] = [new Map<string, Variable>()];
   let variableCount: number = 0;
 
-  function issueVariable(): Variable { return {name: "" + variableCount++ }; }
+  function issueVariable(): Variable { return { name: "" + variableCount++ }; }
 
   function findVariable(label: string): Variable | undefined {
-    const a = variableMap.find(map=>map.has(label))
+    const a = variableMap.find(map => map.has(label));
     return a === undefined ? undefined : a.get(label);
     //return variableMap.map(map=>map.get(label)).find((x):x is Variable=>x !== undefined);
-  } 
+  }
 
-  function Predicate(name: string, args: {casus:string, variable:Variable}[]): Predicate {
+  function Predicate(name: string, args: { casus: string, variable: Variable; }[]): PredicateFormula {
     return {
       formulaType: "predicate",
       name,
@@ -178,8 +259,8 @@ function calculate(tree: Tree): Formula {
     };
   }
 
-  function isNounPhrase(phrase : Phrase): phrase is NounPhrase { return phrase.mainVariable !== undefined; }
-  function isPredicatePhrase(phrase : Phrase): phrase is PredicatePhrase {return phrase.mainPredicate !== undefined; }
+  function isNounPhrase(phrase: Phrase): phrase is NounPhrase { return phrase.mainVariable !== undefined; }
+  function isPredicatePhrase(phrase: Phrase): phrase is PredicatePhrase { return phrase.mainPredicate !== undefined; }
 
   function convertToNoun(a: Phrase): NounPhrase {
     if (isNounPhrase(a)) return a;
@@ -241,7 +322,7 @@ function calculate(tree: Tree): Formula {
   function calcRelative(casus: string, a: Phrase, b: Phrase): NounPhrase {
     if (!isPredicatePhrase(a)) throw new Error("CalcError: Unexpected Phrase");
     const bb: NounPhrase = convertToNoun(b);
-    a.mainPredicate.args.unshift({casus: casus, variable: bb.mainVariable});
+    a.mainPredicate.args.unshift({ casus: casus, variable: bb.mainVariable });
 
     return {
       formula: conjunction([a.formula, bb.formula]),
@@ -252,7 +333,7 @@ function calculate(tree: Tree): Formula {
   function calcPreposition(casus: string, a: Phrase, b: Phrase): PredicatePhrase {
     const aa: NounPhrase = convertToNoun(a);
     if (!isPredicatePhrase(b)) throw new Error("CalcError: Unexpected Phrase");
-    b.mainPredicate.args.unshift({casus: casus, variable: aa.mainVariable});
+    b.mainPredicate.args.unshift({ casus: casus, variable: aa.mainVariable });
 
     return {
       formula: conjunction([aa.formula, b.formula]),
@@ -264,18 +345,18 @@ function calculate(tree: Tree): Formula {
     const v = variableMap.shift();
     if (v === undefined) throw new Error();
     const variables = [...v.values()];
-    
+
     return {
       formula: negation(variables.reduce((f, v) => exist(v, f), phrase.formula)),
       mainPredicate: phrase.mainPredicate,
       mainVariable: phrase.mainVariable
     };
   }
-  function calcNegation (phrases: Phrase[]): Phrase {
+  function calcNegation(phrases: Phrase[]): Phrase {
     const v = variableMap.shift();
     if (v === undefined) throw new Error();
     const variables = [...v.values()];
-    
+
     return {
       formula: negation(variables.reduce((f, v) => exist(v, f), calcSentence(phrases).formula)),
       mainPredicate: undefined,
@@ -284,7 +365,7 @@ function calculate(tree: Tree): Formula {
   }
   function calcSentence(phrases: Phrase[]): Phrase {
     return {
-      formula: conjunction(phrases.map(x=>x.formula)),
+      formula: conjunction(phrases.map(x => x.formula)),
       mainPredicate: undefined,
       mainVariable: undefined
     };
@@ -292,13 +373,13 @@ function calculate(tree: Tree): Formula {
 
   function recursion(tree: Tree): Phrase {
     // 否定はクロージャを生成
-    switch(tree.token.tokenType){
+    switch (tree.token.tokenType) {
       case "open_negation":
       case "single_negation":
         variableMap.unshift(new Map<string, Variable>());
     }
     const phrases: Phrase[] = tree.children.map(x => recursion(x));
-    switch(tree.token.tokenType){
+    switch (tree.token.tokenType) {
       case "create_determiner": return calcCreateDeterminer(tree.token.label);
       case "inherit_determiner": return calcInheritDeterminer(tree.token.label);
       case "terminate_determiner": return calcTerminateDeterminer(tree.token.label);
@@ -318,88 +399,6 @@ function calculate(tree: Tree): Formula {
   return result.formula;
 }
 
-//述語論理式
-interface TrueFormula {
-  formulaType: "true";
-}
-interface FalseFormula {
-  formulaType: "false";
-}
-interface NegationFormula {
-  formulaType: "negation",
-  formula: Formula
-}
-interface ExistFormula {
-  formulaType: "exist",
-  variable: Variable,
-  formula: Formula
-}
-interface AllFormula {
-  formulaType: "all",
-  variable: Variable,
-  formula: Formula
-}
-interface ConjunctionFormula {
-  formulaType: "conjunction",
-  formulas: Formula[]
-}
-interface DisjunctionFormula {
-  formulaType: "disjunction",
-  formulas: Formula[]
-}
-
-type Formula = TrueFormula | FalseFormula | Predicate | NegationFormula | ExistFormula | AllFormula | ConjunctionFormula | DisjunctionFormula ;
-
-function T(): TrueFormula {
-  return { formulaType: "true" };
-}
-function F(): FalseFormula {
-  return { formulaType: "false" };
-}
-function negation(formula:Formula): NegationFormula {
-  return { formulaType: "negation", formula };
-}
-function exist(variable: Variable, formula: Formula): ExistFormula{
-  return { formulaType: "exist", variable, formula };
-}
-function all(variable: Variable, formula: Formula): AllFormula {
-  return { formulaType: "all", variable, formula };
-}
-function conjunction(formulas: Formula[]): ConjunctionFormula | Formula {
-  formulas = formulas.reduce((acc: Formula[], cur: Formula) => {
-    if (cur.formulaType === "true") return acc;
-    if (cur.formulaType === "conjunction")
-      acc.push(...cur.formulas);
-    else
-      acc.push(cur);
-    return acc;
-  }, []);
-
-  if(formulas.length == 0) return T();
-  if(formulas.length == 1) return formulas[0];
-  return  {
-    formulaType: "conjunction",
-    formulas
-  };
-}
-function disjunction(formulas: Formula[]): Formula {
-  formulas = formulas.reduce((acc: Formula[], cur) => {
-    if (cur.formulaType == "false") return acc;
-    if(cur.formulaType == "disjunction")
-      acc.push(...cur.formulas);
-    else
-      acc.push(cur);
-    return acc;
-  }, []);
-
-  if(formulas.length == 0) return F();
-  if(formulas.length == 1) return formulas[0];
-  return  {
-    formulaType: "disjunction",
-    formulas
-  };
-}
-
 //標準化
 function normalize(formula: Formula): Formula {
   if (formula.formulaType === "negation") {
@@ -415,10 +414,10 @@ function normalize(formula: Formula): Formula {
       return exist(f.variable, normalize(negation(f.formula)));
     //￢(φ∧ψ∧...) → (￢φ∨￢ψ∨...)
     if (f.formulaType === "conjunction")
-      return normalize(disjunction(f.formulas.map(x=>normalize(negation(x)))));
+      return normalize(disjunction(f.formulas.map(x => normalize(negation(x)))));
     //￢(φ∧ψ∧...) → (￢φ∨￢ψ∨...)
     if (f.formulaType === "disjunction")
-      return normalize(conjunction(f.formulas.map(x=>normalize(negation(x)))));
+      return normalize(conjunction(f.formulas.map(x => normalize(negation(x)))));
     return negation(f);
   }
   if (formula.formulaType === "exist")
@@ -429,16 +428,16 @@ function normalize(formula: Formula): Formula {
   if (formula.formulaType === "conjunction") {
     let fs = formula.formulas.map(x => normalize(x));
 
-    const q: {type: (variable: Variable, formula: Formula)=>Formula, variable:Variable}[] = [];
+    const q: { type: (variable: Variable, formula: Formula) => Formula, variable: Variable; }[] = [];
     //それぞれの項から量化を剥ぐ
-    fs = fs.map(x=>{
-      while(true) {
-        if(x.formulaType === "exist") {
-          q.unshift({type:exist, variable:x.variable});
+    fs = fs.map(x => {
+      while (true) {
+        if (x.formulaType === "exist") {
+          q.unshift({ type: exist, variable: x.variable });
           x = x.formula;
         }
         else if (x.formulaType === "all") {
-          q.unshift({type:all, variable:x.variable});
+          q.unshift({ type: all, variable: x.variable });
           x = x.formula;
         }
         else break;
@@ -446,34 +445,34 @@ function normalize(formula: Formula): Formula {
       return x;
     });
 
-    const formula2:Formula = fs.reduce((acc, cur)=>{
-      if(cur.formulaType === "conjunction" && acc.formulaType === "conjunction")
+    const formula2: Formula = fs.reduce((acc, cur) => {
+      if (cur.formulaType === "conjunction" && acc.formulaType === "conjunction")
         return conjunction([acc, cur]);
-      if(cur.formulaType === "disjunction" && acc.formulaType === "conjunction")
-        return disjunction(cur.formulas.map(x=>conjunction([acc, x])));
-      if(cur.formulaType === "conjunction" && acc.formulaType === "disjunction")
-        return disjunction(acc.formulas.map(x=>conjunction([cur, x])));
-      if(cur.formulaType === "disjunction" && acc.formulaType === "disjunction")
-        return disjunction(cur.formulas.map(x=>disjunction(acc.formulas.map(y=>conjunction([x, y])))));
+      if (cur.formulaType === "disjunction" && acc.formulaType === "conjunction")
+        return disjunction(cur.formulas.map(x => conjunction([acc, x])));
+      if (cur.formulaType === "conjunction" && acc.formulaType === "disjunction")
+        return disjunction(acc.formulas.map(x => conjunction([cur, x])));
+      if (cur.formulaType === "disjunction" && acc.formulaType === "disjunction")
+        return disjunction(cur.formulas.map(x => disjunction(acc.formulas.map(y => conjunction([x, y])))));
       return conjunction([acc, cur]);
     }, T());
 
     //剥いだ量化を被せる
-    return q.reduce((acc, cur)=>cur.type(cur.variable, acc), formula2);
+    return q.reduce((acc, cur) => cur.type(cur.variable, acc), formula2);
   }
   if (formula.formulaType === "disjunction") {
     let fs = formula.formulas.map(x => normalize(x));
 
-    const q: {type: (variable: Variable, formula: Formula)=>Formula, variable:Variable}[] = [];
+    const q: { type: (variable: Variable, formula: Formula) => Formula, variable: Variable; }[] = [];
     //それぞれの項から量化を剥ぐ
-    fs = fs.map(x=>{
-      while(true) {
-        if(x.formulaType === "exist") {
-          q.unshift({type:exist, variable:x.variable});
+    fs = fs.map(x => {
+      while (true) {
+        if (x.formulaType === "exist") {
+          q.unshift({ type: exist, variable: x.variable });
           x = x.formula;
         }
         else if (x.formulaType === "all") {
-          q.unshift({type:all, variable:x.variable});
+          q.unshift({ type: all, variable: x.variable });
           x = x.formula;
         }
         else break;
@@ -481,12 +480,12 @@ function normalize(formula: Formula): Formula {
       return x;
     });
 
-    const formula2:Formula = fs.reduce((acc, cur)=>{
+    const formula2: Formula = fs.reduce((acc, cur) => {
       return disjunction([acc, cur]);
     }, F());
 
     //剥いだ量化を被せる
-    return q.reduce((acc, cur)=>cur.type(cur.variable, acc), formula2);
+    return q.reduce((acc, cur) => cur.type(cur.variable, acc), formula2);
   }
   return formula;
 }
@@ -502,13 +501,13 @@ function stringify(formula: Formula): string {
   if (formula.formulaType === "all")
     return "∀" + formula.variable.name + ";" + stringify(formula.formula);
   if (formula.formulaType === "conjunction")
-    return "(" + formula.formulas.map(x=>stringify(x)).join("∧") + ")";
+    return "(" + formula.formulas.map(x => stringify(x)).join("∧") + ")";
   if (formula.formulaType === "disjunction")
-    return "(" + formula.formulas.map(x=>stringify(x)).join("∨") + ")";
+    return "(" + formula.formulas.map(x => stringify(x)).join("∨") + ")";
   if (formula.formulaType === "negation")
     return "￢" + stringify(formula.formula);
   if (formula.formulaType === "predicate")
-    return formula.name + "(" + formula.args.map(x=>(x.casus + ":" + x.variable.name)).join(", ") + ")";
+    return formula.name + "(" + formula.args.map(x => (x.casus + ":" + x.variable.name)).join(", ") + ")";
   const exhaustion: never = formula;
   return "";
 }
@@ -531,14 +530,14 @@ function test(): void {
     "e bei fe rana moku au pina",
     "e bei fe no rana moku au pina",
   ];
-  inputs.forEach(x=>{
-    console.log(">"+x);
+  inputs.forEach(x => {
+    console.log(">" + x);
     console.log(stringify(calculate(parse(tokenize(x)))));
     console.log(stringify(normalize(calculate(parse(tokenize(x))))));
   });
 }
 
-function gebi(id :string) {
+function gebi(id: string) {
   return document.getElementById(id);
 }
 
@@ -626,7 +625,7 @@ function update(): void {
   const input = gebi("input").value;
   try {
     gebi("output").innerHTML = markupFormula(stringify(calculate(parse(tokenize(input)))));
-  } catch(e) {
+  } catch (e) {
     gebi("error").innerText = e.message;
   }
 }
@@ -651,4 +650,4 @@ window.onload = () => {
   gebi("open_negation_pattern").oninput = updatePattern;
   gebi("close_negation_pattern").oninput = updatePattern;
   reset1();
-}
+};
