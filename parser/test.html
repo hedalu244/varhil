@@ -1,76 +1,102 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>Parser | Varhil</title>
-    <script src="../automarkup.js" charset="utf-8"></script>
-    <script type="text/javascript" src="main.js"></script>
-  </head>
-  <body>
-    <h1>構文/意味解析器</h1>
-    <p>Varhil文法案に従った構文/意味解析器です。JavaScriptで動作しています。</p>
-    <hr>
-    <textarea id="input" rows="8" cols="80"></textarea>
-    <div id="output" class="formula"></div>
-    <div id="error"></div>
+<!-- saved from url=(0042)https://hedalu244.github.io/varhil/parser/ -->
+<html lang="ja"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
-    <table>
-      <tr>
-        <td>separator</td>
-        <td><input type="text" id="separator_pattern"></td>
-      </tr>
-      <tr>
-        <td>single_variable</td>
-        <td><input type="text" id="single_variable_pattern"></td>
-      </tr>
-      <tr>
-        <td>new_variable</td>
-        <td><input type="text" id="new_variable_pattern"></td>
-        <td>character</td>
-        <td><input type="text" id="new_variable_replacer"></td>
-      </tr>
-      <tr>
-        <td>continued_variable</td>
-        <td><input type="text" id="continued_variable_pattern"></td>
-        <td>character</td>
-        <td><input type="text" id="continued_variable_replacer"></td>
-      </tr>
-      <tr>
-        <td>last_variable</td>
-        <td><input type="text" id="last_variable_pattern"></td>
-        <td>character</td>
-        <td><input type="text" id="last_variable_replacer"></td>
-      </tr>
-      <tr>
-        <td>predicate</td>
-        <td><input type="text" id="predicate_pattern"></td>
-        <td>name</td>
-        <td><input type="text" id="predicate_replacer"></td>
-      </tr>
-      <tr>
-        <td>preposition</td>
-        <td><input type="text" id="preposition_pattern"></td>
-        <td>casus</td>
-        <td><input type="text" id="preposition_replacer"></td>
-      </tr>
-      <tr>
-        <td>relative</td>
-        <td><input type="text" id="relative_pattern"></td>
-        <td>casus</td>
-        <td><input type="text" id="relative_replacer"></td>
-      </tr>
-      <tr>
-        <td>single_negation</td>
-        <td><input type="text" id="single_negation_pattern"></td>
-      </tr>
-      <tr>
-        <td>open_negation</td>
-        <td><input type="text" id="open_negation_pattern"></td>
-      </tr>
-      <tr>
-        <td>close_negation</td>
-        <td><input type="text" id="close_negation_pattern"></td>
-      </tr>
-    </table>
-  </body>
-</html>
+<title>構文解析器 | Varhil</title>
+<link rel="stylesheet" href="./test_files/master.css">
+<link rel="stylesheet" href="./test_files/default-layout.css">
+<link rel="icon" href="https://hedalu244.github.io/varhil/image/favicon.svg" type="image/svg+xml">
+<link rel="icon alternate" href="https://hedalu244.github.io/varhil/image/favicon.png" type="image/png">
+<script src="./test_files/jquery.min.js.ダウンロード"></script>
+<script src="./test_files/default-animation.js.ダウンロード"></script>
+<script src="./test_files/breadcrumbs.js.ダウンロード"></script>
+<script src="./test_files/automarkup.js.ダウンロード"></script>
+</head>
+<body data-new-gr-c-s-check-loaded="14.982.0" style="zoom: 1;">
+<div id="content" class="content" style="opacity: 1;">
+<h1>構文解析器</h1>
+<ul id="breadcrumbs" class="breadcrumbs"><li><a href="https://hedalu244.github.io/varhil/">varhil</a></li><li>parser</li></ul>
+<p>一階述語論理まで対応した構文解析器です。TypeScriptで実装されています。<a href="https://hedalu244.github.io/varhil/parser/main.ts">ソースコード</a></p>
+
+<textarea id="input" rows="8" cols="80"></textarea>
+<div id="output" class="formula"><span class="symbol">⊤</span></div>
+<div id="error"></div>
+
+<table>
+  <tbody>
+    <tr>
+      <td>separator</td>
+      <td><input type="text" id="separator_pattern"></td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>isolated determiner</td>
+      <td><input type="text" id="isolated_determiner_pattern"></td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>create determiner</td>
+      <td><input type="text" id="create_determiner_pattern"></td>
+      <td>label</td>
+      <td><input type="text" id="create_determiner_replacer"></td>
+    </tr>
+    <tr>
+      <td>inherit determiner</td>
+      <td><input type="text" id="inherit_determiner_pattern"></td>
+      <td>label</td>
+      <td><input type="text" id="inherit_determiner_replacer"></td>
+    </tr>
+    <tr>
+      <td>terminate determiner</td>
+      <td><input type="text" id="terminate_determiner_pattern"></td>
+      <td>label</td>
+      <td><input type="text" id="terminate_determiner_replacer"></td>
+    </tr>
+    <tr>
+      <td>predicate</td>
+      <td><input type="text" id="predicate_pattern"></td>
+      <td>name</td>
+      <td><input type="text" id="predicate_replacer"></td>
+    </tr>
+    <tr>
+      <td>preposition</td>
+      <td><input type="text" id="preposition_pattern"></td>
+      <td>casus</td>
+      <td><input type="text" id="preposition_replacer"></td>
+    </tr>
+    <tr>
+      <td>relative</td>
+      <td><input type="text" id="relative_pattern"></td>
+      <td>casus</td>
+      <td><input type="text" id="relative_replacer"></td>
+    </tr>
+    <tr>
+      <td>single negation</td>
+      <td><input type="text" id="single_negation_pattern"></td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>open negation</td>
+      <td><input type="text" id="open_negation_pattern"></td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>close negation</td>
+      <td><input type="text" id="close_negation_pattern"></td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+  </tbody>
+</table>
+
+<script type="text/javascript" src="./test_files/main.js.ダウンロード"></script>
+
+
+</div>
+
+
+</body></html>
