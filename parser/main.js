@@ -106,30 +106,15 @@ function calculate(tree) {
     let variableCount = 0;
     function issueVariable() { return { name: "" + variableCount++ }; }
     function findVariable(label) {
-        return variableMap.find(map => map.has(label)) ? .get(label) : ;
+        const a = variableMap.find(map => map.has(label));
+        return a === undefined ? undefined : a.get(label);
         //return variableMap.map(map=>map.get(label)).find((x):x is Variable=>x !== undefined);
     }
     function Predicate(name, args) {
         return {
             formulaType: "predicate",
-            subgraphType: "predicate",
             name,
             args
-        };
-    }
-    function cut(graph) {
-        return {
-            children: [{
-                    subgraphType: "cut",
-                    content: graph
-                }],
-            usings: graph.usings
-        };
-    }
-    function merge(a, b) {
-        return {
-            children: [...a.children, ...b.children],
-            usings: [...a.usings, ...b.usings]
         };
     }
     function isNounPhrase(phrase) { return phrase.mainVariable !== undefined; }
@@ -144,10 +129,7 @@ function calculate(tree) {
     function calcIsolatedDeterminer() {
         const variable = issueVariable();
         return {
-            graph: {
-                children: [],
-                usings: [variable]
-            },
+            formula: T(),
             mainPredicate: undefined,
             mainVariable: variable
         };
@@ -156,10 +138,7 @@ function calculate(tree) {
         const variable = issueVariable();
         variableMap[0].set(label, variable);
         return {
-            graph: {
-                children: [],
-                usings: [variable]
-            },
+            formula: T(),
             mainPredicate: undefined,
             mainVariable: variable
         };
@@ -171,10 +150,7 @@ function calculate(tree) {
             return calcCreateDeterminer(label);
         }
         return {
-            graph: {
-                children: [],
-                usings: [variable]
-            },
+            formula: T(),
             mainPredicate: undefined,
             mainVariable: variable
         };
@@ -188,10 +164,7 @@ function calculate(tree) {
         else
             variableMap[0].delete(label);
         return {
-            graph: {
-                children: [],
-                usings: [variable]
-            },
+            formula: T(),
             mainPredicate: undefined,
             mainVariable: variable
         };
@@ -199,10 +172,7 @@ function calculate(tree) {
     function calcPredicate(name) {
         const predicate = Predicate(name, []);
         return {
-            graph: {
-                children: [predicate],
-                usings: []
-            },
+            formula: predicate,
             mainPredicate: predicate,
             mainVariable: undefined
         };
@@ -213,7 +183,7 @@ function calculate(tree) {
         const bb = convertToNoun(b);
         a.mainPredicate.args.unshift({ casus: casus, variable: bb.mainVariable });
         return {
-            graph: merge(a.graph, bb.graph),
+            formula: conjunction([a.formula, bb.formula]),
             mainPredicate: undefined,
             mainVariable: bb.mainVariable
         };
@@ -224,39 +194,47 @@ function calculate(tree) {
             throw new Error("CalcError: Unexpected Phrase");
         b.mainPredicate.args.unshift({ casus: casus, variable: aa.mainVariable });
         return {
-            graph: merge(aa.graph, b.graph),
+            formula: conjunction([aa.formula, b.formula]),
             mainPredicate: b.mainPredicate,
             mainVariable: undefined
         };
     }
     function calcSingleNegation(phrase) {
-        variableMap.unshift(new Map());
-        const graph = cut(phrase.graph);
-        variableMap.shift();
+        const v = variableMap.shift();
+        if (v === undefined)
+            throw new Error();
+        const variables = [...v.values()];
         return {
-            graph: graph,
+            formula: negation(variables.reduce((f, v) => exist(v, f), phrase.formula)),
             mainPredicate: phrase.mainPredicate,
             mainVariable: phrase.mainVariable
         };
     }
     function calcNegation(phrases) {
-        variableMap.unshift(new Map());
-        const graph = cut(calcSentence(phrases).graph);
-        variableMap.shift();
+        const v = variableMap.shift();
+        if (v === undefined)
+            throw new Error();
+        const variables = [...v.values()];
         return {
-            graph: graph,
+            formula: negation(variables.reduce((f, v) => exist(v, f), calcSentence(phrases).formula)),
             mainPredicate: undefined,
             mainVariable: undefined
         };
     }
     function calcSentence(phrases) {
         return {
-            graph: phrases.map(x => x.graph).reduce(merge, { children: [], usings: [] }),
+            formula: conjunction(phrases.map(x => x.formula)),
             mainPredicate: undefined,
             mainVariable: undefined
         };
     }
     function recursion(tree) {
+        // 否定はクロージャを生成
+        switch (tree.token.tokenType) {
+            case "open_negation":
+            case "single_negation":
+                variableMap.unshift(new Map());
+        }
         const phrases = tree.children.map(x => recursion(x));
         switch (tree.token.tokenType) {
             case "create_determiner": return calcCreateDeterminer(tree.token.label);
@@ -275,7 +253,7 @@ function calculate(tree) {
         }
     }
     const result = recursion(tree);
-    return result.graph;
+    return result.formula;
 }
 function T() {
     return { formulaType: "true" };
@@ -329,36 +307,6 @@ function disjunction(formulas) {
         formulaType: "disjunction",
         formulas
     };
-}
-//存在グラフを論理式に変換。主に量化が難点
-function formularize(graph) {
-    function recursion(graph, inner) {
-        const core = conjunction(graph.children.map(subgraph => {
-            switch (subgraph.subgraphType) {
-                case "cut": {
-                    //内部の数が全体の数と一致するもの、一致しないものに分ける
-                    const a = [];
-                    const b = [];
-                    inner.forEach(x => (count(x, subgraph.content.usings) === count(x, inner) ? a : b).push(x));
-                    //一致しないものはinnerに戻し、一致するものを使って内部で再帰
-                    inner = b;
-                    return negation(recursion(subgraph.content, a));
-                }
-                case "predicate":
-                    //predicateはsubgraphとformulaを兼ねてる
-                    return subgraph;
-            }
-        }));
-        //どこのcutでも数が合わなかった（複数のcutで使われてるか、定名詞が直置きされてる）変数のみ量化
-        return removeDup(inner).reduce((a, c) => exist(c, a), core);
-    }
-    function count(element, array) {
-        return array.filter(x => x === element).length;
-    }
-    function removeDup(array) {
-        return Array.from(new Set(array));
-    }
-    return recursion(graph, [...graph.usings]);
 }
 //標準化
 function normalize(formula) {
@@ -486,8 +434,8 @@ function test() {
     ];
     inputs.forEach(x => {
         console.log(">" + x);
-        console.log(stringify(formularize(calculate(parse(tokenize(x))))));
-        console.log(stringify(normalize(formularize(calculate(parse(tokenize(x)))))));
+        console.log(stringify(calculate(parse(tokenize(x)))));
+        console.log(stringify(normalize(calculate(parse(tokenize(x))))));
     });
 }
 function gebi(id) {
@@ -554,7 +502,7 @@ function update() {
     gebi("error").innerText = "";
     const input = gebi("input").value;
     try {
-        gebi("output").innerHTML = markupFormula(stringify(formularize(calculate(parse(tokenize(input))))));
+        gebi("output").innerHTML = markupFormula(stringify(calculate(parse(tokenize(input)))));
     }
     catch (e) {
         gebi("error").innerText = e.message;
