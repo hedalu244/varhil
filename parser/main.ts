@@ -1,20 +1,3 @@
-type Token = {
-  literal: string,
-  tokenType: "new_determiner" | "inherit_determiner",
-  key: string;
-} | {
-  literal: string,
-  tokenType: "predicate",
-  name: string;
-} | {
-  literal: string,
-  tokenType: "relative" | "preposition",
-  casus: string;
-} | {
-  literal: string,
-  tokenType: "isolated_determiner" | "single_negation" | "open_negation" | "close_negation" | "open_sentence" | "close_sentence";
-};
-
 //字句解析
 let separatorPattern: RegExp;
 
@@ -39,6 +22,11 @@ let isSingleNegation: (literal: string) => boolean;
 let isOpenNegation: (literal: string) => boolean;
 let isCloseNegation: (literal: string) => boolean;
 
+type Token = {
+  literal: string,
+  tokenType: "new_determiner" | "inherit_determiner" | "predicate" | "relative" | "preposition" | "isolated_determiner" | "single_negation" | "open_negation" | "close_negation" | "open_sentence" | "close_sentence";
+};
+
 //トークン単位に分割し、必要な情報を付加する
 function tokenize(input: string): Token[] {
   const literals = input.split(separatorPattern).filter(x => x !== "");
@@ -47,15 +35,15 @@ function tokenize(input: string): Token[] {
     if (isIsolatedDeterminer(literal))
       return { literal, tokenType: "isolated_determiner" };
     if (isNewDeterminer(literal))
-      return { literal, tokenType: "new_determiner", key: newDeterminerToKey(literal) };
+      return { literal, tokenType: "new_determiner" };
     if (isInheritDeterminer(literal))
-      return { literal, tokenType: "inherit_determiner", key: inheritDeterminerToKey(literal) };
+      return { literal, tokenType: "inherit_determiner" };
     if (isPredicate(literal))
-      return { literal, tokenType: "predicate", name: predicateToName(literal) };
+      return { literal, tokenType: "predicate" };
     if (isRelative(literal))
-      return { literal, tokenType: "relative", casus: relativeToCasus(literal) };
+      return { literal, tokenType: "relative" };
     if (isPreposition(literal))
-      return { literal, tokenType: "preposition", casus: prepositionToCasus(literal) };
+      return { literal, tokenType: "preposition" };
     if (isSingleNegation(literal))
       return { literal, tokenType: "single_negation" };
     if (isOpenNegation(literal))
@@ -105,41 +93,33 @@ type Tree = {
   closeToken: Token;
   children: Tree[];
 };
-type Arity = number | "(" | ")";
-// ポーランド記法を解く
 
+// ポーランド記法を解く
 function parse(tokens: Token[]): Tree {
   const token = tokens.shift();
   if (token === undefined) throw new Error("ParseError: Unxpected End of Tokens");
-
   if (token.tokenType == "close_negation" || token.tokenType == "close_sentence")
     throw new Error("ParseError: Unxpected Token " + token.literal);
-
-  const arity = (function () {
-    switch (token.tokenType) {
-      case "new_determiner": return 0;
-      case "inherit_determiner": return 0;
-      case "isolated_determiner": return 0;
-      case "predicate": return 0;
-      case "relative": return 2;
-      case "preposition": return 2;
-      case "single_negation": return 1;
-      case "open_negation": return "(";
-      case "open_sentence": return "(";
-    }
-  })();
 
   switch (token.tokenType) {
     case "isolated_determiner":
       return { treeType: token.tokenType, token: token };
     case "new_determiner":
+      return { treeType: token.tokenType, token: token, key: newDeterminerToKey(token.literal)};
     case "inherit_determiner":
-      return { treeType: token.tokenType, token: token, key: token.key };
+      return { treeType: token.tokenType, token: token, key: inheritDeterminerToKey(token.literal)};
     case "predicate":
-      return { treeType: token.tokenType, name: token.name, token: token };
-    case "relative":
-    case "preposition":
-      return { treeType: token.tokenType, casus: token.casus, left: parse(tokens), right: parse(tokens), token: token };
+      return { treeType: token.tokenType, name: predicateToName(token.literal), token: token };
+    case "relative": {
+      const left = parse(tokens);
+      const right = parse(tokens);
+      return { treeType: token.tokenType, casus: relativeToCasus(token.literal), left, right, token: token };
+    }
+    case "preposition": {
+      const left = parse(tokens);
+      const right = parse(tokens);
+      return { treeType: token.tokenType, casus: prepositionToCasus(token.literal), left, right, token: token };
+    }
     case "single_negation":
       return { treeType: token.tokenType, child: parse(tokens), token: token };
     case "open_negation": {
