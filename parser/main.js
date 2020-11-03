@@ -398,8 +398,8 @@ function stringify(formula) {
         return "￢" + stringify(formula.formula);
     if (formula.formulaType === "predicate")
         return formula.name + "(" + formula.args.map(x => (x.casus + ":" + x.variable.id)).join(", ") + ")";
-    const exhaustion = formula;
-    return "";
+    //exhaustion
+    return formula;
 }
 function test() {
     const inputs = [
