@@ -18,33 +18,35 @@ let isCloseNegation;
 //トークン単位に分割し、必要な情報を付加する
 function tokenize(input) {
     const literals = input.split(separatorPattern).filter(x => x !== "");
-    const tokens = literals.map(literal => {
+    const tokens = literals.map((literal, index) => {
         if (isIsolatedDeterminer(literal))
-            return { literal, tokenType: "isolated_determiner" };
+            return { literal, index, tokenType: "isolated_determiner" };
         if (isNewDeterminer(literal))
-            return { literal, tokenType: "new_determiner" };
+            return { literal, index, tokenType: "new_determiner" };
         if (isInheritDeterminer(literal))
-            return { literal, tokenType: "inherit_determiner" };
+            return { literal, index, tokenType: "inherit_determiner" };
         if (isPredicate(literal))
-            return { literal, tokenType: "predicate" };
+            return { literal, index, tokenType: "predicate" };
         if (isRelative(literal))
-            return { literal, tokenType: "relative" };
+            return { literal, index, tokenType: "relative" };
         if (isPreposition(literal))
-            return { literal, tokenType: "preposition" };
+            return { literal, index, tokenType: "preposition" };
         if (isSingleNegation(literal))
-            return { literal, tokenType: "single_negation" };
+            return { literal, index, tokenType: "single_negation" };
         if (isOpenNegation(literal))
-            return { literal, tokenType: "open_negation" };
+            return { literal, index, tokenType: "open_negation" };
         if (isCloseNegation(literal))
-            return { literal, tokenType: "close_negation" };
+            return { literal, index, tokenType: "close_negation" };
         throw new Error("TokenizeError: word " + literal + " can't be classificated");
     });
     tokens.unshift({
         tokenType: "open_sentence",
+        index: -1,
         literal: "_SoI_",
     });
     tokens.push({
         tokenType: "close_sentence",
+        index: tokens.length,
         literal: "_EoI_"
     });
     return tokens;
@@ -398,8 +400,212 @@ function stringify(formula) {
         return "￢" + stringify(formula.formula);
     if (formula.formulaType === "predicate")
         return formula.name + "(" + formula.args.map(x => (x.casus + ":" + x.variable.id)).join(", ") + ")";
-    //exhaustion
+    // 網羅チェック
     return formula;
+}
+function drawPhraseStructure(phrase, svg) {
+    svg.innerHTML = "";
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    g.setAttribute("fill", "none");
+    g.setAttribute("stroke", "#444");
+    g.setAttribute("stroke-width", "3");
+    g.setAttribute("stroke-linecap", "round");
+    g.setAttribute("stroke-linejoin", "round");
+    svg.appendChild(g);
+    recursion(phrase, 0);
+    function recursion(phrase, x) {
+        const u = 3;
+        function createOverPath(startX, endX, endY, height) {
+            const overSVG = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            if (endY == 0)
+                overSVG.setAttribute("d", [
+                    "M", startX, -8 * u,
+                    "c", 0, -2 * u, 0, -2 * u, 2 * u, -5 * u,
+                    "l", (height - 1) * 4 * u, -(height - 1) * 6 * u,
+                    "c", u, -1.5 * u, 2 * u, -3 * u, 4 * u, -3 * u,
+                    "l", endX - (height * 4 + 10) * u - startX, 0,
+                    "c", 2 * u, 0, 3 * u, 1.5 * u, 4 * u, 3 * u,
+                    "l", (height - endY) * 4 * u, (height - endY) * 6 * u
+                ].join(" "));
+            else
+                overSVG.setAttribute("d", [
+                    "M", startX, -8 * u,
+                    "c", 0, -2 * u, 0, -2 * u, 2 * u, -5 * u,
+                    "l", (height - 1) * 4 * u, -(height - 1) * 6 * u,
+                    "c", u, -1.5 * u, 2 * u, -3 * u, 4 * u, -3 * u,
+                    "l", endX - (height * 4 + 10) * u - startX, 0,
+                    "c", 2 * u, 0, 3 * u, 1.5 * u, 4 * u, 3 * u,
+                    "l", (height - endY - 1) * 4 * u, (height - endY - 1) * 6 * u,
+                    "c", 1 * u, 1.5 * u, 2 * u, 3 * u, 4 * u, 3 * u
+                ].join(" "));
+            return overSVG;
+        }
+        function createUnderPath(startX, endX, endY, height) {
+            const underSVG = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            if (endY == 0)
+                underSVG.setAttribute("d", [
+                    "M", startX, 8 * u,
+                    "c", 0, 2 * u, 0, 2 * u, 2 * u, 5 * u,
+                    "l", (height - 1) * 4 * u, (height - 1) * 6 * u,
+                    "c", u, 1.5 * u, 2 * u, 3 * u, 4 * u, 3 * u,
+                    "l", endX - (height * 4 + 10) * u - startX, 0,
+                    "c", 2 * u, 0, 3 * u, -1.5 * u, 4 * u, -3 * u,
+                    "l", (height - endY) * 4 * u, -(height - endY) * 6 * u
+                ].join(" "));
+            else
+                underSVG.setAttribute("d", [
+                    "M", startX, 8 * u,
+                    "c", 0, 2 * u, 0, 2 * u, 2 * u, 5 * u,
+                    "l", (height - 1) * 4 * u, (height - 1) * 6 * u,
+                    "c", u, 1.5 * u, 2 * u, 3 * u, 4 * u, 3 * u,
+                    "l", endX - (height * 4 + 10) * u - startX, 0,
+                    "c", 2 * u, 0, 3 * u, -1.5 * u, 4 * u, -3 * u,
+                    "l", (height - endY - 1) * 4 * u, -(height - endY - 1) * 6 * u,
+                    "c", 1 * u, -1.5 * u, 2 * u, -3 * u, 4 * u, -3 * u
+                ].join(" "));
+            return underSVG;
+        }
+        const literalSVG = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        literalSVG.textContent = phrase.token.literal;
+        literalSVG.setAttribute("fill", "#222");
+        literalSVG.setAttribute("font-size", "20px");
+        literalSVG.setAttribute("stroke", "none");
+        literalSVG.setAttribute("x", "" + x);
+        g.appendChild(literalSVG);
+        let literalNextX = x + literalSVG.getBoundingClientRect().width + 20;
+        const literalCenterX = x + literalSVG.getBoundingClientRect().width / 2;
+        switch (phrase.phraseType) {
+            case "isolated_determiner":
+            case "new_determiner":
+            case "inherit_determiner":
+            case "predicate": {
+                return {
+                    size: 0,
+                    overX: literalCenterX,
+                    overY: 0,
+                    underX: literalCenterX,
+                    underY: 0,
+                    nextX: literalNextX,
+                };
+            }
+            case "preposition": {
+                const left = recursion(phrase.left, literalNextX);
+                const right = recursion(phrase.right, left.nextX);
+                const overEndX = left.overX;
+                const overEndY = left.overY;
+                const overHeight = left.size + 1;
+                g.appendChild(createOverPath(literalCenterX, overEndX, overEndY, overHeight));
+                const underEndX = right.underX;
+                const underEndY = right.underY;
+                const underHeight = Math.max(left.size, right.size) + 1;
+                g.appendChild(createUnderPath(literalCenterX, underEndX, underEndY, underHeight));
+                return {
+                    size: Math.max(left.size, right.size) + 1,
+                    overX: (literalCenterX + overEndX) / 2,
+                    overY: overHeight,
+                    underX: (literalCenterX + underEndX) / 2,
+                    underY: underHeight,
+                    nextX: right.nextX + 10,
+                };
+            }
+            case "relative": {
+                const left = recursion(phrase.left, literalNextX);
+                const right = recursion(phrase.right, left.nextX);
+                const overEndX = right.overX;
+                const overEndY = right.overY;
+                const overHeight = Math.max(left.size, right.size) + 1;
+                g.appendChild(createOverPath(literalCenterX, overEndX, overEndY, overHeight));
+                const underEndX = left.underX;
+                const underEndY = left.underY;
+                const underHeight = left.size + 1;
+                g.appendChild(createUnderPath(literalCenterX, underEndX, underEndY, underHeight));
+                return {
+                    size: Math.max(left.size, right.size) + 1,
+                    overX: (literalCenterX + overEndX) / 2,
+                    overY: overHeight,
+                    underX: (literalCenterX + underEndX) / 2,
+                    underY: underHeight,
+                    nextX: right.nextX + 10,
+                };
+            }
+            case "single_negation": {
+                const child = recursion(phrase.child, literalNextX);
+                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                const startX = literalCenterX;
+                const endX = child.nextX;
+                const height = child.size + 1;
+                path.setAttribute("d", [
+                    "M", literalCenterX, -8 * u,
+                    "c", 0, -2 * u, 0, -2 * u, 2 * u, -5 * u,
+                    "l", (height - 1) * 4 * u, -(height - 1) * 6 * u,
+                    "c", u, -1.5 * u, 2 * u, -3 * u, 4 * u, -3 * u,
+                    "l", endX - (height * 8 + 4) * u - startX, 0,
+                    "c", 2 * u, 0, 3 * u, 1.5 * u, 4 * u, 3 * u,
+                    "l", (height - 1) * 4 * u, (height - 1) * 6 * u,
+                    "c", 2 * u, 3 * u, 2 * u, 3 * u, 2 * u, 5 * u
+                ].join(" "));
+                g.appendChild(path);
+                return {
+                    size: child.size + 1,
+                    overX: child.overX,
+                    overY: child.overY,
+                    underX: child.underX,
+                    underY: child.underY,
+                    nextX: child.nextX + 20,
+                };
+            }
+            case "negation": {
+                const childrenResult = phrase.children.reduce((state, child) => {
+                    const result = recursion(child, state.nextX);
+                    return { nextX: result.nextX, size: Math.max(state.size, result.size) };
+                }, { nextX: literalNextX, size: 0 });
+                const closeLiteralSVG = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                closeLiteralSVG.textContent = phrase.closeToken.literal;
+                closeLiteralSVG.setAttribute("fill", "#222");
+                closeLiteralSVG.setAttribute("font-size", "20px");
+                closeLiteralSVG.setAttribute("stroke", "none");
+                closeLiteralSVG.setAttribute("x", "" + childrenResult.nextX);
+                g.appendChild(closeLiteralSVG);
+                let closeLiteralNextX = childrenResult.nextX + closeLiteralSVG.getBoundingClientRect().width + 20;
+                const closeLiteralCenterX = childrenResult.nextX + closeLiteralSVG.getBoundingClientRect().width / 2;
+                const startX = literalCenterX;
+                const endX = closeLiteralCenterX;
+                const height = childrenResult.size + 1;
+                const overPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                overPath.setAttribute("d", [
+                    "M", literalCenterX, -8 * u,
+                    "c", 0, -2 * u, 0, -2 * u, 2 * u, -5 * u,
+                    "l", (height - 1) * 4 * u, -(height - 1) * 6 * u,
+                    "c", u, -1.5 * u, 2 * u, -3 * u, 4 * u, -3 * u,
+                    "l", endX - (height * 8 + 4) * u - startX, 0,
+                    "c", 2 * u, 0, 3 * u, 1.5 * u, 4 * u, 3 * u,
+                    "l", (height - 1) * 4 * u, (height - 1) * 6 * u,
+                    "c", 2 * u, 3 * u, 2 * u, 3 * u, 2 * u, 5 * u
+                ].join(" "));
+                g.appendChild(overPath);
+                const underPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                underPath.setAttribute("d", [
+                    "M", literalCenterX, 8 * u,
+                    "c", 0, 2 * u, 0, 2 * u, 2 * u, 5 * u,
+                    "l", (height - 1) * 4 * u, (height - 1) * 6 * u,
+                    "c", u, 1.5 * u, 2 * u, 3 * u, 4 * u, 3 * u,
+                    "l", endX - (height * 8 + 4) * u - startX, 0,
+                    "c", 2 * u, 0, 3 * u, -1.5 * u, 4 * u, -3 * u,
+                    "l", (height - 1) * 4 * u, -(height - 1) * 6 * u,
+                    "c", 2 * u, -3 * u, 2 * u, -3 * u, 2 * u, -5 * u
+                ].join(" "));
+                g.appendChild(underPath);
+                return {
+                    nextX: closeLiteralNextX, size: childrenResult.size + 1,
+                    overX: 0, overY: 0, underX: 0, underY: 0
+                };
+            }
+            case "sentence": {
+                const childrenNextX = phrase.children.reduce((nextX, child) => recursion(child, nextX).nextX, literalNextX);
+                return { nextX: childrenNextX + 10 };
+            }
+        }
+    }
 }
 function test() {
     const inputs = [
@@ -431,6 +637,9 @@ function gebi(id) {
 const doms = (function () {
     const input = gebi("input");
     if (!(input instanceof HTMLTextAreaElement))
+        throw new Error("DOM not found");
+    const phrase_structure_output = gebi("phrase_structure_output");
+    if (!(phrase_structure_output instanceof SVGSVGElement))
         throw new Error("DOM not found");
     const formula_output = gebi("formula_output");
     if (!(formula_output instanceof HTMLDivElement))
@@ -488,6 +697,7 @@ const doms = (function () {
         throw new Error("DOM not found");
     return {
         input,
+        phrase_structure_output,
         formula_output,
         normalized_formula_output,
         error_output,
@@ -564,6 +774,7 @@ function update() {
     doms.error_output.innerText = "";
     const input = doms.input.value;
     try {
+        drawPhraseStructure(parse(tokenize(input)), doms.phrase_structure_output);
         doms.formula_output.innerHTML = markupFormula(stringify(calculate(parse(tokenize(input)))));
         doms.normalized_formula_output.innerHTML = markupFormula(stringify(normalize(calculate(parse(tokenize(input))))));
     }
