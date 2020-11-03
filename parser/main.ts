@@ -132,7 +132,7 @@ function parse(tokens: Token[]): Tree {
 
 //意味解析
 interface Variable {
-  name: string;
+  id: string;
 }
 interface PredicateFormula {
   formulaType: "predicate";
@@ -244,7 +244,7 @@ function calculate(tree: Tree): Formula {
   const variableMap: { key: string | null, variable: Variable; }[][] = [];
   let variableCount: number = 0;
 
-  function issueVariable(): Variable { return { name: "" + variableCount++ }; }
+  function issueVariable(): Variable { return { id: "" + variableCount++ }; }
 
   function findVariable(key: string): Variable | undefined {
     const a = variableMap.find(closure => closure.some(entry => entry.key === key));
@@ -478,9 +478,9 @@ function stringify(formula: Formula): string {
   if (formula.formulaType === "false")
     return "⊥";
   if (formula.formulaType === "exist")
-    return "∃" + formula.variable.name + ";" + stringify(formula.formula);
+    return "∃" + formula.variable.id + ";" + stringify(formula.formula);
   if (formula.formulaType === "all")
-    return "∀" + formula.variable.name + ";" + stringify(formula.formula);
+    return "∀" + formula.variable.id + ";" + stringify(formula.formula);
   if (formula.formulaType === "conjunction")
     return "(" + formula.formulas.map(x => stringify(x)).join("∧") + ")";
   if (formula.formulaType === "disjunction")
@@ -488,7 +488,7 @@ function stringify(formula: Formula): string {
   if (formula.formulaType === "negation")
     return "￢" + stringify(formula.formula);
   if (formula.formulaType === "predicate")
-    return formula.name + "(" + formula.args.map(x => (x.casus + ":" + x.variable.name)).join(", ") + ")";
+    return formula.name + "(" + formula.args.map(x => (x.casus + ":" + x.variable.id)).join(", ") + ")";
   const exhaustion: never = formula;
   return "";
 }

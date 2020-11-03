@@ -159,7 +159,7 @@ function disjunction(formulas) {
 function calculate(tree) {
     const variableMap = [];
     let variableCount = 0;
-    function issueVariable() { return { name: "" + variableCount++ }; }
+    function issueVariable() { return { id: "" + variableCount++ }; }
     function findVariable(key) {
         const a = variableMap.find(closure => closure.some(entry => entry.key === key));
         const b = a === undefined ? undefined : a.find(entry => entry.key === key);
@@ -383,9 +383,9 @@ function stringify(formula) {
     if (formula.formulaType === "false")
         return "⊥";
     if (formula.formulaType === "exist")
-        return "∃" + formula.variable.name + ";" + stringify(formula.formula);
+        return "∃" + formula.variable.id + ";" + stringify(formula.formula);
     if (formula.formulaType === "all")
-        return "∀" + formula.variable.name + ";" + stringify(formula.formula);
+        return "∀" + formula.variable.id + ";" + stringify(formula.formula);
     if (formula.formulaType === "conjunction")
         return "(" + formula.formulas.map(x => stringify(x)).join("∧") + ")";
     if (formula.formulaType === "disjunction")
@@ -393,7 +393,7 @@ function stringify(formula) {
     if (formula.formulaType === "negation")
         return "￢" + stringify(formula.formula);
     if (formula.formulaType === "predicate")
-        return formula.name + "(" + formula.args.map(x => (x.casus + ":" + x.variable.name)).join(", ") + ")";
+        return formula.name + "(" + formula.args.map(x => (x.casus + ":" + x.variable.id)).join(", ") + ")";
     const exhaustion = formula;
     return "";
 }
