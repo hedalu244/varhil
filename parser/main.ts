@@ -1,6 +1,6 @@
 type Token = {
   literal: string,
-  tokenType: "create_determiner" | "inherit_determiner" | "terminate_determiner",
+  tokenType: "create_determiner" | "inherit_determiner",
   label: string;
 } | {
   literal: string,
@@ -26,9 +26,6 @@ let createDeterminerToLabel: (literal: string) => string;
 let isInheritDeterminer: (literal: string) => boolean;
 let inheritDeterminerToLabel: (literal: string) => string;
 
-let isTerminateDeterminer: (literal: string) => boolean;
-let terminateDeterminerToLabel: (literal: string) => string;
-
 let isPredicate: (literal: string) => boolean;
 let predicateToName: (literal: string) => string;
 
@@ -53,8 +50,6 @@ function tokenize(input: string): Token[] {
       return { literal, tokenType: "create_determiner", label: createDeterminerToLabel(literal) };
     if (isInheritDeterminer(literal))
       return { literal, tokenType: "inherit_determiner", label: inheritDeterminerToLabel(literal) };
-    if (isTerminateDeterminer(literal))
-      return { literal, tokenType: "terminate_determiner", label: terminateDeterminerToLabel(literal) };
     if (isPredicate(literal))
       return { literal, tokenType: "predicate", name: predicateToName(literal) };
     if (isRelative(literal))
@@ -122,7 +117,6 @@ function parse(tokens: Token[]): Tree {
     switch (token.tokenType) {
       case "create_determiner": return 0;
       case "inherit_determiner": return 0;
-      case "terminate_determiner": return 0;
       case "isolatedDeterminer": return 0;
       case "predicate": return 0;
       case "relative": return 2;
@@ -297,19 +291,6 @@ function calculate(tree: Tree): Formula {
       mainVariable: variable
     };
   }
-  function calcTerminateDeterminer(label: string): NounPhrase {
-    const variable = findVariable(label);
-    if (variable === undefined) {
-      console.warn();
-      return calcIsolatedDeterminer();
-    }
-    else variableMap[0].delete(label);
-    return {
-      formula: T(),
-      mainPredicate: undefined,
-      mainVariable: variable
-    };
-  }
   function calcPredicate(name: string): PredicatePhrase {
     const predicate = PredicateFormula(name, []);
     return {
@@ -381,7 +362,6 @@ function calculate(tree: Tree): Formula {
     switch (tree.token.tokenType) {
       case "create_determiner": return calcCreateDeterminer(tree.token.label);
       case "inherit_determiner": return calcInheritDeterminer(tree.token.label);
-      case "terminate_determiner": return calcTerminateDeterminer(tree.token.label);
       case "isolatedDeterminer": return calcIsolatedDeterminer();
       case "predicate": return calcPredicate(tree.token.name);
       case "relative": return calcRelative(tree.token.casus, phrases[0], phrases[1]);
@@ -556,11 +536,6 @@ function updatePattern() {
   isInheritDeterminer = literal => inheritDeterminerPattern.test(literal);
   inheritDeterminerToLabel = literal => literal.replace(inheritDeterminerPattern, inheritDeterminerReplacer);
 
-  const terminateDeterminerPattern = new RegExp("^" + gebi("terminate_determiner_pattern").value + "$");
-  const terminateDeterminerReplacer = gebi("terminate_determiner_replacer").value;
-  isTerminateDeterminer = literal => terminateDeterminerPattern.test(literal);
-  terminateDeterminerToLabel = literal => literal.replace(terminateDeterminerPattern, terminateDeterminerReplacer);
-
   const predicatePattern = new RegExp("^" + gebi("predicate_pattern").value + "$");
   const predicateReplacer = gebi("predicate_replacer").value;
   isPredicate = literal => predicatePattern.test(literal);
@@ -599,9 +574,6 @@ function reset1(): void {
   gebi("inherit_determiner_pattern").value = "i('[aeiou])*";
   gebi("inherit_determiner_replacer").value = "$1";
 
-  gebi("terminate_determiner_pattern").value = "u('[aeiou])*";
-  gebi("terminate_determiner_replacer").value = "$1";
-
   gebi("predicate_pattern").value = "(([^aeiou'][aeiou]){2,})";
   gebi("predicate_replacer").value = "$1";
 
@@ -637,8 +609,6 @@ window.onload = () => {
   gebi("create_determiner_replacer").oninput = updatePattern;
   gebi("inherit_determiner_pattern").oninput = updatePattern;
   gebi("inherit_determiner_replacer").oninput = updatePattern;
-  gebi("terminate_determiner_pattern").oninput = updatePattern;
-  gebi("terminate_determiner_replacer").oninput = updatePattern;
   gebi("predicate_pattern").oninput = updatePattern;
   gebi("predicate_replacer").oninput = updatePattern;
   gebi("relative_pattern").oninput = updatePattern;
