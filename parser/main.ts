@@ -265,7 +265,7 @@ function calculate(tree: Tree): Formula {
 
   function calcIsolatedDeterminer(): NounPhrase {
     const variable = issueVariable();
-    variableMap[0].unshift({ key:null, variable });
+    variableMap[0].unshift({ key: null, variable });
     return {
       formula: T(),
       mainPredicate: undefined,
@@ -521,104 +521,185 @@ function test(): void {
 function gebi(id: string) {
   return document.getElementById(id);
 }
+const doms = (function () {
+  const input = gebi("input");
+  if (!(input instanceof HTMLTextAreaElement)) throw new Error("DOM not found");
 
+  const formula_output = gebi("formula_output");
+  if (!(formula_output instanceof HTMLDivElement)) throw new Error("DOM not found");
+
+  const normalized_formula_output = gebi("normalized_formula_output");
+  if (!(normalized_formula_output instanceof HTMLDivElement)) throw new Error("DOM not found");
+
+  const error_output = gebi("error_output");
+  if (!(error_output instanceof HTMLDivElement)) throw new Error("DOM not found");
+
+  const separator_pattern = gebi("separator_pattern");
+  if (!(separator_pattern instanceof HTMLInputElement)) throw new Error("DOM not found");
+
+  const isolated_determiner_pattern = gebi("isolated_determiner_pattern");
+  if (!(isolated_determiner_pattern instanceof HTMLInputElement)) throw new Error("DOM not found");
+
+  const new_determiner_pattern = gebi("new_determiner_pattern");
+  if (!(new_determiner_pattern instanceof HTMLInputElement)) throw new Error("DOM not found");
+
+  const new_determiner_replacer = gebi("new_determiner_replacer");
+  if (!(new_determiner_replacer instanceof HTMLInputElement)) throw new Error("DOM not found");
+
+  const inherit_determiner_pattern = gebi("inherit_determiner_pattern");
+  if (!(inherit_determiner_pattern instanceof HTMLInputElement)) throw new Error("DOM not found");
+
+  const inherit_determiner_replacer = gebi("inherit_determiner_replacer");
+  if (!(inherit_determiner_replacer instanceof HTMLInputElement)) throw new Error("DOM not found");
+
+  const predicate_pattern = gebi("predicate_pattern");
+  if (!(predicate_pattern instanceof HTMLInputElement)) throw new Error("DOM not found");
+
+  const predicate_replacer = gebi("predicate_replacer");
+  if (!(predicate_replacer instanceof HTMLInputElement)) throw new Error("DOM not found");
+
+  const relative_pattern = gebi("relative_pattern");
+  if (!(relative_pattern instanceof HTMLInputElement)) throw new Error("DOM not found");
+
+  const relative_replacer = gebi("relative_replacer");
+  if (!(relative_replacer instanceof HTMLInputElement)) throw new Error("DOM not found");
+
+  const preposition_pattern = gebi("preposition_pattern");
+  if (!(preposition_pattern instanceof HTMLInputElement)) throw new Error("DOM not found");
+
+  const preposition_replacer = gebi("preposition_replacer");
+  if (!(preposition_replacer instanceof HTMLInputElement)) throw new Error("DOM not found");
+
+  const single_negation_pattern = gebi("single_negation_pattern");
+  if (!(single_negation_pattern instanceof HTMLInputElement)) throw new Error("DOM not found");
+
+  const open_negation_pattern = gebi("open_negation_pattern");
+  if (!(open_negation_pattern instanceof HTMLInputElement)) throw new Error("DOM not found");
+
+  const close_negation_pattern = gebi("close_negation_pattern");
+  if (!(close_negation_pattern instanceof HTMLInputElement)) throw new Error("DOM not found");
+
+  return {
+    input,
+    formula_output,
+    normalized_formula_output,
+    error_output,
+    separator_pattern,
+    isolated_determiner_pattern,
+    new_determiner_pattern,
+    new_determiner_replacer,
+    inherit_determiner_pattern,
+    inherit_determiner_replacer,
+    predicate_pattern,
+    predicate_replacer,
+    relative_pattern,
+    relative_replacer,
+    preposition_pattern,
+    preposition_replacer,
+    single_negation_pattern,
+    open_negation_pattern,
+    close_negation_pattern,
+  };
+})();
 function updatePattern() {
-  separatorPattern = new RegExp(gebi("separator_pattern").value);
+  separatorPattern = new RegExp(doms.separator_pattern.value);
 
-  const isolatedDeterminerPattern = new RegExp("^" + gebi("isolated_determiner_pattern").value + "$");
+  const isolatedDeterminerPattern = new RegExp("^" + doms.isolated_determiner_pattern.value + "$");
   isIsolatedDeterminer = literal => isolatedDeterminerPattern.test(literal);
 
-  const newDeterminerPattern = new RegExp("^" + gebi("new_determiner_pattern").value + "$");
-  const newDeterminerReplacer = gebi("new_determiner_replacer").value;
+  const newDeterminerPattern = new RegExp("^" + doms.new_determiner_pattern.value + "$");
+  const newDeterminerReplacer = doms.new_determiner_replacer.value;
   isNewDeterminer = literal => newDeterminerPattern.test(literal);
   newDeterminerToKey = literal => literal.replace(newDeterminerPattern, newDeterminerReplacer);
 
-  const inheritDeterminerPattern = new RegExp("^" + gebi("inherit_determiner_pattern").value + "$");
-  const inheritDeterminerReplacer = gebi("inherit_determiner_replacer").value;
+  const inheritDeterminerPattern = new RegExp("^" + doms.inherit_determiner_pattern.value + "$");
+  const inheritDeterminerReplacer = doms.inherit_determiner_replacer.value;
   isInheritDeterminer = literal => inheritDeterminerPattern.test(literal);
   inheritDeterminerToKey = literal => literal.replace(inheritDeterminerPattern, inheritDeterminerReplacer);
 
-  const predicatePattern = new RegExp("^" + gebi("predicate_pattern").value + "$");
-  const predicateReplacer = gebi("predicate_replacer").value;
+  const predicatePattern = new RegExp("^" + doms.predicate_pattern.value + "$");
+  const predicateReplacer = doms.predicate_replacer.value;
   isPredicate = literal => predicatePattern.test(literal);
   predicateToName = literal => literal.replace(predicatePattern, predicateReplacer);
 
-  const relativePattern = new RegExp("^" + gebi("relative_pattern").value + "$");
-  const relativeReplacer = gebi("relative_replacer").value;
+  const relativePattern = new RegExp("^" + doms.relative_pattern.value + "$");
+  const relativeReplacer = doms.relative_replacer.value;
   isRelative = literal => relativePattern.test(literal);
   relativeToCasus = literal => literal.replace(relativePattern, relativeReplacer);
 
-  const prepositionPattern = new RegExp("^" + gebi("preposition_pattern").value + "$");
-  const prepositionReplacer = gebi("preposition_replacer").value;
+  const prepositionPattern = new RegExp("^" + doms.preposition_pattern.value + "$");
+  const prepositionReplacer = doms.preposition_replacer.value;
   isPreposition = literal => prepositionPattern.test(literal);
   prepositionToCasus = literal => literal.replace(prepositionPattern, prepositionReplacer);
 
-  const singleNegationPattern = new RegExp("^" + gebi("single_negation_pattern").value + "$");
+  const singleNegationPattern = new RegExp("^" + doms.single_negation_pattern.value + "$");
   isSingleNegation = literal => singleNegationPattern.test(literal);
 
-  const openNegationPattern = new RegExp("^" + gebi("open_negation_pattern").value + "$");
+  const openNegationPattern = new RegExp("^" + doms.open_negation_pattern.value + "$");
   isOpenNegation = literal => openNegationPattern.test(literal);
 
-  const closeNegationPattern = new RegExp("^" + gebi("close_negation_pattern").value + "$");
+  const closeNegationPattern = new RegExp("^" + doms.close_negation_pattern.value + "$");
   isCloseNegation = literal => closeNegationPattern.test(literal);
 
   update();
 }
 
 function reset1(): void {
-  gebi("separator_pattern").value = "[,.\\s]";
+  doms.separator_pattern.value = "[,.\\s]";
 
-  gebi("isolated_determiner_pattern").value = "au";
+  doms.isolated_determiner_pattern.value = "au";
 
-  gebi("new_determiner_pattern").value = "a('[aeiou])*";
-  gebi("new_determiner_replacer").value = "$1";
+  doms.new_determiner_pattern.value = "a('[aeiou])*";
+  doms.new_determiner_replacer.value = "$1";
 
-  gebi("inherit_determiner_pattern").value = "i('[aeiou])*";
-  gebi("inherit_determiner_replacer").value = "$1";
+  doms.inherit_determiner_pattern.value = "i('[aeiou])*";
+  doms.inherit_determiner_replacer.value = "$1";
 
-  gebi("predicate_pattern").value = "(([^aeiou'][aeiou]){2,})";
-  gebi("predicate_replacer").value = "$1";
+  doms.predicate_pattern.value = "(([^aeiou'][aeiou]){2,})";
+  doms.predicate_replacer.value = "$1";
 
-  gebi("relative_pattern").value = "([^aeiou]?)ei";
-  gebi("relative_replacer").value = "$1";
+  doms.relative_pattern.value = "([^aeiou]?)ei";
+  doms.relative_replacer.value = "$1";
 
-  gebi("preposition_pattern").value = "([^aeiou]?)e";
-  gebi("preposition_replacer").value = "$1";
+  doms.preposition_pattern.value = "([^aeiou]?)e";
+  doms.preposition_replacer.value = "$1";
 
-  gebi("single_negation_pattern").value = "no";
-  gebi("open_negation_pattern").value = "nou";
-  gebi("close_negation_pattern").value = "noi";
+  doms.single_negation_pattern.value = "no";
+  doms.open_negation_pattern.value = "nou";
+  doms.close_negation_pattern.value = "noi";
 
   updatePattern();
 }
 
 function update(): void {
-  gebi("output").innerText = "";
-  gebi("error").innerText = "";
-  const input = gebi("input").value;
+  doms.formula_output.innerText = "";
+  doms.normalized_formula_output.innerText = "";
+  doms.error_output.innerText = "";
+  const input = doms.input.value;
   try {
-    gebi("output").innerHTML = markupFormula(stringify(calculate(parse(tokenize(input)))));
+    doms.formula_output.innerHTML = markupFormula(stringify(calculate(parse(tokenize(input)))));
+    doms.normalized_formula_output.innerHTML = markupFormula(stringify(normalize(calculate(parse(tokenize(input))))));
   } catch (e) {
-    gebi("error").innerText = e.message;
+    doms.error_output.innerText = e.message;
   }
 }
 
 window.onload = () => {
-  gebi("input").oninput = update;
-  gebi("separator_pattern").oninput = updatePattern;
-  gebi("isolated_determiner_pattern").oninput = updatePattern;
-  gebi("new_determiner_pattern").oninput = updatePattern;
-  gebi("new_determiner_replacer").oninput = updatePattern;
-  gebi("inherit_determiner_pattern").oninput = updatePattern;
-  gebi("inherit_determiner_replacer").oninput = updatePattern;
-  gebi("predicate_pattern").oninput = updatePattern;
-  gebi("predicate_replacer").oninput = updatePattern;
-  gebi("relative_pattern").oninput = updatePattern;
-  gebi("relative_replacer").oninput = updatePattern;
-  gebi("preposition_pattern").oninput = updatePattern;
-  gebi("preposition_replacer").oninput = updatePattern;
-  gebi("single_negation_pattern").oninput = updatePattern;
-  gebi("open_negation_pattern").oninput = updatePattern;
-  gebi("close_negation_pattern").oninput = updatePattern;
+  doms.input.oninput = update;
+  doms.separator_pattern.oninput = updatePattern;
+  doms.isolated_determiner_pattern.oninput = updatePattern;
+  doms.new_determiner_pattern.oninput = updatePattern;
+  doms.new_determiner_replacer.oninput = updatePattern;
+  doms.inherit_determiner_pattern.oninput = updatePattern;
+  doms.inherit_determiner_replacer.oninput = updatePattern;
+  doms.predicate_pattern.oninput = updatePattern;
+  doms.predicate_replacer.oninput = updatePattern;
+  doms.relative_pattern.oninput = updatePattern;
+  doms.relative_replacer.oninput = updatePattern;
+  doms.preposition_pattern.oninput = updatePattern;
+  doms.preposition_replacer.oninput = updatePattern;
+  doms.single_negation_pattern.oninput = updatePattern;
+  doms.open_negation_pattern.oninput = updatePattern;
+  doms.close_negation_pattern.oninput = updatePattern;
   reset1();
 };
