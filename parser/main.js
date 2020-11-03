@@ -106,6 +106,13 @@ function T() {
 function F() {
     return { formulaType: "false" };
 }
+function PredicateFormula(name, args) {
+    return {
+        formulaType: "predicate",
+        name,
+        args
+    };
+}
 function negation(formula) {
     return { formulaType: "negation", formula };
 }
@@ -155,8 +162,6 @@ function disjunction(formulas) {
 }
 ;
 function calculate(tree) {
-    //const variableMap: Map<string, Variable>[] = [];
-    //let variableCount: number = 0;
     function issueVariable(environment) {
         return { name: "" + environment.variableCount++ };
     }
@@ -164,13 +169,6 @@ function calculate(tree) {
         const a = environment.variableMap.find(map => map.has(label));
         return a === undefined ? undefined : a.get(label);
         //return variableMap.map(map=>map.get(label)).find((x):x is Variable=>x !== undefined);
-    }
-    function Predicate(name, args) {
-        return {
-            formulaType: "predicate",
-            name,
-            args
-        };
     }
     function isNounPhrase(phrase) { return phrase.mainVariable !== undefined; }
     function isPredicatePhrase(phrase) { return phrase.mainPredicate !== undefined; }
@@ -225,7 +223,7 @@ function calculate(tree) {
         };
     }
     function calcPredicate(name, environment) {
-        const predicate = Predicate(name, []);
+        const predicate = PredicateFormula(name, []);
         return {
             formula: predicate,
             mainPredicate: predicate,
