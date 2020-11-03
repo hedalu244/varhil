@@ -161,8 +161,9 @@ function calculate(tree) {
     let variableCount = 0;
     function issueVariable() { return { name: "" + variableCount++ }; }
     function findVariable(label) {
-        const a = variableMap.find(map => map.has(label));
-        return a === undefined ? undefined : a.get(label);
+        const a = variableMap.find(closure => closure.some(entry => entry.label === label));
+        const b = a === undefined ? undefined : a.find(entry => entry.label === label);
+        return b === undefined ? undefined : b.variable;
         //return variableMap.map(map=>map.get(label)).find((x):x is Variable=>x !== undefined);
     }
     function isNounPhrase(phrase) { return phrase.mainVariable !== undefined; }
@@ -176,6 +177,7 @@ function calculate(tree) {
     }
     function calcIsolatedDeterminer() {
         const variable = issueVariable();
+        variableMap[0].unshift({ label: null, variable });
         return {
             formula: T(),
             mainPredicate: undefined,
@@ -184,7 +186,7 @@ function calculate(tree) {
     }
     function calcCreateDeterminer(label) {
         const variable = issueVariable();
-        variableMap[0].set(label, variable);
+        variableMap[0].unshift({ label, variable });
         return {
             formula: T(),
             mainPredicate: undefined,
@@ -237,7 +239,7 @@ function calculate(tree) {
         const v = variableMap.shift();
         if (v === undefined)
             throw new Error();
-        const variables = [...v.values()];
+        const variables = v.map(entry => entry.variable);
         return {
             formula: negation(variables.reduce((f, v) => exist(v, f), phrase.formula)),
             mainPredicate: phrase.mainPredicate,
@@ -255,7 +257,7 @@ function calculate(tree) {
         const v = variableMap.shift();
         if (v === undefined)
             throw new Error();
-        const variables = [...v.values()];
+        const variables = v.map(entry => entry.variable);
         return {
             formula: variables.reduce((f, v) => exist(v, f), conjunction(phrases.map(x => x.formula))),
             mainPredicate: undefined,
@@ -268,7 +270,7 @@ function calculate(tree) {
             case "open_negation":
             case "single_negation":
             case "open_sentence":
-                variableMap.unshift(new Map());
+                variableMap.unshift([]);
         }
         const phrases = tree.children.map(x => recursion(x));
         switch (tree.token.tokenType) {
