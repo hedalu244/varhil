@@ -515,9 +515,9 @@ function drawPhraseStructure(phrases: Phrase[], svg: SVGElement) {
           "c", 0, -2 * u, 0, -2 * u, 2 * u, -5 * u,
           "l", (height - 1) * 4 * u, -(height - 1) * 6 * u,
           "c", u, -1.5 * u, 2 * u, -3 * u, 4 * u, -3 * u,
-          "l", endX - (height * 4 + 10) * u - startX, 0,
+          "l", endX - (height * 8 + 4) * u - startX, 0,
           "c", 2 * u, 0, 3 * u, 1.5 * u, 4 * u, 3 * u,
-          "l", (height - endY) * 4 * u, (height - endY) * 6 * u].join(" "));
+          "l", height * 4 * u, height * 6 * u].join(" "));
       else
         overSVG.setAttribute("d", [
           "M", startX, -8 * u,
@@ -539,9 +539,9 @@ function drawPhraseStructure(phrases: Phrase[], svg: SVGElement) {
           "c", 0, 2 * u, 0, 2 * u, 2 * u, 5 * u,
           "l", (height - 1) * 4 * u, (height - 1) * 6 * u,
           "c", u, 1.5 * u, 2 * u, 3 * u, 4 * u, 3 * u,
-          "l", endX - (height * 4 + 10) * u - startX, 0,
+          "l", endX - (height * 8 + 4) * u - startX, 0,
           "c", 2 * u, 0, 3 * u, -1.5 * u, 4 * u, -3 * u,
-          "l", (height - endY) * 4 * u, -(height - endY) * 6 * u].join(" "));
+          "l", height * 4 * u, -height * 6 * u].join(" "));
       else
         underSVG.setAttribute("d", [
           "M", startX, 8 * u,
@@ -561,6 +561,7 @@ function drawPhraseStructure(phrases: Phrase[], svg: SVGElement) {
     literalSVG.setAttribute("font-size", "20px");
     literalSVG.setAttribute("stroke", "none");
     literalSVG.setAttribute("x", "" + x);
+    literalSVG.setAttribute("dominant-baseline", "central");
     g.appendChild(literalSVG);
 
     let literalNextX = x + literalSVG.getBoundingClientRect().width + 20;
@@ -569,7 +570,24 @@ function drawPhraseStructure(phrases: Phrase[], svg: SVGElement) {
     switch (phrase.phraseType) {
       case "isolated_determiner":
       case "new_determiner":
-      case "inherit_determiner":
+      case "inherit_determiner": {
+        const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        rect.setAttribute("x", "" + (literalCenterX - 5.5 * u));
+        rect.setAttribute("y", "" + (-5.5 * u));
+        rect.setAttribute("width", "" + (11 * u));
+        rect.setAttribute("height", "" + (11 * u));
+        rect.setAttribute("transform", "rotate(45, " + literalCenterX + ", 0)");
+        g.appendChild(rect);
+
+        return {
+          size: 0,
+          overX: literalCenterX,
+          overY: 0,
+          underX: literalCenterX,
+          underY: 0,
+          nextX: literalNextX,
+        };
+      }
       case "predicate": {
         return {
           size: 0,
@@ -581,6 +599,12 @@ function drawPhraseStructure(phrases: Phrase[], svg: SVGElement) {
         };
       }
       case "preposition": {
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute("cx", "" + literalCenterX);
+        circle.setAttribute("cy", "0");
+        circle.setAttribute("r", "" + (6 * u));
+        g.appendChild(circle);
+
         const left = recursion(phrase.left, literalNextX);
         const right = recursion(phrase.right, left.nextX);
 
@@ -596,14 +620,21 @@ function drawPhraseStructure(phrases: Phrase[], svg: SVGElement) {
 
         return {
           size: Math.max(left.size, right.size) + 1,
-          overX: (literalCenterX + overEndX) / 2,
+          overX: Math.min((literalCenterX + overEndX) / 2, literalCenterX + overHeight * 4 * u + 20),
           overY: overHeight,
-          underX: (literalCenterX + underEndX) / 2,
+          underX: Math.min((literalCenterX + underEndX) / 2, literalCenterX + + underHeight * 4 * u + 20),
           underY: underHeight,
           nextX: right.nextX + 10,
         };
       }
       case "relative": {
+        const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        rect.setAttribute("x", "" + (literalCenterX - 5.5 * u));
+        rect.setAttribute("y", "" + (-5.5 * u));
+        rect.setAttribute("width", "" + (11 * u));
+        rect.setAttribute("height", "" + (11 * u));
+        g.appendChild(rect);
+
         const left = recursion(phrase.left, literalNextX);
         const right = recursion(phrase.right, left.nextX);
 
@@ -619,9 +650,9 @@ function drawPhraseStructure(phrases: Phrase[], svg: SVGElement) {
 
         return {
           size: Math.max(left.size, right.size) + 1,
-          overX: (literalCenterX + overEndX) / 2,
+          overX: Math.min((literalCenterX + overEndX) / 2, literalCenterX + overHeight * 4 * u + 20),
           overY: overHeight,
-          underX: (literalCenterX + underEndX) / 2,
+          underX: Math.min((literalCenterX + underEndX) / 2, literalCenterX + underHeight * 4 * u + 20),
           underY: underHeight,
           nextX: right.nextX + 10,
         };
@@ -673,6 +704,7 @@ function drawPhraseStructure(phrases: Phrase[], svg: SVGElement) {
         closeLiteralSVG.setAttribute("font-size", "20px");
         closeLiteralSVG.setAttribute("stroke", "none");
         closeLiteralSVG.setAttribute("x", "" + childrenResult.nextX);
+        closeLiteralSVG.setAttribute("dominant-baseline", "central");
         g.appendChild(closeLiteralSVG);
         let closeLiteralNextX = childrenResult.nextX + closeLiteralSVG.getBoundingClientRect().width + 20;
         const closeLiteralCenterX = childrenResult.nextX + closeLiteralSVG.getBoundingClientRect().width / 2;
