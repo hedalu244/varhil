@@ -155,11 +155,13 @@ function disjunction(formulas) {
 }
 ;
 function calculate(tree) {
-    const variableMap = [new Map()];
-    let variableCount = 0;
-    function issueVariable() { return { name: "" + variableCount++ }; }
-    function findVariable(label) {
-        const a = variableMap.find(map => map.has(label));
+    //const variableMap: Map<string, Variable>[] = [];
+    //let variableCount: number = 0;
+    function issueVariable(environment) {
+        return { name: "" + environment.variableCount++ };
+    }
+    function findVariable(label, environment) {
+        const a = environment.variableMap.find(map => map.has(label));
         return a === undefined ? undefined : a.get(label);
         //return variableMap.map(map=>map.get(label)).find((x):x is Variable=>x !== undefined);
     }
@@ -172,35 +174,35 @@ function calculate(tree) {
     }
     function isNounPhrase(phrase) { return phrase.mainVariable !== undefined; }
     function isPredicatePhrase(phrase) { return phrase.mainPredicate !== undefined; }
-    function convertToNoun(a) {
+    function convertToNoun(a, environment) {
         if (isNounPhrase(a))
             return a;
         if (!isPredicatePhrase(a))
             throw new Error("CalcError: Unexpected Phrase");
-        return calcRelative("", a, calcIsolatedDeterminer());
+        return calcRelative("", a, calcIsolatedDeterminer(environment), environment);
     }
-    function calcIsolatedDeterminer() {
-        const variable = issueVariable();
+    function calcIsolatedDeterminer(environment) {
+        const variable = issueVariable(environment);
         return {
             formula: T(),
             mainPredicate: undefined,
             mainVariable: variable
         };
     }
-    function calcCreateDeterminer(label) {
-        const variable = issueVariable();
-        variableMap[0].set(label, variable);
+    function calcCreateDeterminer(label, environment) {
+        const variable = issueVariable(environment);
+        environment.variableMap[0].set(label, variable);
         return {
             formula: T(),
             mainPredicate: undefined,
             mainVariable: variable
         };
     }
-    function calcInheritDeterminer(label) {
-        const variable = findVariable(label);
+    function calcInheritDeterminer(label, environment) {
+        const variable = findVariable(label, environment);
         if (variable === undefined) {
             console.warn();
-            return calcCreateDeterminer(label);
+            return calcCreateDeterminer(label, environment);
         }
         return {
             formula: T(),
@@ -208,21 +210,21 @@ function calculate(tree) {
             mainVariable: variable
         };
     }
-    function calcTerminateDeterminer(label) {
-        const variable = findVariable(label);
+    function calcTerminateDeterminer(label, environment) {
+        const variable = findVariable(label, environment);
         if (variable === undefined) {
             console.warn();
-            return calcIsolatedDeterminer();
+            return calcIsolatedDeterminer(environment);
         }
         else
-            variableMap[0].delete(label);
+            environment.variableMap[0].delete(label);
         return {
             formula: T(),
             mainPredicate: undefined,
             mainVariable: variable
         };
     }
-    function calcPredicate(name) {
+    function calcPredicate(name, environment) {
         const predicate = Predicate(name, []);
         return {
             formula: predicate,
@@ -230,10 +232,10 @@ function calculate(tree) {
             mainVariable: undefined
         };
     }
-    function calcRelative(casus, a, b) {
+    function calcRelative(casus, a, b, environment) {
         if (!isPredicatePhrase(a))
             throw new Error("CalcError: Unexpected Phrase");
-        const bb = convertToNoun(b);
+        const bb = convertToNoun(b, environment);
         a.mainPredicate.args.unshift({ casus: casus, variable: bb.mainVariable });
         return {
             formula: conjunction([a.formula, bb.formula]),
@@ -241,8 +243,8 @@ function calculate(tree) {
             mainVariable: bb.mainVariable
         };
     }
-    function calcPreposition(casus, a, b) {
-        const aa = convertToNoun(a);
+    function calcPreposition(casus, a, b, environment) {
+        const aa = convertToNoun(a, environment);
         if (!isPredicatePhrase(b))
             throw new Error("CalcError: Unexpected Phrase");
         b.mainPredicate.args.unshift({ casus: casus, variable: aa.mainVariable });
@@ -252,8 +254,8 @@ function calculate(tree) {
             mainVariable: undefined
         };
     }
-    function calcSingleNegation(phrase) {
-        const v = variableMap.shift();
+    function calcSingleNegation(phrase, environment) {
+        const v = environment.variableMap.shift();
         if (v === undefined)
             throw new Error();
         const variables = [...v.values()];
@@ -263,15 +265,15 @@ function calculate(tree) {
             mainVariable: phrase.mainVariable
         };
     }
-    function calcNegation(phrases) {
+    function calcNegation(phrases, environment) {
         return {
-            formula: negation(calcSentence(phrases).formula),
+            formula: negation(calcSentence(phrases, environment).formula),
             mainPredicate: undefined,
             mainVariable: undefined
         };
     }
-    function calcSentence(phrases) {
-        const v = variableMap.shift();
+    function calcSentence(phrases, environment) {
+        const v = environment.variableMap.shift();
         if (v === undefined)
             throw new Error();
         const variables = [...v.values()];
@@ -281,31 +283,32 @@ function calculate(tree) {
             mainVariable: undefined
         };
     }
-    function recursion(tree) {
-        // 否定はクロージャを生成
+    function recursion(tree, environment) {
+        // 否定は行きがけにクロージャを生成
         switch (tree.token.tokenType) {
             case "open_negation":
+            case "open_sentence":
             case "single_negation":
-                variableMap.unshift(new Map());
+                environment.variableMap.unshift(new Map());
         }
-        const phrases = tree.children.map(x => recursion(x));
+        const phrases = tree.children.map(x => recursion(x, environment));
         switch (tree.token.tokenType) {
-            case "create_determiner": return calcCreateDeterminer(tree.token.label);
-            case "inherit_determiner": return calcInheritDeterminer(tree.token.label);
-            case "terminate_determiner": return calcTerminateDeterminer(tree.token.label);
-            case "isolatedDeterminer": return calcIsolatedDeterminer();
-            case "predicate": return calcPredicate(tree.token.name);
-            case "relative": return calcRelative(tree.token.casus, phrases[0], phrases[1]);
-            case "preposition": return calcPreposition(tree.token.casus, phrases[0], phrases[1]);
-            case "single_negation": return calcSingleNegation(phrases[0]);
-            case "open_negation": return calcNegation(phrases);
-            case "open_sentence": return calcSentence(phrases);
+            case "create_determiner": return calcCreateDeterminer(tree.token.label, environment);
+            case "inherit_determiner": return calcInheritDeterminer(tree.token.label, environment);
+            case "terminate_determiner": return calcTerminateDeterminer(tree.token.label, environment);
+            case "isolatedDeterminer": return calcIsolatedDeterminer(environment);
+            case "predicate": return calcPredicate(tree.token.name, environment);
+            case "relative": return calcRelative(tree.token.casus, phrases[0], phrases[1], environment);
+            case "preposition": return calcPreposition(tree.token.casus, phrases[0], phrases[1], environment);
+            case "single_negation": return calcSingleNegation(phrases[0], environment);
+            case "open_negation": return calcNegation(phrases, environment);
+            case "open_sentence": return calcSentence(phrases, environment);
             // parseでふくめてないので来ないはず
             case "close_negation":
             case "close_sentence": throw 0;
         }
     }
-    const result = recursion(tree);
+    const result = recursion(tree, { variableMap: [], variableCount: 0 });
     return result.formula;
 }
 //標準化
