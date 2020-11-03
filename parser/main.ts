@@ -12,7 +12,7 @@ type Token = {
   casus: string;
 } | {
   literal: string,
-  tokenType: "isolatedDeterminer" | "single_negation" | "open_negation" | "close_negation" | "open_sentence" | "close_sentence";
+  tokenType: "isolated_determiner" | "single_negation" | "open_negation" | "close_negation" | "open_sentence" | "close_sentence";
 };
 
 //字句解析
@@ -45,7 +45,7 @@ function tokenize(input: string): Token[] {
 
   const tokens: Token[] = literals.map(literal => {
     if (isIsolatedDeterminer(literal))
-      return { literal, tokenType: "isolatedDeterminer" };
+      return { literal, tokenType: "isolated_determiner" };
     if (isNewDeterminer(literal))
       return { literal, tokenType: "new_determiner", key: newDeterminerToKey(literal) };
     if (isInheritDeterminer(literal))
@@ -78,7 +78,7 @@ function tokenize(input: string): Token[] {
 }
 
 //構文解析
-interface Tree {
+type Tree = {
   token: Token,
   children: Tree[];
 }
@@ -117,7 +117,7 @@ function parse(tokens: Token[]): Tree {
     switch (token.tokenType) {
       case "new_determiner": return 0;
       case "inherit_determiner": return 0;
-      case "isolatedDeterminer": return 0;
+      case "isolated_determiner": return 0;
       case "predicate": return 0;
       case "relative": return 2;
       case "preposition": return 2;
@@ -362,9 +362,9 @@ function calculate(tree: Tree): Formula {
     }
     const phrases: Phrase[] = tree.children.map(x => recursion(x));
     switch (tree.token.tokenType) {
+      case "isolated_determiner": return calcIsolatedDeterminer();
       case "new_determiner": return calcNewDeterminer(tree.token.key);
       case "inherit_determiner": return calcInheritDeterminer(tree.token.key);
-      case "isolatedDeterminer": return calcIsolatedDeterminer();
       case "predicate": return calcPredicate(tree.token.name);
       case "relative": return calcRelative(tree.token.casus, phrases[0], phrases[1]);
       case "preposition": return calcPreposition(tree.token.casus, phrases[0], phrases[1]);

@@ -20,7 +20,7 @@ function tokenize(input) {
     const literals = input.split(separatorPattern).filter(x => x !== "");
     const tokens = literals.map(literal => {
         if (isIsolatedDeterminer(literal))
-            return { literal, tokenType: "isolatedDeterminer" };
+            return { literal, tokenType: "isolated_determiner" };
         if (isNewDeterminer(literal))
             return { literal, tokenType: "new_determiner", key: newDeterminerToKey(literal) };
         if (isInheritDeterminer(literal))
@@ -83,7 +83,7 @@ function parse(tokens) {
         switch (token.tokenType) {
             case "new_determiner": return 0;
             case "inherit_determiner": return 0;
-            case "isolatedDeterminer": return 0;
+            case "isolated_determiner": return 0;
             case "predicate": return 0;
             case "relative": return 2;
             case "preposition": return 2;
@@ -274,9 +274,9 @@ function calculate(tree) {
         }
         const phrases = tree.children.map(x => recursion(x));
         switch (tree.token.tokenType) {
+            case "isolated_determiner": return calcIsolatedDeterminer();
             case "new_determiner": return calcNewDeterminer(tree.token.key);
             case "inherit_determiner": return calcInheritDeterminer(tree.token.key);
-            case "isolatedDeterminer": return calcIsolatedDeterminer();
             case "predicate": return calcPredicate(tree.token.name);
             case "relative": return calcRelative(tree.token.casus, phrases[0], phrases[1]);
             case "preposition": return calcPreposition(tree.token.casus, phrases[0], phrases[1]);
