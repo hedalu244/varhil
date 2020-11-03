@@ -58,25 +58,25 @@ function parse(tokens) {
         throw new Error("ParseError: Unxpected Token " + token.literal);
     switch (token.tokenType) {
         case "isolated_determiner":
-            return { treeType: token.tokenType, token: token };
+            return { phraseType: token.tokenType, token: token };
         case "new_determiner":
-            return { treeType: token.tokenType, token: token, key: newDeterminerToKey(token.literal) };
+            return { phraseType: token.tokenType, token: token, key: newDeterminerToKey(token.literal) };
         case "inherit_determiner":
-            return { treeType: token.tokenType, token: token, key: inheritDeterminerToKey(token.literal) };
+            return { phraseType: token.tokenType, token: token, key: inheritDeterminerToKey(token.literal) };
         case "predicate":
-            return { treeType: token.tokenType, name: predicateToName(token.literal), token: token };
+            return { phraseType: token.tokenType, name: predicateToName(token.literal), token: token };
         case "relative": {
             const left = parse(tokens);
             const right = parse(tokens);
-            return { treeType: token.tokenType, casus: relativeToCasus(token.literal), left, right, token: token };
+            return { phraseType: token.tokenType, casus: relativeToCasus(token.literal), left, right, token: token };
         }
         case "preposition": {
             const left = parse(tokens);
             const right = parse(tokens);
-            return { treeType: token.tokenType, casus: prepositionToCasus(token.literal), left, right, token: token };
+            return { phraseType: token.tokenType, casus: prepositionToCasus(token.literal), left, right, token: token };
         }
         case "single_negation":
-            return { treeType: token.tokenType, child: parse(tokens), token: token };
+            return { phraseType: token.tokenType, child: parse(tokens), token: token };
         case "open_negation": {
             const children = [];
             while (true) {
@@ -84,7 +84,7 @@ function parse(tokens) {
                 if (next === undefined)
                     throw new Error("ParseError: Unxpected End of Tokens");
                 if (next.tokenType === "close_negation")
-                    return { treeType: "negation", children, openToken: token, closeToken: next };
+                    return { phraseType: "negation", children, openToken: token, closeToken: next };
                 tokens.unshift(next);
                 children.push(parse(tokens));
             }
@@ -96,7 +96,7 @@ function parse(tokens) {
                 if (next === undefined)
                     throw new Error("ParseError: Unxpected End of Tokens");
                 if (next.tokenType === "close_sentence")
-                    return { treeType: "negation", children, openToken: token, closeToken: next };
+                    return { phraseType: "negation", children, openToken: token, closeToken: next };
                 tokens.unshift(next);
                 children.push(parse(tokens));
             }
@@ -164,7 +164,7 @@ function disjunction(formulas) {
     };
 }
 ;
-function calculate(tree) {
+function calculate(phrase) {
     const variableMap = [];
     let variableCount = 0;
     function issueVariable() { return { id: "" + variableCount++ }; }
@@ -174,13 +174,13 @@ function calculate(tree) {
         return b === undefined ? undefined : b.variable;
         //return variableMap.map(map=>map.get(key)).find((x):x is Variable=>x !== undefined);
     }
-    function isNounPhrase(phrase) { return phrase.mainVariable !== undefined; }
-    function isPredicatePhrase(phrase) { return phrase.mainPredicate !== undefined; }
+    function isNounPartialMeaning(phrase) { return phrase.mainVariable !== undefined; }
+    function isPredicatePartialMeaning(phrase) { return phrase.mainPredicate !== undefined; }
     function convertToNoun(a) {
-        if (isNounPhrase(a))
+        if (isNounPartialMeaning(a))
             return a;
-        if (!isPredicatePhrase(a))
-            throw new Error("CalcError: Unexpected Phrase");
+        if (!isPredicatePartialMeaning(a))
+            throw new Error("CalcError: Unexpected PartialMeaning");
         return calcRelative("", a, calcIsolatedDeterminer());
     }
     function calcIsolatedDeterminer() {
@@ -222,7 +222,7 @@ function calculate(tree) {
         };
     }
     function calcRelative(casus, a, b) {
-        if (!isPredicatePhrase(a))
+        if (!isPredicatePartialMeaning(a))
             throw new Error("CalcError: Unexpected Phrase");
         const bb = convertToNoun(b);
         a.mainPredicate.args.unshift({ casus: casus, variable: bb.mainVariable });
@@ -234,7 +234,7 @@ function calculate(tree) {
     }
     function calcPreposition(casus, a, b) {
         const aa = convertToNoun(a);
-        if (!isPredicatePhrase(b))
+        if (!isPredicatePartialMeaning(b))
             throw new Error("CalcError: Unexpected Phrase");
         b.mainPredicate.args.unshift({ casus: casus, variable: aa.mainVariable });
         return {
@@ -272,27 +272,27 @@ function calculate(tree) {
             mainVariable: undefined
         };
     }
-    function recursion(tree) {
+    function recursion(phrase) {
         // 否定はクロージャを生成
-        switch (tree.treeType) {
+        switch (phrase.phraseType) {
             case "single_negation":
             case "negation":
             case "sentence":
                 variableMap.unshift([]);
         }
-        switch (tree.treeType) {
+        switch (phrase.phraseType) {
             case "isolated_determiner": return calcIsolatedDeterminer();
-            case "new_determiner": return calcNewDeterminer(tree.key);
-            case "inherit_determiner": return calcInheritDeterminer(tree.key);
-            case "predicate": return calcPredicate(tree.name);
-            case "relative": return calcRelative(tree.casus, recursion(tree.left), recursion(tree.right));
-            case "preposition": return calcPreposition(tree.casus, recursion(tree.left), recursion(tree.right));
-            case "single_negation": return calcSingleNegation(recursion(tree.child));
-            case "negation": return calcNegation(tree.children.map(x => recursion(x)));
-            case "sentence": return calcSentence(tree.children.map(x => recursion(x)));
+            case "new_determiner": return calcNewDeterminer(phrase.key);
+            case "inherit_determiner": return calcInheritDeterminer(phrase.key);
+            case "predicate": return calcPredicate(phrase.name);
+            case "relative": return calcRelative(phrase.casus, recursion(phrase.left), recursion(phrase.right));
+            case "preposition": return calcPreposition(phrase.casus, recursion(phrase.left), recursion(phrase.right));
+            case "single_negation": return calcSingleNegation(recursion(phrase.child));
+            case "negation": return calcNegation(phrase.children.map(x => recursion(x)));
+            case "sentence": return calcSentence(phrase.children.map(x => recursion(x)));
         }
     }
-    const result = recursion(tree);
+    const result = recursion(phrase);
     return result.formula;
 }
 //標準化
