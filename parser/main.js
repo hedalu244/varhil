@@ -39,68 +39,53 @@ function tokenize(input) {
             return { literal, index, tokenType: "close_negation" };
         throw new Error("TokenizeError: word " + literal + " can't be classificated");
     });
-    tokens.unshift({
-        tokenType: "open_sentence",
-        index: -1,
-        literal: "_SoI_",
-    });
-    tokens.push({
-        tokenType: "close_sentence",
-        index: tokens.length,
-        literal: "_EoI_"
-    });
     return tokens;
 }
 // ポーランド記法を解く
 function parse(tokens) {
-    const token = tokens.shift();
-    if (token === undefined)
-        throw new Error("ParseError: Unxpected End of Tokens");
-    if (token.tokenType == "close_negation" || token.tokenType == "close_sentence")
-        throw new Error("ParseError: Unxpected Token " + token.literal);
-    switch (token.tokenType) {
-        case "isolated_determiner":
-            return { phraseType: token.tokenType, token: token };
-        case "new_determiner":
-            return { phraseType: token.tokenType, token: token, key: newDeterminerToKey(token.literal) };
-        case "inherit_determiner":
-            return { phraseType: token.tokenType, token: token, key: inheritDeterminerToKey(token.literal) };
-        case "predicate":
-            return { phraseType: token.tokenType, name: predicateToName(token.literal), token: token };
-        case "relative": {
-            const left = parse(tokens);
-            const right = parse(tokens);
-            return { phraseType: token.tokenType, casus: relativeToCasus(token.literal), left, right, token: token };
-        }
-        case "preposition": {
-            const left = parse(tokens);
-            const right = parse(tokens);
-            return { phraseType: token.tokenType, casus: prepositionToCasus(token.literal), left, right, token: token };
-        }
-        case "single_negation":
-            return { phraseType: token.tokenType, child: parse(tokens), token: token };
-        case "open_negation": {
-            const children = [];
-            while (true) {
-                const next = tokens.shift();
-                if (next === undefined)
-                    throw new Error("ParseError: Unxpected End of Tokens");
-                if (next.tokenType === "close_negation")
-                    return { phraseType: "negation", children, token: token, closeToken: next };
-                tokens.unshift(next);
-                children.push(parse(tokens));
+    const phrases = [];
+    while (tokens.length !== 0) {
+        phrases.push(recursion(tokens));
+    }
+    return phrases;
+    function recursion(tokens) {
+        const token = tokens.shift();
+        if (token === undefined)
+            throw new Error("ParseError: Unxpected End of Tokens");
+        if (token.tokenType == "close_negation")
+            throw new Error("ParseError: Unxpected Token " + token.literal);
+        switch (token.tokenType) {
+            case "isolated_determiner":
+                return { phraseType: token.tokenType, token: token };
+            case "new_determiner":
+                return { phraseType: token.tokenType, token: token, key: newDeterminerToKey(token.literal) };
+            case "inherit_determiner":
+                return { phraseType: token.tokenType, token: token, key: inheritDeterminerToKey(token.literal) };
+            case "predicate":
+                return { phraseType: token.tokenType, name: predicateToName(token.literal), token: token };
+            case "relative": {
+                const left = recursion(tokens);
+                const right = recursion(tokens);
+                return { phraseType: token.tokenType, casus: relativeToCasus(token.literal), left, right, token: token };
             }
-        }
-        case "open_sentence": {
-            const children = [];
-            while (true) {
-                const next = tokens.shift();
-                if (next === undefined)
-                    throw new Error("ParseError: Unxpected End of Tokens");
-                if (next.tokenType === "close_sentence")
-                    return { phraseType: "sentence", children, token: token, closeToken: next };
-                tokens.unshift(next);
-                children.push(parse(tokens));
+            case "preposition": {
+                const left = recursion(tokens);
+                const right = recursion(tokens);
+                return { phraseType: token.tokenType, casus: prepositionToCasus(token.literal), left, right, token: token };
+            }
+            case "single_negation":
+                return { phraseType: token.tokenType, child: recursion(tokens), token: token };
+            case "open_negation": {
+                const children = [];
+                while (true) {
+                    const next = tokens.shift();
+                    if (next === undefined)
+                        throw new Error("ParseError: Unxpected End of Tokens");
+                    if (next.tokenType === "close_negation")
+                        return { phraseType: "negation", children, token: token, closeToken: next };
+                    tokens.unshift(next);
+                    children.push(recursion(tokens));
+                }
             }
         }
     }
@@ -166,8 +151,8 @@ function disjunction(formulas) {
     };
 }
 ;
-function calculate(phrase) {
-    const variableMap = [];
+function calculate(phrases) {
+    const variableMap = [[]];
     let variableCount = 0;
     function issueVariable() { return { id: "" + variableCount++ }; }
     function findVariable(key) {
@@ -279,7 +264,6 @@ function calculate(phrase) {
         switch (phrase.phraseType) {
             case "single_negation":
             case "negation":
-            case "sentence":
                 variableMap.unshift([]);
         }
         switch (phrase.phraseType) {
@@ -291,10 +275,9 @@ function calculate(phrase) {
             case "preposition": return calcPreposition(phrase.casus, recursion(phrase.left), recursion(phrase.right));
             case "single_negation": return calcSingleNegation(recursion(phrase.child));
             case "negation": return calcNegation(phrase.children.map(x => recursion(x)));
-            case "sentence": return calcSentence(phrase.children.map(x => recursion(x)));
         }
     }
-    const result = recursion(phrase);
+    const result = calcSentence(phrases.map(x => recursion(x)));
     return result.formula;
 }
 //標準化
@@ -403,7 +386,7 @@ function stringify(formula) {
     // 網羅チェック
     return formula;
 }
-function drawPhraseStructure(phrase, svg) {
+function drawPhraseStructure(phrases, svg) {
     svg.innerHTML = "";
     const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     g.setAttribute("fill", "none");
@@ -412,7 +395,7 @@ function drawPhraseStructure(phrase, svg) {
     g.setAttribute("stroke-linecap", "round");
     g.setAttribute("stroke-linejoin", "round");
     svg.appendChild(g);
-    recursion(phrase, 0);
+    phrases.reduce((x, phrase) => recursion(phrase, x).nextX, 0);
     function recursion(phrase, x) {
         const u = 3;
         function createOverPath(startX, endX, endY, height) {
@@ -599,10 +582,6 @@ function drawPhraseStructure(phrase, svg) {
                     nextX: closeLiteralNextX, size: childrenResult.size + 1,
                     overX: 0, overY: 0, underX: 0, underY: 0
                 };
-            }
-            case "sentence": {
-                const childrenNextX = phrase.children.reduce((nextX, child) => recursion(child, nextX).nextX, literalNextX);
-                return { nextX: childrenNextX + 10 };
             }
         }
     }
