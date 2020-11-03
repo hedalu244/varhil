@@ -162,7 +162,7 @@ function disjunction(formulas) {
 }
 ;
 function calculate(tree) {
-    const variableMap = [new Map()];
+    const variableMap = [];
     let variableCount = 0;
     function issueVariable() { return { name: "" + variableCount++ }; }
     function findVariable(label) {
@@ -286,6 +286,7 @@ function calculate(tree) {
         switch (tree.token.tokenType) {
             case "open_negation":
             case "single_negation":
+            case "open_sentence":
                 variableMap.unshift(new Map());
         }
         const phrases = tree.children.map(x => recursion(x));

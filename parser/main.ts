@@ -247,7 +247,7 @@ interface PredicatePhrase extends Phrase {
 }
 
 function calculate(tree: Tree): Formula {
-  const variableMap: Map<string, Variable>[] = [new Map<string, Variable>()];
+  const variableMap: Map<string, Variable>[] = [];
   let variableCount: number = 0;
 
   function issueVariable(): Variable { return { name: "" + variableCount++ }; }
@@ -374,6 +374,7 @@ function calculate(tree: Tree): Formula {
     switch (tree.token.tokenType) {
       case "open_negation":
       case "single_negation":
+      case "open_sentence":
         variableMap.unshift(new Map<string, Variable>());
     }
     const phrases: Phrase[] = tree.children.map(x => recursion(x));
