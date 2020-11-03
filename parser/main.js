@@ -264,19 +264,19 @@ function calculate(tree) {
         };
     }
     function calcNegation(phrases) {
-        const v = variableMap.shift();
-        if (v === undefined)
-            throw new Error();
-        const variables = [...v.values()];
         return {
-            formula: negation(variables.reduce((f, v) => exist(v, f), calcSentence(phrases).formula)),
+            formula: negation(calcSentence(phrases).formula),
             mainPredicate: undefined,
             mainVariable: undefined
         };
     }
     function calcSentence(phrases) {
+        const v = variableMap.shift();
+        if (v === undefined)
+            throw new Error();
+        const variables = [...v.values()];
         return {
-            formula: conjunction(phrases.map(x => x.formula)),
+            formula: variables.reduce((f, v) => exist(v, f), conjunction(phrases.map(x => x.formula))),
             mainPredicate: undefined,
             mainVariable: undefined
         };
