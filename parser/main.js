@@ -3,9 +3,9 @@
 let separatorPattern;
 let isIsolatedDeterminer;
 let isCreateDeterminer;
-let createDeterminerToLabel;
+let createDeterminerToKey;
 let isInheritDeterminer;
-let inheritDeterminerToLabel;
+let inheritDeterminerToKey;
 let isPredicate;
 let predicateToName;
 let isRelative;
@@ -22,9 +22,9 @@ function tokenize(input) {
         if (isIsolatedDeterminer(literal))
             return { literal, tokenType: "isolatedDeterminer" };
         if (isCreateDeterminer(literal))
-            return { literal, tokenType: "create_determiner", label: createDeterminerToLabel(literal) };
+            return { literal, tokenType: "create_determiner", key: createDeterminerToKey(literal) };
         if (isInheritDeterminer(literal))
-            return { literal, tokenType: "inherit_determiner", label: inheritDeterminerToLabel(literal) };
+            return { literal, tokenType: "inherit_determiner", key: inheritDeterminerToKey(literal) };
         if (isPredicate(literal))
             return { literal, tokenType: "predicate", name: predicateToName(literal) };
         if (isRelative(literal))
@@ -160,11 +160,11 @@ function calculate(tree) {
     const variableMap = [];
     let variableCount = 0;
     function issueVariable() { return { name: "" + variableCount++ }; }
-    function findVariable(label) {
-        const a = variableMap.find(closure => closure.some(entry => entry.label === label));
-        const b = a === undefined ? undefined : a.find(entry => entry.label === label);
+    function findVariable(key) {
+        const a = variableMap.find(closure => closure.some(entry => entry.key === key));
+        const b = a === undefined ? undefined : a.find(entry => entry.key === key);
         return b === undefined ? undefined : b.variable;
-        //return variableMap.map(map=>map.get(label)).find((x):x is Variable=>x !== undefined);
+        //return variableMap.map(map=>map.get(key)).find((x):x is Variable=>x !== undefined);
     }
     function isNounPhrase(phrase) { return phrase.mainVariable !== undefined; }
     function isPredicatePhrase(phrase) { return phrase.mainPredicate !== undefined; }
@@ -177,27 +177,27 @@ function calculate(tree) {
     }
     function calcIsolatedDeterminer() {
         const variable = issueVariable();
-        variableMap[0].unshift({ label: null, variable });
+        variableMap[0].unshift({ key: null, variable });
         return {
             formula: T(),
             mainPredicate: undefined,
             mainVariable: variable
         };
     }
-    function calcCreateDeterminer(label) {
+    function calcCreateDeterminer(key) {
         const variable = issueVariable();
-        variableMap[0].unshift({ label, variable });
+        variableMap[0].unshift({ key, variable });
         return {
             formula: T(),
             mainPredicate: undefined,
             mainVariable: variable
         };
     }
-    function calcInheritDeterminer(label) {
-        const variable = findVariable(label);
+    function calcInheritDeterminer(key) {
+        const variable = findVariable(key);
         if (variable === undefined) {
             console.warn();
-            return calcCreateDeterminer(label);
+            return calcCreateDeterminer(key);
         }
         return {
             formula: T(),
@@ -274,8 +274,8 @@ function calculate(tree) {
         }
         const phrases = tree.children.map(x => recursion(x));
         switch (tree.token.tokenType) {
-            case "create_determiner": return calcCreateDeterminer(tree.token.label);
-            case "inherit_determiner": return calcInheritDeterminer(tree.token.label);
+            case "create_determiner": return calcCreateDeterminer(tree.token.key);
+            case "inherit_determiner": return calcInheritDeterminer(tree.token.key);
             case "isolatedDeterminer": return calcIsolatedDeterminer();
             case "predicate": return calcPredicate(tree.token.name);
             case "relative": return calcRelative(tree.token.casus, phrases[0], phrases[1]);
@@ -431,11 +431,11 @@ function updatePattern() {
     const createDeterminerPattern = new RegExp("^" + gebi("create_determiner_pattern").value + "$");
     const createDeterminerReplacer = gebi("create_determiner_replacer").value;
     isCreateDeterminer = literal => createDeterminerPattern.test(literal);
-    createDeterminerToLabel = literal => literal.replace(createDeterminerPattern, createDeterminerReplacer);
+    createDeterminerToKey = literal => literal.replace(createDeterminerPattern, createDeterminerReplacer);
     const inheritDeterminerPattern = new RegExp("^" + gebi("inherit_determiner_pattern").value + "$");
     const inheritDeterminerReplacer = gebi("inherit_determiner_replacer").value;
     isInheritDeterminer = literal => inheritDeterminerPattern.test(literal);
-    inheritDeterminerToLabel = literal => literal.replace(inheritDeterminerPattern, inheritDeterminerReplacer);
+    inheritDeterminerToKey = literal => literal.replace(inheritDeterminerPattern, inheritDeterminerReplacer);
     const predicatePattern = new RegExp("^" + gebi("predicate_pattern").value + "$");
     const predicateReplacer = gebi("predicate_replacer").value;
     isPredicate = literal => predicatePattern.test(literal);
