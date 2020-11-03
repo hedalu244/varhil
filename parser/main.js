@@ -84,7 +84,7 @@ function parse(tokens) {
                 if (next === undefined)
                     throw new Error("ParseError: Unxpected End of Tokens");
                 if (next.tokenType === "close_negation")
-                    return { phraseType: "negation", children, openToken: token, closeToken: next };
+                    return { phraseType: "negation", children, token: token, closeToken: next };
                 tokens.unshift(next);
                 children.push(parse(tokens));
             }
@@ -96,7 +96,7 @@ function parse(tokens) {
                 if (next === undefined)
                     throw new Error("ParseError: Unxpected End of Tokens");
                 if (next.tokenType === "close_sentence")
-                    return { phraseType: "negation", children, openToken: token, closeToken: next };
+                    return { phraseType: "sentence", children, token: token, closeToken: next };
                 tokens.unshift(next);
                 children.push(parse(tokens));
             }

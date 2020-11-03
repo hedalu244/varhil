@@ -89,7 +89,7 @@ type Phrase = {
   child: Phrase;
 } | {
   phraseType: "negation" | "sentence";
-  openToken: Token;
+  token: Token;
   closeToken: Token;
   children: Phrase[];
 };
@@ -128,7 +128,7 @@ function parse(tokens: Token[]): Phrase {
         const next = tokens.shift();
         if (next === undefined) throw new Error("ParseError: Unxpected End of Tokens");
         if (next.tokenType === "close_negation")
-          return { phraseType: "negation", children, openToken: token, closeToken: next };
+          return { phraseType: "negation", children, token: token, closeToken: next };
         tokens.unshift(next);
         children.push(parse(tokens));
       }
@@ -139,7 +139,7 @@ function parse(tokens: Token[]): Phrase {
         const next = tokens.shift();
         if (next === undefined) throw new Error("ParseError: Unxpected End of Tokens");
         if (next.tokenType === "close_sentence")
-          return { phraseType: "negation", children, openToken: token, closeToken: next };
+          return { phraseType: "sentence", children, token: token, closeToken: next };
         tokens.unshift(next);
         children.push(parse(tokens));
       }
