@@ -1,6 +1,6 @@
 type Token = {
   literal: string,
-  tokenType: "create_determiner" | "inherit_determiner",
+  tokenType: "new_determiner" | "inherit_determiner",
   key: string;
 } | {
   literal: string,
@@ -20,8 +20,8 @@ let separatorPattern: RegExp;
 
 let isIsolatedDeterminer: (literal: string) => boolean;
 
-let isCreateDeterminer: (literal: string) => boolean;
-let createDeterminerToKey: (literal: string) => string;
+let isNewDeterminer: (literal: string) => boolean;
+let newDeterminerToKey: (literal: string) => string;
 
 let isInheritDeterminer: (literal: string) => boolean;
 let inheritDeterminerToKey: (literal: string) => string;
@@ -46,8 +46,8 @@ function tokenize(input: string): Token[] {
   const tokens: Token[] = literals.map(literal => {
     if (isIsolatedDeterminer(literal))
       return { literal, tokenType: "isolatedDeterminer" };
-    if (isCreateDeterminer(literal))
-      return { literal, tokenType: "create_determiner", key: createDeterminerToKey(literal) };
+    if (isNewDeterminer(literal))
+      return { literal, tokenType: "new_determiner", key: newDeterminerToKey(literal) };
     if (isInheritDeterminer(literal))
       return { literal, tokenType: "inherit_determiner", key: inheritDeterminerToKey(literal) };
     if (isPredicate(literal))
@@ -115,7 +115,7 @@ function parse(tokens: Token[]): Tree {
 
   function getArity(token: Token): Arity {
     switch (token.tokenType) {
-      case "create_determiner": return 0;
+      case "new_determiner": return 0;
       case "inherit_determiner": return 0;
       case "isolatedDeterminer": return 0;
       case "predicate": return 0;
@@ -272,7 +272,7 @@ function calculate(tree: Tree): Formula {
       mainVariable: variable
     };
   }
-  function calcCreateDeterminer(key: string): NounPhrase {
+  function calcNewDeterminer(key: string): NounPhrase {
     const variable = issueVariable();
     variableMap[0].unshift({ key, variable });
     return {
@@ -285,7 +285,7 @@ function calculate(tree: Tree): Formula {
     const variable = findVariable(key);
     if (variable === undefined) {
       console.warn();
-      return calcCreateDeterminer(key);
+      return calcNewDeterminer(key);
     }
     return {
       formula: T(),
@@ -362,7 +362,7 @@ function calculate(tree: Tree): Formula {
     }
     const phrases: Phrase[] = tree.children.map(x => recursion(x));
     switch (tree.token.tokenType) {
-      case "create_determiner": return calcCreateDeterminer(tree.token.key);
+      case "new_determiner": return calcNewDeterminer(tree.token.key);
       case "inherit_determiner": return calcInheritDeterminer(tree.token.key);
       case "isolatedDeterminer": return calcIsolatedDeterminer();
       case "predicate": return calcPredicate(tree.token.name);
@@ -528,10 +528,10 @@ function updatePattern() {
   const isolatedDeterminerPattern = new RegExp("^" + gebi("isolated_determiner_pattern").value + "$");
   isIsolatedDeterminer = literal => isolatedDeterminerPattern.test(literal);
 
-  const createDeterminerPattern = new RegExp("^" + gebi("create_determiner_pattern").value + "$");
-  const createDeterminerReplacer = gebi("create_determiner_replacer").value;
-  isCreateDeterminer = literal => createDeterminerPattern.test(literal);
-  createDeterminerToKey = literal => literal.replace(createDeterminerPattern, createDeterminerReplacer);
+  const newDeterminerPattern = new RegExp("^" + gebi("new_determiner_pattern").value + "$");
+  const newDeterminerReplacer = gebi("new_determiner_replacer").value;
+  isNewDeterminer = literal => newDeterminerPattern.test(literal);
+  newDeterminerToKey = literal => literal.replace(newDeterminerPattern, newDeterminerReplacer);
 
   const inheritDeterminerPattern = new RegExp("^" + gebi("inherit_determiner_pattern").value + "$");
   const inheritDeterminerReplacer = gebi("inherit_determiner_replacer").value;
@@ -570,8 +570,8 @@ function reset1(): void {
 
   gebi("isolated_determiner_pattern").value = "au";
 
-  gebi("create_determiner_pattern").value = "a('[aeiou])*";
-  gebi("create_determiner_replacer").value = "$1";
+  gebi("new_determiner_pattern").value = "a('[aeiou])*";
+  gebi("new_determiner_replacer").value = "$1";
 
   gebi("inherit_determiner_pattern").value = "i('[aeiou])*";
   gebi("inherit_determiner_replacer").value = "$1";
@@ -607,8 +607,8 @@ window.onload = () => {
   gebi("input").oninput = update;
   gebi("separator_pattern").oninput = updatePattern;
   gebi("isolated_determiner_pattern").oninput = updatePattern;
-  gebi("create_determiner_pattern").oninput = updatePattern;
-  gebi("create_determiner_replacer").oninput = updatePattern;
+  gebi("new_determiner_pattern").oninput = updatePattern;
+  gebi("new_determiner_replacer").oninput = updatePattern;
   gebi("inherit_determiner_pattern").oninput = updatePattern;
   gebi("inherit_determiner_replacer").oninput = updatePattern;
   gebi("predicate_pattern").oninput = updatePattern;
