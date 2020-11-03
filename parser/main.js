@@ -525,7 +525,15 @@ function drawPhraseStructure(phrases, svg) {
                     "l", endX - (height * 8 + 4) * u - startX, 0,
                     "c", 2 * u, 0, 3 * u, 1.5 * u, 4 * u, 3 * u,
                     "l", (height - 1) * 4 * u, (height - 1) * 6 * u,
-                    "c", 2 * u, 3 * u, 2 * u, 3 * u, 2 * u, 5 * u
+                    "c", 2 * u, 3 * u, 2 * u, 3 * u, 2 * u, 5 * u,
+                    "l", 0, 16 * u,
+                    "c", 0, 2 * u, 0, 2 * u, -2 * u, 5 * u,
+                    "l", -(height - 1) * 4 * u, (height - 1) * 6 * u,
+                    "c", -u, 1.5 * u, -2 * u, 3 * u, -4 * u, 3 * u,
+                    "l", -endX + (height * 8 + 4) * u + startX, 0,
+                    "c", -2 * u, 0, -3 * u, -1.5 * u, -4 * u, -3 * u,
+                    "l", -(height - 1) * 4 * u, -(height - 1) * 6 * u,
+                    "c", -2 * u, -3 * u, -2 * u, -3 * u, -2 * u, -5 * u
                 ].join(" "));
                 g.appendChild(path);
                 return {
