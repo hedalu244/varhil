@@ -7,6 +7,9 @@ title: 構文解析器
 
 <textarea id="input" rows="8" cols="80"></textarea>
 
+構造:
+<svg id="phrase_structure_output"></svg>
+
 論理式: 
 <div id="formula_output" class="formula"></div>
 

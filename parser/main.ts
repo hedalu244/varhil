@@ -494,6 +494,8 @@ function stringify(formula: Formula): string {
 function drawPhraseStructure(phrases: Phrase[], svg: SVGElement) {
   svg.innerHTML = "";
 
+  const u = 3;
+
   const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
   g.setAttribute("fill", "none");
   g.setAttribute("stroke", "#444");
@@ -502,10 +504,17 @@ function drawPhraseStructure(phrases: Phrase[], svg: SVGElement) {
   g.setAttribute("stroke-linejoin", "round");
   svg.appendChild(g);
 
-  phrases.reduce((x, phrase) => recursion(phrase, x).nextX, 0);
+  const result = phrases.reduce((state, child) => {
+    const result = recursion(child, state.nextX);
+    return { nextX: result.nextX, size: Math.max(state.size, result.size) };
+  }, { nextX: 0, size: 0 });
+  const height = (result.size * 12 * u + 50);
+  const width = result.nextX;
+  svg.setAttribute("height", "" + height);
+  svg.setAttribute("width", "" + width);
+  svg.setAttribute("viewBox", [0, -height / 2, width, height].join(" "));
 
   function recursion(phrase: Phrase, x: number): { size: number, overX: number; overY: number; underX: number; underY: number, nextX: number; } {
-    const u = 3;
 
     function createOverPath(startX: number, endX: number, endY: number, height: number) {
       const overSVG = document.createElementNS('http://www.w3.org/2000/svg', 'path');
