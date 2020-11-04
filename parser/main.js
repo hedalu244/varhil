@@ -809,9 +809,9 @@ function update() {
     doms.error_output.innerText = "";
     const input = doms.input.value;
     try {
-        drawPhraseStructure(parse(tokenize(input)), doms.phrase_structure_output);
         doms.formula_output.innerHTML = markupFormula(stringify(calculate(parse(tokenize(input)))));
         doms.normalized_formula_output.innerHTML = markupFormula(stringify(normalize(calculate(parse(tokenize(input))))));
+        drawPhraseStructure(parse(tokenize(input)), doms.phrase_structure_output);
     }
     catch (e) {
         doms.error_output.innerText = e.message;
