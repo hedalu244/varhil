@@ -515,7 +515,13 @@ function drawPhraseStructure(phrases: Phrase[], svg: SVGElement) {
   svg.setAttribute("width", "" + width);
   svg.setAttribute("viewBox", [0, -height / 2, width, height].join(" "));
 
-  function recursion(phrase: Phrase, x: number): { height: number, overX: number; overY: number; underX: number; underY: number, nextX: number; } {
+  function recursion(phrase: Phrase, x: number): {
+    height: number,
+    varX: number; varY: number;
+    argX: number; argY: number,
+    predX: number; predY: number,
+    nextX: number;
+  } {
 
     function createOverPath(startX: number, endX: number, endY: number, height: number) {
       const overSVG = document.createElementNS('http://www.w3.org/2000/svg', 'path');
@@ -543,25 +549,15 @@ function drawPhraseStructure(phrases: Phrase[], svg: SVGElement) {
     }
     function createUnderPath(startX: number, endX: number, endY: number, height: number) {
       const underSVG = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-      if (endY == 0)
-        underSVG.setAttribute("d", [
-          "M", startX, 10 * u,
-          "c", 0, 2 * u, 0, 2 * u, 2 * u, 5 * u,
-          "l", height / 6 * 4 - 4 * u, height - 6 * u,
-          "c", u, 1.5 * u, 2 * u, 3 * u, 4 * u, 3 * u,
-          "l", endX - (2 * height - endY) / 6 * 4 - 6 * u - startX, 0,
-          "c", 2 * u, 0, 3 * u, -1.5 * u, 4 * u, -3 * u,
-          "l", height / 6 * 4, -height].join(" "));
-      else
-        underSVG.setAttribute("d", [
-          "M", startX, 10 * u,
-          "c", 0, 2 * u, 0, 2 * u, 2 * u, 5 * u,
-          "l", height / 6 * 4 - 4 * u, height - 6 * u,
-          "c", u, 1.5 * u, 2 * u, 3 * u, 4 * u, 3 * u,
-          "l", endX - (2 * height - endY) / 6 * 4 - 6 * u - startX, 0,
-          "c", 2 * u, 0, 3 * u, -1.5 * u, 4 * u, -3 * u,
-          "l", (height - endY) / 6 * 4 - 4 * u, - height + endY + 6 * u,
-          "c", 1 * u, -1.5 * u, 2 * u, -3 * u, 4 * u, -3 * u].join(" "));
+      underSVG.setAttribute("stroke-dasharray", "5");
+      underSVG.setAttribute("d", [
+        "M", startX, 10 * u,
+        "c", 0, 2 * u, 0, 2 * u, 2 * u, 5 * u,
+        "l", height / 6 * 4 - 4 * u, height - 6 * u,
+        "c", u, 1.5 * u, 2 * u, 3 * u, 4 * u, 3 * u,
+        "l", endX - (2 * height - endY) / 6 * 4 - 6 * u - startX, 0,
+        "c", 2 * u, 0, 3 * u, -1.5 * u, 4 * u, -3 * u,
+        "l", (height - endY) / 6 * 4 - 2 * u, - height + endY + 3 * u].join(" "));
       return underSVG;
     }
 
@@ -599,20 +595,24 @@ function drawPhraseStructure(phrases: Phrase[], svg: SVGElement) {
 
         return {
           height: 0,
-          overX: literalCenterX,
-          overY: 0,
-          underX: literalCenterX,
-          underY: 0,
+          varX: literalCenterX,
+          varY: 0,
+          argX: NaN,
+          argY: NaN,
+          predX: NaN,
+          predY: NaN,
           nextX: literalNextX,
         };
       }
       case "predicate": {
         return {
           height: 0,
-          overX: literalCenterX,
-          overY: 0,
-          underX: literalCenterX,
-          underY: 0,
+          varX: NaN,
+          varY: NaN,
+          argX: literalCenterX,
+          argY: 0,
+          predX: literalCenterX,
+          predY: 0,
           nextX: literalNextX,
         };
       }
@@ -626,22 +626,24 @@ function drawPhraseStructure(phrases: Phrase[], svg: SVGElement) {
         const left = recursion(phrase.left, literalNextX);
         const right = recursion(phrase.right, left.nextX);
 
-        const overEndX = left.overX;
-        const overEndY = left.overY;
+        const overEndX = isNaN(left.varX) ? left.predX : left.varX;
+        const overEndY = isNaN(left.varY) ? left.predY : left.varY;
         const overHeight = left.height + 6 * u;
         g.appendChild(createOverPath(literalCenterX, overEndX, overEndY, overHeight));
 
-        const underEndX = right.underX;
-        const underEndY = right.underY;
+        const underEndX = right.argX;
+        const underEndY = right.argY;
         const underHeight = Math.max(left.height, right.height) + 6 * u;
         g.appendChild(createUnderPath(literalCenterX, underEndX, underEndY, underHeight));
 
         return {
           height: Math.max(left.height, right.height) + 6 * u,
-          overX: Math.min((literalCenterX + overEndX) / 2, literalCenterX + overHeight / 6 * 4 + 20),
-          overY: overHeight,
-          underX: Math.min((literalCenterX + underEndX) / 2, literalCenterX + underHeight / 6 * 4 + 20),
-          underY: underHeight,
+          varX: NaN,
+          varY: NaN,
+          argX: underEndX - underHeight / 6 * 4,
+          argY: underHeight,
+          predX: right.predX,
+          predY: right.predY,
           nextX: right.nextX,
         };
       }
@@ -656,22 +658,24 @@ function drawPhraseStructure(phrases: Phrase[], svg: SVGElement) {
         const left = recursion(phrase.left, literalNextX);
         const right = recursion(phrase.right, left.nextX);
 
-        const overEndX = right.overX;
-        const overEndY = right.overY;
+        const overEndX = isNaN(right.varX) ? right.predX : right.varX;
+        const overEndY = isNaN(right.varY) ? right.predY : right.varY;
         const overHeight = Math.max(left.height, right.height) + 6 * u;
         g.appendChild(createOverPath(literalCenterX, overEndX, overEndY, overHeight));
 
-        const underEndX = left.underX;
-        const underEndY = left.underY;
+        const underEndX = left.argX;
+        const underEndY = left.argY;
         const underHeight = left.height + 6 * u;
         g.appendChild(createUnderPath(literalCenterX, underEndX, underEndY, underHeight));
 
         return {
           height: Math.max(left.height, right.height) + 6 * u,
-          overX: Math.min((literalCenterX + overEndX) / 2, literalCenterX + overHeight / 6 * 4 + 20),
-          overY: overHeight,
-          underX: Math.min((literalCenterX + underEndX) / 2, literalCenterX + underHeight / 6 * 4 + 20),
-          underY: underHeight,
+          varX: Math.min((literalCenterX + overEndX) / 2, literalCenterX + overHeight / 6 * 4 + 20),
+          varY: overHeight,
+          argX: NaN,
+          argY: NaN,
+          predX: NaN,
+          predY: NaN,
           nextX: right.nextX,
         };
       }
@@ -704,10 +708,12 @@ function drawPhraseStructure(phrases: Phrase[], svg: SVGElement) {
 
         return {
           height: child.height + 6 * u,
-          overX: child.overX,
-          overY: child.overY,
-          underX: child.underX,
-          underY: child.underY,
+          varX: child.varX,
+          varY: child.varY,
+          argX: child.argX,
+          argY: child.argY,
+          predX: child.predX,
+          predY: child.predY,
           nextX: child.nextX + spaceWidth,
         };
       }
@@ -760,7 +766,12 @@ function drawPhraseStructure(phrases: Phrase[], svg: SVGElement) {
         return {
           nextX: closeLiteralNextX + spaceWidth,
           height: childrenResult.height + 6 * u,
-          overX: 0, overY: 0, underX: 0, underY: 0
+          varX: NaN,
+          varY: NaN,
+          argX: NaN,
+          argY: NaN,
+          predX: NaN,
+          predY: NaN,
         };
       }
     }
