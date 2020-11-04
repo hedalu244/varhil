@@ -399,8 +399,8 @@ function drawPhraseStructure(phrases, svg) {
     const result = phrases.reduce((state, child) => {
         const result = recursion(child, state.nextX);
         return { nextX: result.nextX, size: Math.max(state.size, result.size) };
-    }, { nextX: 0, size: 0 });
-    const height = (result.size * 12 * u + 50);
+    }, { nextX: 10, size: 0 });
+    const height = ((result.size * 12 + 20) * u + 20);
     const width = result.nextX;
     svg.setAttribute("height", "" + height);
     svg.setAttribute("width", "" + width);
