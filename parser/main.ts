@@ -495,6 +495,7 @@ function drawPhraseStructure(phrases: Phrase[], svg: SVGElement) {
   svg.innerHTML = "";
 
   const u = 3;
+  const minHeight = 10 * u;
 
   const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
   g.setAttribute("fill", "none");
@@ -506,15 +507,15 @@ function drawPhraseStructure(phrases: Phrase[], svg: SVGElement) {
 
   const result = phrases.reduce((state, child) => {
     const result = recursion(child, state.nextX);
-    return { nextX: result.nextX, size: Math.max(state.size, result.size) };
-  }, { nextX: 10, size: 0 });
-  const height = ((result.size * 12 + 20) * u + 20);
+    return { nextX: result.nextX, height: Math.max(state.height, result.height) };
+  }, { nextX: 10, height: 0 });
+  const height = (2 * result.height + 20 * u + 20);
   const width = result.nextX;
   svg.setAttribute("height", "" + height);
   svg.setAttribute("width", "" + width);
   svg.setAttribute("viewBox", [0, -height / 2, width, height].join(" "));
 
-  function recursion(phrase: Phrase, x: number): { size: number, overX: number; overY: number; underX: number; underY: number, nextX: number; } {
+  function recursion(phrase: Phrase, x: number): { height: number, overX: number; overY: number; underX: number; underY: number, nextX: number; } {
 
     function createOverPath(startX: number, endX: number, endY: number, height: number) {
       const overSVG = document.createElementNS('http://www.w3.org/2000/svg', 'path');
@@ -522,20 +523,20 @@ function drawPhraseStructure(phrases: Phrase[], svg: SVGElement) {
         overSVG.setAttribute("d", [
           "M", startX, -8 * u,
           "c", 0, -2 * u, 0, -2 * u, 2 * u, -5 * u,
-          "l", (height - 1) * 4 * u, -(height - 1) * 6 * u,
+          "l", height / 6 * 4 - 4 * u, -height + 6 * u,
           "c", u, -1.5 * u, 2 * u, -3 * u, 4 * u, -3 * u,
-          "l", endX - (height * 8 + 4) * u - startX, 0,
+          "l", endX - (2 * height - endY) / 6 * 4 - 6 * u - startX, 0,
           "c", 2 * u, 0, 3 * u, 1.5 * u, 4 * u, 3 * u,
-          "l", height * 4 * u, height * 6 * u].join(" "));
+          "l", height / 6 * 4, height].join(" "));
       else
         overSVG.setAttribute("d", [
           "M", startX, -8 * u,
           "c", 0, -2 * u, 0, -2 * u, 2 * u, -5 * u,
-          "l", (height - 1) * 4 * u, -(height - 1) * 6 * u,
+          "l", height / 6 * 4 - 4 * u, -height + 6 * u,
           "c", u, -1.5 * u, 2 * u, -3 * u, 4 * u, -3 * u,
-          "l", endX - (height * 4 + 10) * u - startX, 0,
+          "l", endX - (2 * height - endY) / 6 * 4 - 6 * u - startX, 0,
           "c", 2 * u, 0, 3 * u, 1.5 * u, 4 * u, 3 * u,
-          "l", (height - endY - 1) * 4 * u, (height - endY - 1) * 6 * u,
+          "l", (height - endY) / 6 * 4 - 4 * u, height - endY - 6 * u,
           "c", 1 * u, 1.5 * u, 2 * u, 3 * u, 4 * u, 3 * u].join(" "));
 
       return overSVG;
@@ -546,20 +547,20 @@ function drawPhraseStructure(phrases: Phrase[], svg: SVGElement) {
         underSVG.setAttribute("d", [
           "M", startX, 8 * u,
           "c", 0, 2 * u, 0, 2 * u, 2 * u, 5 * u,
-          "l", (height - 1) * 4 * u, (height - 1) * 6 * u,
+          "l", height / 6 * 4 - 4 * u, height - 6 * u,
           "c", u, 1.5 * u, 2 * u, 3 * u, 4 * u, 3 * u,
-          "l", endX - (height * 8 + 4) * u - startX, 0,
+          "l", endX - (2 * height - endY) / 6 * 4 - 6 * u - startX, 0,
           "c", 2 * u, 0, 3 * u, -1.5 * u, 4 * u, -3 * u,
-          "l", height * 4 * u, -height * 6 * u].join(" "));
+          "l", height / 6 * 4, -height].join(" "));
       else
         underSVG.setAttribute("d", [
           "M", startX, 8 * u,
           "c", 0, 2 * u, 0, 2 * u, 2 * u, 5 * u,
-          "l", (height - 1) * 4 * u, (height - 1) * 6 * u,
+          "l", height / 6 * 4 - 4 * u, height - 6 * u,
           "c", u, 1.5 * u, 2 * u, 3 * u, 4 * u, 3 * u,
-          "l", endX - (height * 4 + 10) * u - startX, 0,
+          "l", endX - (2 * height - endY) / 6 * 4 - 6 * u - startX, 0,
           "c", 2 * u, 0, 3 * u, -1.5 * u, 4 * u, -3 * u,
-          "l", (height - endY - 1) * 4 * u, -(height - endY - 1) * 6 * u,
+          "l", (height - endY) / 6 * 4 - 4 * u, - height + endY + 6 * u,
           "c", 1 * u, -1.5 * u, 2 * u, -3 * u, 4 * u, -3 * u].join(" "));
       return underSVG;
     }
@@ -589,7 +590,7 @@ function drawPhraseStructure(phrases: Phrase[], svg: SVGElement) {
         g.appendChild(rect);
 
         return {
-          size: 0,
+          height: 0,
           overX: literalCenterX,
           overY: 0,
           underX: literalCenterX,
@@ -599,7 +600,7 @@ function drawPhraseStructure(phrases: Phrase[], svg: SVGElement) {
       }
       case "predicate": {
         return {
-          size: 0,
+          height: 0,
           overX: literalCenterX,
           overY: 0,
           underX: literalCenterX,
@@ -619,19 +620,19 @@ function drawPhraseStructure(phrases: Phrase[], svg: SVGElement) {
 
         const overEndX = left.overX;
         const overEndY = left.overY;
-        const overHeight = left.size + 1;
+        const overHeight = left.height + 6 * u;
         g.appendChild(createOverPath(literalCenterX, overEndX, overEndY, overHeight));
 
         const underEndX = right.underX;
         const underEndY = right.underY;
-        const underHeight = Math.max(left.size, right.size) + 1;
+        const underHeight = Math.max(left.height, right.height) + 6 * u;
         g.appendChild(createUnderPath(literalCenterX, underEndX, underEndY, underHeight));
 
         return {
-          size: Math.max(left.size, right.size) + 1,
-          overX: Math.min((literalCenterX + overEndX) / 2, literalCenterX + overHeight * 4 * u + 20),
+          height: Math.max(left.height, right.height) + 6 * u,
+          overX: Math.min((literalCenterX + overEndX) / 2, literalCenterX + overHeight / 6 * 4 + 20),
           overY: overHeight,
-          underX: Math.min((literalCenterX + underEndX) / 2, literalCenterX + + underHeight * 4 * u + 20),
+          underX: Math.min((literalCenterX + underEndX) / 2, literalCenterX + underHeight / 6 * 4 + 20),
           underY: underHeight,
           nextX: right.nextX + 10,
         };
@@ -649,19 +650,19 @@ function drawPhraseStructure(phrases: Phrase[], svg: SVGElement) {
 
         const overEndX = right.overX;
         const overEndY = right.overY;
-        const overHeight = Math.max(left.size, right.size) + 1;
+        const overHeight = Math.max(left.height, right.height) + 6 * u;
         g.appendChild(createOverPath(literalCenterX, overEndX, overEndY, overHeight));
 
         const underEndX = left.underX;
         const underEndY = left.underY;
-        const underHeight = left.size + 1;
+        const underHeight = left.height + 6 * u;
         g.appendChild(createUnderPath(literalCenterX, underEndX, underEndY, underHeight));
 
         return {
-          size: Math.max(left.size, right.size) + 1,
-          overX: Math.min((literalCenterX + overEndX) / 2, literalCenterX + overHeight * 4 * u + 20),
+          height: Math.max(left.height, right.height) + 6 * u,
+          overX: Math.min((literalCenterX + overEndX) / 2, literalCenterX + overHeight / 6 * 4 + 20),
           overY: overHeight,
-          underX: Math.min((literalCenterX + underEndX) / 2, literalCenterX + underHeight * 4 * u + 20),
+          underX: Math.min((literalCenterX + underEndX) / 2, literalCenterX + underHeight / 6 * 4 + 20),
           underY: underHeight,
           nextX: right.nextX + 10,
         };
@@ -672,28 +673,28 @@ function drawPhraseStructure(phrases: Phrase[], svg: SVGElement) {
         const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
         const startX = literalCenterX;
         const endX = child.nextX;
-        const height = child.size + 1;
+        const height = child.height + 6 * u;
         path.setAttribute("d", [
           "M", literalCenterX, -8 * u,
           "c", 0, -2 * u, 0, -2 * u, 2 * u, -5 * u,
-          "l", (height - 1) * 4 * u, -(height - 1) * 6 * u,
+          "l", height / 6 * 4 - 4 * u, -height + 6 * u,
           "c", u, -1.5 * u, 2 * u, -3 * u, 4 * u, -3 * u,
-          "l", endX - (height * 8 + 4) * u - startX, 0,
+          "l", endX - height / 6 * 8 - 4 * u - startX, 0,
           "c", 2 * u, 0, 3 * u, 1.5 * u, 4 * u, 3 * u,
-          "l", (height - 1) * 4 * u, (height - 1) * 6 * u,
+          "l", height / 6 * 4 - 4 * u, height - 6 * u,
           "c", 2 * u, 3 * u, 2 * u, 3 * u, 2 * u, 5 * u,
           "l", 0, 16 * u,
           "c", 0, 2 * u, 0, 2 * u, -2 * u, 5 * u,
-          "l", -(height - 1) * 4 * u, (height - 1) * 6 * u,
+          "l", -height / 6 * 4 + 4 * u, height - 6 * u,
           "c", -u, 1.5 * u, -2 * u, 3 * u, -4 * u, 3 * u,
-          "l", -endX + (height * 8 + 4) * u + startX, 0,
+          "l", -endX + height / 6 * 8 + 4 * u + startX, 0,
           "c", -2 * u, 0, -3 * u, -1.5 * u, -4 * u, -3 * u,
-          "l", -(height - 1) * 4 * u, -(height - 1) * 6 * u,
+          "l", -height / 6 * 4 + 4 * u, -height + 6 * u,
           "c", -2 * u, -3 * u, -2 * u, -3 * u, -2 * u, -5 * u].join(" "));
         g.appendChild(path);
 
         return {
-          size: child.size + 1,
+          height: child.height + 6 * u,
           overX: child.overX,
           overY: child.overY,
           underX: child.underX,
@@ -704,8 +705,8 @@ function drawPhraseStructure(phrases: Phrase[], svg: SVGElement) {
       case "negation": {
         const childrenResult = phrase.children.reduce((state, child) => {
           const result = recursion(child, state.nextX);
-          return { nextX: result.nextX, size: Math.max(state.size, result.size) };
-        }, { nextX: literalNextX, size: 0 });
+          return { nextX: result.nextX, height: Math.max(state.height, result.height) };
+        }, { nextX: literalNextX, height: 0 });
 
         const closeLiteralSVG = document.createElementNS('http://www.w3.org/2000/svg', 'text');
         closeLiteralSVG.textContent = phrase.closeToken.literal;
@@ -720,16 +721,16 @@ function drawPhraseStructure(phrases: Phrase[], svg: SVGElement) {
 
         const startX = literalCenterX;
         const endX = closeLiteralCenterX;
-        const height = childrenResult.size + 1;
+        const height = childrenResult.height + 6 * u;
         const overPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
         overPath.setAttribute("d", [
           "M", literalCenterX, -8 * u,
           "c", 0, -2 * u, 0, -2 * u, 2 * u, -5 * u,
-          "l", (height - 1) * 4 * u, -(height - 1) * 6 * u,
+          "l", height / 6 * 4 - 4 * u, -height + 6 * u,
           "c", u, -1.5 * u, 2 * u, -3 * u, 4 * u, -3 * u,
-          "l", endX - (height * 8 + 4) * u - startX, 0,
+          "l", endX - height / 6 * 8 - 4 * u - startX, 0,
           "c", 2 * u, 0, 3 * u, 1.5 * u, 4 * u, 3 * u,
-          "l", (height - 1) * 4 * u, (height - 1) * 6 * u,
+          "l", height / 6 * 4 - 4 * u, height - 6 * u,
           "c", 2 * u, 3 * u, 2 * u, 3 * u, 2 * u, 5 * u].join(" "));
         g.appendChild(overPath);
 
@@ -737,16 +738,17 @@ function drawPhraseStructure(phrases: Phrase[], svg: SVGElement) {
         underPath.setAttribute("d", [
           "M", literalCenterX, 8 * u,
           "c", 0, 2 * u, 0, 2 * u, 2 * u, 5 * u,
-          "l", (height - 1) * 4 * u, (height - 1) * 6 * u,
+          "l", height / 6 * 4 - 4 * u, height - 6 * u,
           "c", u, 1.5 * u, 2 * u, 3 * u, 4 * u, 3 * u,
-          "l", endX - (height * 8 + 4) * u - startX, 0,
+          "l", endX - height / 6 * 8 - 4 * u - startX, 0,
           "c", 2 * u, 0, 3 * u, -1.5 * u, 4 * u, -3 * u,
-          "l", (height - 1) * 4 * u, -(height - 1) * 6 * u,
+          "l", height / 6 * 4 - 4 * u, -height + 6 * u,
           "c", 2 * u, -3 * u, 2 * u, -3 * u, 2 * u, -5 * u].join(" "));
         g.appendChild(underPath);
 
         return {
-          nextX: closeLiteralNextX, size: childrenResult.size + 1,
+          nextX: closeLiteralNextX,
+          height: childrenResult.height + 6 * u,
           overX: 0, overY: 0, underX: 0, underY: 0
         };
       }
