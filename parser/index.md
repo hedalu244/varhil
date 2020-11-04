@@ -5,10 +5,10 @@ title: 構文解析器
 
 一階述語論理まで対応した構文解析器です。TypeScriptで実装されています。[ソースコード](main.ts)
 
-<textarea id="input" rows="8" cols="80"></textarea>
+<textarea id="input" rows="8" cols="80" style="width:100%;"></textarea><br>
 
 構造:
-<svg id="phrase_structure_output"></svg>
+<div style="width:100%; overflow-x: scroll;"><svg id="phrase_structure_output"></svg></div><br>
 
 論理式: 
 <div id="formula_output" class="formula"></div>
