@@ -495,7 +495,7 @@ function drawPhraseStructure(phrases: Phrase[], svg: SVGElement) {
   svg.innerHTML = "";
 
   const u = 3;
-  const minHeight = 10 * u;
+  const spaceWidth = 10;
 
   const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
   g.setAttribute("fill", "none");
@@ -521,7 +521,7 @@ function drawPhraseStructure(phrases: Phrase[], svg: SVGElement) {
       const overSVG = document.createElementNS('http://www.w3.org/2000/svg', 'path');
       if (endY == 0)
         overSVG.setAttribute("d", [
-          "M", startX, -8 * u,
+          "M", startX, -10 * u,
           "c", 0, -2 * u, 0, -2 * u, 2 * u, -5 * u,
           "l", height / 6 * 4 - 4 * u, -height + 6 * u,
           "c", u, -1.5 * u, 2 * u, -3 * u, 4 * u, -3 * u,
@@ -530,7 +530,7 @@ function drawPhraseStructure(phrases: Phrase[], svg: SVGElement) {
           "l", height / 6 * 4, height].join(" "));
       else
         overSVG.setAttribute("d", [
-          "M", startX, -8 * u,
+          "M", startX, -10 * u,
           "c", 0, -2 * u, 0, -2 * u, 2 * u, -5 * u,
           "l", height / 6 * 4 - 4 * u, -height + 6 * u,
           "c", u, -1.5 * u, 2 * u, -3 * u, 4 * u, -3 * u,
@@ -545,7 +545,7 @@ function drawPhraseStructure(phrases: Phrase[], svg: SVGElement) {
       const underSVG = document.createElementNS('http://www.w3.org/2000/svg', 'path');
       if (endY == 0)
         underSVG.setAttribute("d", [
-          "M", startX, 8 * u,
+          "M", startX, 10 * u,
           "c", 0, 2 * u, 0, 2 * u, 2 * u, 5 * u,
           "l", height / 6 * 4 - 4 * u, height - 6 * u,
           "c", u, 1.5 * u, 2 * u, 3 * u, 4 * u, 3 * u,
@@ -554,7 +554,7 @@ function drawPhraseStructure(phrases: Phrase[], svg: SVGElement) {
           "l", height / 6 * 4, -height].join(" "));
       else
         underSVG.setAttribute("d", [
-          "M", startX, 8 * u,
+          "M", startX, 10 * u,
           "c", 0, 2 * u, 0, 2 * u, 2 * u, 5 * u,
           "l", height / 6 * 4 - 4 * u, height - 6 * u,
           "c", u, 1.5 * u, 2 * u, 3 * u, 4 * u, 3 * u,
@@ -565,27 +565,35 @@ function drawPhraseStructure(phrases: Phrase[], svg: SVGElement) {
       return underSVG;
     }
 
+    const wrapperWidth =
+      (phrase.phraseType === "isolated_determiner"
+        || phrase.phraseType === "new_determiner"
+        || phrase.phraseType === "inherit_determiner"
+        || phrase.phraseType === "preposition"
+        || phrase.phraseType === "relative" ? 15 : 0);
+
     const literalSVG = document.createElementNS('http://www.w3.org/2000/svg', 'text');
     literalSVG.textContent = phrase.token.literal;
     literalSVG.setAttribute("fill", "#222");
     literalSVG.setAttribute("font-size", "20px");
     literalSVG.setAttribute("stroke", "none");
-    literalSVG.setAttribute("x", "" + x);
+    literalSVG.setAttribute("x", "" + (x + wrapperWidth));
     literalSVG.setAttribute("dominant-baseline", "central");
     g.appendChild(literalSVG);
 
-    let literalNextX = x + literalSVG.getBoundingClientRect().width + 20;
-    const literalCenterX = x + literalSVG.getBoundingClientRect().width / 2;
+    const literalWidth = literalSVG.getBoundingClientRect().width + 2 * wrapperWidth;
+    let literalNextX = x + literalWidth + spaceWidth;
+    const literalCenterX = x + literalWidth / 2;
 
     switch (phrase.phraseType) {
       case "isolated_determiner":
       case "new_determiner":
       case "inherit_determiner": {
         const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-        rect.setAttribute("x", "" + (literalCenterX - 5.5 * u));
-        rect.setAttribute("y", "" + (-5.5 * u));
-        rect.setAttribute("width", "" + (11 * u));
-        rect.setAttribute("height", "" + (11 * u));
+        rect.setAttribute("x", "" + (literalCenterX - 5 * u));
+        rect.setAttribute("y", "" + (-5 * u));
+        rect.setAttribute("width", "" + (10 * u));
+        rect.setAttribute("height", "" + (10 * u));
         rect.setAttribute("transform", "rotate(45, " + literalCenterX + ", 0)");
         g.appendChild(rect);
 
@@ -634,7 +642,7 @@ function drawPhraseStructure(phrases: Phrase[], svg: SVGElement) {
           overY: overHeight,
           underX: Math.min((literalCenterX + underEndX) / 2, literalCenterX + underHeight / 6 * 4 + 20),
           underY: underHeight,
-          nextX: right.nextX + 10,
+          nextX: right.nextX,
         };
       }
       case "relative": {
@@ -664,7 +672,7 @@ function drawPhraseStructure(phrases: Phrase[], svg: SVGElement) {
           overY: overHeight,
           underX: Math.min((literalCenterX + underEndX) / 2, literalCenterX + underHeight / 6 * 4 + 20),
           underY: underHeight,
-          nextX: right.nextX + 10,
+          nextX: right.nextX,
         };
       }
       case "single_negation": {
@@ -675,7 +683,7 @@ function drawPhraseStructure(phrases: Phrase[], svg: SVGElement) {
         const endX = child.nextX;
         const height = child.height + 6 * u;
         path.setAttribute("d", [
-          "M", literalCenterX, -8 * u,
+          "M", literalCenterX, -10 * u,
           "c", 0, -2 * u, 0, -2 * u, 2 * u, -5 * u,
           "l", height / 6 * 4 - 4 * u, -height + 6 * u,
           "c", u, -1.5 * u, 2 * u, -3 * u, 4 * u, -3 * u,
@@ -683,7 +691,7 @@ function drawPhraseStructure(phrases: Phrase[], svg: SVGElement) {
           "c", 2 * u, 0, 3 * u, 1.5 * u, 4 * u, 3 * u,
           "l", height / 6 * 4 - 4 * u, height - 6 * u,
           "c", 2 * u, 3 * u, 2 * u, 3 * u, 2 * u, 5 * u,
-          "l", 0, 16 * u,
+          "l", 0, 20 * u,
           "c", 0, 2 * u, 0, 2 * u, -2 * u, 5 * u,
           "l", -height / 6 * 4 + 4 * u, height - 6 * u,
           "c", -u, 1.5 * u, -2 * u, 3 * u, -4 * u, 3 * u,
@@ -692,6 +700,7 @@ function drawPhraseStructure(phrases: Phrase[], svg: SVGElement) {
           "l", -height / 6 * 4 + 4 * u, -height + 6 * u,
           "c", -2 * u, -3 * u, -2 * u, -3 * u, -2 * u, -5 * u].join(" "));
         g.appendChild(path);
+        path.setAttribute("stroke-width", "1px");
 
         return {
           height: child.height + 6 * u,
@@ -699,7 +708,7 @@ function drawPhraseStructure(phrases: Phrase[], svg: SVGElement) {
           overY: child.overY,
           underX: child.underX,
           underY: child.underY,
-          nextX: child.nextX + 20,
+          nextX: child.nextX + spaceWidth,
         };
       }
       case "negation": {
@@ -716,15 +725,16 @@ function drawPhraseStructure(phrases: Phrase[], svg: SVGElement) {
         closeLiteralSVG.setAttribute("x", "" + childrenResult.nextX);
         closeLiteralSVG.setAttribute("dominant-baseline", "central");
         g.appendChild(closeLiteralSVG);
-        let closeLiteralNextX = childrenResult.nextX + closeLiteralSVG.getBoundingClientRect().width + 20;
+        let closeLiteralNextX = childrenResult.nextX + closeLiteralSVG.getBoundingClientRect().width + spaceWidth;
         const closeLiteralCenterX = childrenResult.nextX + closeLiteralSVG.getBoundingClientRect().width / 2;
 
         const startX = literalCenterX;
         const endX = closeLiteralCenterX;
         const height = childrenResult.height + 6 * u;
         const overPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        overPath.setAttribute("stroke-width", "1px");
         overPath.setAttribute("d", [
-          "M", literalCenterX, -8 * u,
+          "M", literalCenterX, -10 * u,
           "c", 0, -2 * u, 0, -2 * u, 2 * u, -5 * u,
           "l", height / 6 * 4 - 4 * u, -height + 6 * u,
           "c", u, -1.5 * u, 2 * u, -3 * u, 4 * u, -3 * u,
@@ -735,8 +745,9 @@ function drawPhraseStructure(phrases: Phrase[], svg: SVGElement) {
         g.appendChild(overPath);
 
         const underPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        underPath.setAttribute("stroke-width", "1px");
         underPath.setAttribute("d", [
-          "M", literalCenterX, 8 * u,
+          "M", literalCenterX, 10 * u,
           "c", 0, 2 * u, 0, 2 * u, 2 * u, 5 * u,
           "l", height / 6 * 4 - 4 * u, height - 6 * u,
           "c", u, 1.5 * u, 2 * u, 3 * u, 4 * u, 3 * u,
@@ -747,7 +758,7 @@ function drawPhraseStructure(phrases: Phrase[], svg: SVGElement) {
         g.appendChild(underPath);
 
         return {
-          nextX: closeLiteralNextX,
+          nextX: closeLiteralNextX + spaceWidth,
           height: childrenResult.height + 6 * u,
           overX: 0, overY: 0, underX: 0, underY: 0
         };
