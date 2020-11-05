@@ -456,15 +456,28 @@ function drawPhraseStructure(phrases, svg) {
         function createUnderPath(startX, endX, endY, height) {
             const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
             path.setAttribute("stroke-dasharray", "5");
-            path.setAttribute("d", [
-                "M", startX, 10 * u,
-                "c", 0, 2 * u, 0, 2 * u, 2 * u, 5 * u,
-                "l", height / 6 * 4 - 4 * u, height - 6 * u,
-                "c", u, 1.5 * u, 2 * u, 3 * u, 4 * u, 3 * u,
-                "l", endX - (2 * height - endY) / 6 * 4 - 6 * u - startX, 0,
-                "c", 2 * u, 0, 3 * u, -1.5 * u, 4 * u, -3 * u,
-                "l", (height - endY) / 6 * 4 - 2 * u, -height + endY + 3 * u
-            ].join(" "));
+            if (endY == 0) {
+                path.setAttribute("d", [
+                    "M", startX, 10 * u,
+                    "c", 0, 2 * u, 0, 2 * u, 2 * u, 5 * u,
+                    "l", height / 6 * 4 - 4 * u, height - 6 * u,
+                    "c", u, 1.5 * u, 2 * u, 3 * u, 4 * u, 3 * u,
+                    "l", endX - (2 * height - endY) / 6 * 4 - 6 * u - startX, 0,
+                    "c", 2 * u, 0, 3 * u, -1.5 * u, 4 * u, -3 * u,
+                    "l", (height - endY) / 6 * 4, -height + endY
+                ].join(" "));
+            }
+            else {
+                path.setAttribute("d", [
+                    "M", startX, 10 * u,
+                    "c", 0, 2 * u, 0, 2 * u, 2 * u, 5 * u,
+                    "l", height / 6 * 4 - 4 * u, height - 6 * u,
+                    "c", u, 1.5 * u, 2 * u, 3 * u, 4 * u, 3 * u,
+                    "l", endX - (2 * height - endY) / 6 * 4 - 6 * u - startX, 0,
+                    "c", 2 * u, 0, 3 * u, -1.5 * u, 4 * u, -3 * u,
+                    "l", (height - endY) / 6 * 4 - 2 * u, -height + endY + 3 * u
+                ].join(" "));
+            }
             svg.appendChild(path);
         }
         const wrapperWidth = (phrase.phraseType === "isolated_determiner"
