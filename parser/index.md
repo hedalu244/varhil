@@ -18,7 +18,7 @@ title: 構文解析器
 
 <div id="error_output"></div>
 
-| 分離符 | <input type="text" id="separator_pattern"> |
+| 単語境界 | <input type="text" id="separator_pattern"> |
 | 孤立限定詞 | <input type="text" id="isolated_determiner_pattern"> |
 | 新規限定詞 | <input type="text" id="new_determiner_pattern"> | label | <input type="text" id="new_determiner_replacer"> |
 | 継続限定詞 | <input type="text" id="inherit_determiner_pattern"> | label | <input type="text" id="inherit_determiner_replacer"> |
