@@ -413,17 +413,26 @@ function drawPhraseStructure(phrases, svg) {
                     "c", 0, -2 * u, 0, -2 * u, 2 * u, -5 * u,
                     "l", height / 6 * 4 - 4 * u, -height + 6 * u,
                     "c", u, -1.5 * u, 2 * u, -3 * u, 4 * u, -3 * u,
-                    "l", endX - (2 * height - endY) / 6 * 4 - 6 * u - startX, 0
+                    "l", endX - (2 * height - endY) / 6 * 4 - 6 * u - startX, 0,
+                    "c", 2 * u, 0, 3 * u, 1.5 * u, 4 * u, 3 * u,
+                    "l", height / 6 * 4 - 4 * u, height - 6 * u,
                 ].join(" "));
                 svg.appendChild(path1);
-                const path2 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                path2.setAttribute("d", [
-                    "M", endX - height / 6 * 4 - 4 * u, endY - 9 * u - height - 3 * u,
-                    "c", 2 * u, 0, 3 * u, 1.5 * u, 4 * u, 3 * u,
-                    "l", height / 6 * 4, height,
-                ].join(" "));
-                path2.setAttribute("stroke-dasharray", "5");
-                svg.appendChild(path2);
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute("cx", "" + (endX));
+                circle.setAttribute("cy", "" + (endY - 9 * u));
+                circle.setAttribute("r", "15");
+                svg.appendChild(circle);
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute("x", "" + (endX));
+                text.setAttribute("y", "" + (endY - 9 * u - 2));
+                text.setAttribute("fill", "#222");
+                text.setAttribute("stroke", "none");
+                text.setAttribute("font-size", "20px");
+                text.setAttribute("text-anchor", "middle");
+                text.setAttribute("dominant-baseline", "central");
+                text.textContent = "e";
+                svg.appendChild(text);
                 return;
             }
             if (endY == 0) {
@@ -488,9 +497,10 @@ function drawPhraseStructure(phrases, svg) {
         const literalSVG = document.createElementNS('http://www.w3.org/2000/svg', 'text');
         literalSVG.textContent = phrase.token.literal;
         literalSVG.setAttribute("fill", "#222");
-        literalSVG.setAttribute("font-size", "20px");
         literalSVG.setAttribute("stroke", "none");
+        literalSVG.setAttribute("font-size", "20px");
         literalSVG.setAttribute("x", "" + (x + wrapperWidth));
+        literalSVG.setAttribute("y", "0");
         literalSVG.setAttribute("dominant-baseline", "central");
         svg.appendChild(literalSVG);
         const literalWidth = literalSVG.getBoundingClientRect().width + 2 * wrapperWidth;
