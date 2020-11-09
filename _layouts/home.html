@@ -8,8 +8,7 @@
   <link rel="stylesheet" href="{{ site.baseurl }}/style/home-layout.css">
   <link rel="icon" href="{{ site.baseurl }}/image/favicon.svg" type="image/svg+xml">
   <link rel="icon alternate" href="{{ site.baseurl }}/image/favicon.png" type="image/png">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-  <script src="{{ site.baseurl }}/script/homeanimation.js"></script>
+  <script src="{{ site.baseurl }}/script/animations.js"></script>
 </head>
 
 <body>
@@ -43,10 +42,10 @@
     window.addEventListener("load", function () {
       //直接来たとき||サイト内リンクで来たとき
       if (document.referrer === "" || new URL(document.referrer).hostname === location.hostname)
-        pageAnimation.shortAnimation();
+      animations.shortAnimation();
       //サイト外から来たとき
       else
-        pageAnimation.longAnimation();
+      animations.longAnimation();
     });
   </script>
 </body>
