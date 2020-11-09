@@ -151,7 +151,7 @@ function disjunction(formulas) {
     };
 }
 ;
-function calculate(phrases) {
+function interpret(phrases) {
     const variableMap = [[]];
     let variableCount = 0;
     function issueVariable() { return { id: "" + variableCount++ }; }
@@ -168,9 +168,9 @@ function calculate(phrases) {
             return a;
         if (!isPredicatePartialMeaning(a))
             throw new Error("CalcError: Unexpected PartialMeaning");
-        return calcRelative("", a, calcIsolatedDeterminer());
+        return interpretRelative("", a, interpretIsolatedDeterminer());
     }
-    function calcIsolatedDeterminer() {
+    function interpretIsolatedDeterminer() {
         const variable = issueVariable();
         variableMap[0].unshift({ key: null, variable });
         return {
@@ -179,7 +179,7 @@ function calculate(phrases) {
             mainVariable: variable
         };
     }
-    function calcNewDeterminer(key) {
+    function interpretNewDeterminer(key) {
         const variable = issueVariable();
         variableMap[0].unshift({ key, variable });
         return {
@@ -188,11 +188,11 @@ function calculate(phrases) {
             mainVariable: variable
         };
     }
-    function calcInheritDeterminer(key) {
+    function interpretInheritDeterminer(key) {
         const variable = findVariable(key);
         if (variable === undefined) {
             console.warn();
-            return calcNewDeterminer(key);
+            return interpretNewDeterminer(key);
         }
         return {
             formula: T(),
@@ -200,7 +200,7 @@ function calculate(phrases) {
             mainVariable: variable
         };
     }
-    function calcPredicate(name) {
+    function interpretPredicate(name) {
         const predicate = PredicateFormula(name, []);
         return {
             formula: predicate,
@@ -208,7 +208,7 @@ function calculate(phrases) {
             mainVariable: undefined
         };
     }
-    function calcRelative(casus, a, b) {
+    function interpretRelative(casus, a, b) {
         if (!isPredicatePartialMeaning(a))
             throw new Error("CalcError: Unexpected Phrase");
         const bb = convertToNoun(b);
@@ -219,7 +219,7 @@ function calculate(phrases) {
             mainVariable: bb.mainVariable
         };
     }
-    function calcPreposition(casus, a, b) {
+    function interpretPreposition(casus, a, b) {
         const aa = convertToNoun(a);
         if (!isPredicatePartialMeaning(b))
             throw new Error("CalcError: Unexpected Phrase");
@@ -230,7 +230,7 @@ function calculate(phrases) {
             mainVariable: undefined
         };
     }
-    function calcSingleNegation(phrase) {
+    function interpretSingleNegation(phrase) {
         const v = variableMap.shift();
         if (v === undefined)
             throw new Error();
@@ -241,14 +241,14 @@ function calculate(phrases) {
             mainVariable: phrase.mainVariable
         };
     }
-    function calcNegation(phrases) {
+    function interpretNegation(phrases) {
         return {
-            formula: negation(calcSentence(phrases).formula),
+            formula: negation(interpretSentence(phrases).formula),
             mainPredicate: undefined,
             mainVariable: undefined
         };
     }
-    function calcSentence(phrases) {
+    function interpretSentence(phrases) {
         const v = variableMap.shift();
         if (v === undefined)
             throw new Error();
@@ -267,17 +267,17 @@ function calculate(phrases) {
                 variableMap.unshift([]);
         }
         switch (phrase.phraseType) {
-            case "isolated_determiner": return calcIsolatedDeterminer();
-            case "new_determiner": return calcNewDeterminer(phrase.key);
-            case "inherit_determiner": return calcInheritDeterminer(phrase.key);
-            case "predicate": return calcPredicate(phrase.name);
-            case "relative": return calcRelative(phrase.casus, recursion(phrase.left), recursion(phrase.right));
-            case "preposition": return calcPreposition(phrase.casus, recursion(phrase.left), recursion(phrase.right));
-            case "single_negation": return calcSingleNegation(recursion(phrase.child));
-            case "negation": return calcNegation(phrase.children.map(x => recursion(x)));
+            case "isolated_determiner": return interpretIsolatedDeterminer();
+            case "new_determiner": return interpretNewDeterminer(phrase.key);
+            case "inherit_determiner": return interpretInheritDeterminer(phrase.key);
+            case "predicate": return interpretPredicate(phrase.name);
+            case "relative": return interpretRelative(phrase.casus, recursion(phrase.left), recursion(phrase.right));
+            case "preposition": return interpretPreposition(phrase.casus, recursion(phrase.left), recursion(phrase.right));
+            case "single_negation": return interpretSingleNegation(recursion(phrase.child));
+            case "negation": return interpretNegation(phrase.children.map(x => recursion(x)));
         }
     }
-    const result = calcSentence(phrases.map(x => recursion(x)));
+    const result = interpretSentence(phrases.map(x => recursion(x)));
     return result.formula;
 }
 //標準化
@@ -704,8 +704,8 @@ function test() {
     ];
     inputs.forEach(x => {
         console.log(">" + x);
-        console.log(stringify(calculate(parse(tokenize(x)))));
-        console.log(stringify(normalize(calculate(parse(tokenize(x))))));
+        console.log(stringify(interpret(parse(tokenize(x)))));
+        console.log(stringify(normalize(interpret(parse(tokenize(x))))));
     });
 }
 function gebi(id) {
@@ -851,8 +851,8 @@ function update() {
     doms.error_output.innerText = "";
     const input = doms.input.value;
     try {
-        doms.formula_output.innerHTML = markupFormula(stringify(calculate(parse(tokenize(input)))));
-        doms.normalized_formula_output.innerHTML = markupFormula(stringify(normalize(calculate(parse(tokenize(input))))));
+        doms.formula_output.innerHTML = markupFormula(stringify(interpret(parse(tokenize(input)))));
+        doms.normalized_formula_output.innerHTML = markupFormula(stringify(normalize(interpret(parse(tokenize(input))))));
         drawPhraseStructure(parse(tokenize(input)), doms.phrase_structure_output);
     }
     catch (e) {

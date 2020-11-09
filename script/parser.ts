@@ -244,7 +244,7 @@ interface PredicatePartialMeaning extends PartialMeaning {
   mainPredicate: PredicateFormula;
 }
 
-function calculate(phrases: Phrase[]): Formula {
+function interpret(phrases: Phrase[]): Formula {
   const variableMap: { key: string | null, variable: Variable; }[][] = [[]];
   let variableCount: number = 0;
 
@@ -264,10 +264,10 @@ function calculate(phrases: Phrase[]): Formula {
     if (isNounPartialMeaning(a)) return a;
     if (!isPredicatePartialMeaning(a)) throw new Error("CalcError: Unexpected PartialMeaning");
 
-    return calcRelative("", a, calcIsolatedDeterminer());
+    return interpretRelative("", a, interpretIsolatedDeterminer());
   }
 
-  function calcIsolatedDeterminer(): NounPartialMeaning {
+  function interpretIsolatedDeterminer(): NounPartialMeaning {
     const variable = issueVariable();
     variableMap[0].unshift({ key: null, variable });
     return {
@@ -276,7 +276,7 @@ function calculate(phrases: Phrase[]): Formula {
       mainVariable: variable
     };
   }
-  function calcNewDeterminer(key: string): NounPartialMeaning {
+  function interpretNewDeterminer(key: string): NounPartialMeaning {
     const variable = issueVariable();
     variableMap[0].unshift({ key, variable });
     return {
@@ -285,11 +285,11 @@ function calculate(phrases: Phrase[]): Formula {
       mainVariable: variable
     };
   }
-  function calcInheritDeterminer(key: string): NounPartialMeaning {
+  function interpretInheritDeterminer(key: string): NounPartialMeaning {
     const variable = findVariable(key);
     if (variable === undefined) {
       console.warn();
-      return calcNewDeterminer(key);
+      return interpretNewDeterminer(key);
     }
     return {
       formula: T(),
@@ -297,7 +297,7 @@ function calculate(phrases: Phrase[]): Formula {
       mainVariable: variable
     };
   }
-  function calcPredicate(name: string): PredicatePartialMeaning {
+  function interpretPredicate(name: string): PredicatePartialMeaning {
     const predicate = PredicateFormula(name, []);
     return {
       formula: predicate,
@@ -305,7 +305,7 @@ function calculate(phrases: Phrase[]): Formula {
       mainVariable: undefined
     };
   }
-  function calcRelative(casus: string, a: PartialMeaning, b: PartialMeaning): NounPartialMeaning {
+  function interpretRelative(casus: string, a: PartialMeaning, b: PartialMeaning): NounPartialMeaning {
     if (!isPredicatePartialMeaning(a)) throw new Error("CalcError: Unexpected Phrase");
     const bb: NounPartialMeaning = convertToNoun(b);
     a.mainPredicate.args.unshift({ casus: casus, variable: bb.mainVariable });
@@ -316,7 +316,7 @@ function calculate(phrases: Phrase[]): Formula {
       mainVariable: bb.mainVariable
     };
   }
-  function calcPreposition(casus: string, a: PartialMeaning, b: PartialMeaning): PredicatePartialMeaning {
+  function interpretPreposition(casus: string, a: PartialMeaning, b: PartialMeaning): PredicatePartialMeaning {
     const aa: NounPartialMeaning = convertToNoun(a);
     if (!isPredicatePartialMeaning(b)) throw new Error("CalcError: Unexpected Phrase");
     b.mainPredicate.args.unshift({ casus: casus, variable: aa.mainVariable });
@@ -327,7 +327,7 @@ function calculate(phrases: Phrase[]): Formula {
       mainVariable: undefined
     };
   }
-  function calcSingleNegation(phrase: PartialMeaning): PartialMeaning {
+  function interpretSingleNegation(phrase: PartialMeaning): PartialMeaning {
     const v = variableMap.shift();
     if (v === undefined) throw new Error();
     const variables = v.map(entry => entry.variable);
@@ -338,14 +338,14 @@ function calculate(phrases: Phrase[]): Formula {
       mainVariable: phrase.mainVariable
     };
   }
-  function calcNegation(phrases: PartialMeaning[]): PartialMeaning {
+  function interpretNegation(phrases: PartialMeaning[]): PartialMeaning {
     return {
-      formula: negation(calcSentence(phrases).formula),
+      formula: negation(interpretSentence(phrases).formula),
       mainPredicate: undefined,
       mainVariable: undefined
     };
   }
-  function calcSentence(phrases: PartialMeaning[]): PartialMeaning {
+  function interpretSentence(phrases: PartialMeaning[]): PartialMeaning {
     const v = variableMap.shift();
     if (v === undefined) throw new Error();
     const variables = v.map(entry => entry.variable);
@@ -364,17 +364,17 @@ function calculate(phrases: Phrase[]): Formula {
         variableMap.unshift([]);
     }
     switch (phrase.phraseType) {
-      case "isolated_determiner": return calcIsolatedDeterminer();
-      case "new_determiner": return calcNewDeterminer(phrase.key);
-      case "inherit_determiner": return calcInheritDeterminer(phrase.key);
-      case "predicate": return calcPredicate(phrase.name);
-      case "relative": return calcRelative(phrase.casus, recursion(phrase.left), recursion(phrase.right));
-      case "preposition": return calcPreposition(phrase.casus, recursion(phrase.left), recursion(phrase.right));
-      case "single_negation": return calcSingleNegation(recursion(phrase.child));
-      case "negation": return calcNegation(phrase.children.map(x => recursion(x)));
+      case "isolated_determiner": return interpretIsolatedDeterminer();
+      case "new_determiner": return interpretNewDeterminer(phrase.key);
+      case "inherit_determiner": return interpretInheritDeterminer(phrase.key);
+      case "predicate": return interpretPredicate(phrase.name);
+      case "relative": return interpretRelative(phrase.casus, recursion(phrase.left), recursion(phrase.right));
+      case "preposition": return interpretPreposition(phrase.casus, recursion(phrase.left), recursion(phrase.right));
+      case "single_negation": return interpretSingleNegation(recursion(phrase.child));
+      case "negation": return interpretNegation(phrase.children.map(x => recursion(x)));
     }
   }
-  const result = calcSentence(phrases.map(x => recursion(x)));
+  const result = interpretSentence(phrases.map(x => recursion(x)));
   return result.formula;
 }
 
@@ -842,8 +842,8 @@ function test(): void {
   ];
   inputs.forEach(x => {
     console.log(">" + x);
-    console.log(stringify(calculate(parse(tokenize(x)))));
-    console.log(stringify(normalize(calculate(parse(tokenize(x))))));
+    console.log(stringify(interpret(parse(tokenize(x)))));
+    console.log(stringify(normalize(interpret(parse(tokenize(x))))));
   });
 }
 
@@ -1010,8 +1010,8 @@ function update(): void {
   doms.error_output.innerText = "";
   const input = doms.input.value;
   try {
-    doms.formula_output.innerHTML = markupFormula(stringify(calculate(parse(tokenize(input)))));
-    doms.normalized_formula_output.innerHTML = markupFormula(stringify(normalize(calculate(parse(tokenize(input))))));
+    doms.formula_output.innerHTML = markupFormula(stringify(interpret(parse(tokenize(input)))));
+    doms.normalized_formula_output.innerHTML = markupFormula(stringify(normalize(interpret(parse(tokenize(input))))));
     drawPhraseStructure(parse(tokenize(input)), doms.phrase_structure_output);
   } catch (e) {
     doms.error_output.innerText = e.message;
