@@ -8,7 +8,6 @@
 <link rel="icon" href="{{ site.baseurl }}/image/favicon.svg" type="image/svg+xml">
 <link rel="icon alternate" href="{{ site.baseurl }}/image/favicon.png" type="image/png">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-<script src="{{ site.baseurl }}/script/default-animation.js"></script>
 <script src="{{ site.baseurl }}/script/breadcrumbs.js"></script>
 <script src="{{ site.baseurl }}/script/automarkup.js"></script>
 <script src="{{ site.baseurl }}/script/parser.js"></script>
@@ -19,5 +18,10 @@
 <ul id="breadcrumbs" class="breadcrumbs"></ul>
 {{ content }}
 </div>
+<script>
+window.addEventListener("load", function() {
+  $('#content').animate({opacity:1}, { duration: 400, easing: 'swing' });
+});
+</script>
 </body>
 </html>
