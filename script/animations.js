@@ -39,8 +39,11 @@ var animations;
         const logo = assure(document.getElementById("logo"), HTMLElement);
         const content = assure(document.getElementById("content"), HTMLElement);
         animation.animate({ opacity: 1 }, { duration: 600, easing: 'ease-in-out' });
+        setTimeout(() => animation.style.opacity = "1", 600);
         setTimeout(() => logo.animate({ opacity: 1 }, { duration: 400, easing: 'ease-in-out' }), 200);
+        setTimeout(() => logo.style.opacity = "1", 600);
         setTimeout(() => content.animate({ opacity: 1 }, { duration: 400, easing: 'ease-in-out' }), 400);
+        setTimeout(() => content.style.opacity = "1", 800);
     }
     animations.shortHomeAnimation = shortHomeAnimation;
     function longHomeAnimation() {
@@ -70,13 +73,18 @@ var animations;
         animation.style.opacity = "1";
         drawsvg(animation);
         setTimeout(() => logo.animate({ opacity: 1 }, { duration: 400, easing: 'ease-in-out' }), 2300);
+        setTimeout(() => logo.style.opacity = "1", 2700);
         setTimeout(() => keyVisual.animate({ "margin-top": 0 }, { duration: 600, easing: 'ease-in-out' }), 2700);
+        setTimeout(() => keyVisual.style.marginTop = "0", 3300);
         setTimeout(() => content.animate({ opacity: 1 }, { duration: 400, easing: 'ease-in-out' }), 3000);
+        setTimeout(() => content.style.opacity = "1", 3400);
         setTimeout(permit_scroll, 2700);
     }
     animations.longHomeAnimation = longHomeAnimation;
     function pageAnimation() {
-        assure(document.getElementById("content"), HTMLElement).animate({ opacity: 1 }, { duration: 400, easing: 'ease-in-out' });
+        const content = assure(document.getElementById("content"), HTMLElement);
+        content.animate({ opacity: 1 }, { duration: 400, easing: 'ease-in-out' });
+        setTimeout(() => content.style.opacity = "1", 400);
     }
     animations.pageAnimation = pageAnimation;
 })(animations || (animations = {}));
