@@ -42,10 +42,10 @@
     window.addEventListener("load", function () {
       //直接来たとき||サイト内リンクで来たとき
       if (document.referrer === "" || new URL(document.referrer).hostname === location.hostname)
-      animations.shortAnimation();
+      animations.shortHomeAnimation();
       //サイト外から来たとき
       else
-      animations.longAnimation();
+      animations.longHomeAnimation();
     });
   </script>
 </body>
