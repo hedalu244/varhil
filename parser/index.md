@@ -29,4 +29,4 @@ title: 構文解析器
 | 否定開始 | <input type="text" id="open_negation_pattern"> |
 | 否定終止 | <input type="text" id="close_negation_pattern"> |
 
-<script type="text/javascript" src="main.js"></script>
+<script type="text/javascript" src="parser.js"></script>
