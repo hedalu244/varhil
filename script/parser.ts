@@ -2,7 +2,7 @@
 type Token = {
   literal: string;
   index: number;
-  tokenType: "isolated_determiner" | "single_negation" | "open_negation" | "close_negation";
+  tokenType: "open_negation" | "close_negation" | "single_negation" | "isolated_determiner";
 } | {
   literal: string;
   index: number;
@@ -11,7 +11,7 @@ type Token = {
 } | {
   literal: string;
   index: number;
-  tokenType: "relative" | "preposition";
+  tokenType: "preposition" | "relative";
   casus: string;
 } | {
   literal: string;
@@ -22,25 +22,31 @@ type Token = {
 //トークン単位に分割し、必要な情報を付加する
 function tokenize(input: string, option: {
   separator: RegExp;
+  openNegation: RegExp;
+  closeNegation: RegExp;
+  singleNegation: RegExp;
   isolatedDeterminer: RegExp;
   newDeterminer: RegExp;
   inheritDeterminer: RegExp;
-  predicate: RegExp;
   preposition: RegExp;
   relative: RegExp;
-  singleNegation: RegExp;
-  openNegation: RegExp;
-  closeNegation: RegExp;
+  predicate: RegExp;
 
   keyOfNewDeterminer: string;
   keyOfInheritDeterminer: string;
-  nameOfPredicate: string;
   casusOfPreposition: string;
   casusOfRelative: string;
+  nameOfPredicate: string;
 }): Token[] {
   const literals = input.split(option.separator).filter(x => x !== "");
 
   const tokens: Token[] = literals.map((literal, index) => {
+    if (option.openNegation.test(literal))
+      return { literal, index, tokenType: "open_negation" };
+    if (option.closeNegation.test(literal))
+      return { literal, index, tokenType: "close_negation" };
+    if (option.singleNegation.test(literal))
+      return { literal, index, tokenType: "single_negation" };
     if (option.isolatedDeterminer.test(literal))
       return { literal, index, tokenType: "isolated_determiner" };
     if (option.newDeterminer.test(literal))
@@ -53,12 +59,6 @@ function tokenize(input: string, option: {
       return { literal, index, tokenType: "relative", casus: literal.replace(option.relative, option.casusOfRelative) };
     if (option.preposition.test(literal))
       return { literal, index, tokenType: "preposition", casus: literal.replace(option.preposition, option.casusOfPreposition) };
-    if (option.singleNegation.test(literal))
-      return { literal, index, tokenType: "single_negation" };
-    if (option.openNegation.test(literal))
-      return { literal, index, tokenType: "open_negation" };
-    if (option.closeNegation.test(literal))
-      return { literal, index, tokenType: "close_negation" };
     throw new Error("TokenizeError: word " + literal + " can't be classificated");
   });
   return tokens;
@@ -66,6 +66,15 @@ function tokenize(input: string, option: {
 
 //構文解析
 type Phrase = {
+  phraseType: "negation";
+  token: Token;
+  closeToken: Token;
+  children: Phrase[];
+} | {
+  phraseType: "single_negation";
+  token: Token;
+  child: Phrase;
+} | {
   phraseType: "isolated_determiner";
   token: Token;
 } | {
@@ -73,24 +82,15 @@ type Phrase = {
   key: string;
   token: Token;
 } | {
-  phraseType: "predicate";
-  name: string;
-  token: Token;
-} | {
-  phraseType: "relative" | "preposition";
+  phraseType: "preposition" | "relative";
   casus: string;
   token: Token;
   left: Phrase;
   right: Phrase;
 } | {
-  phraseType: "single_negation";
+  phraseType: "predicate";
+  name: string;
   token: Token;
-  child: Phrase;
-} | {
-  phraseType: "negation";
-  token: Token;
-  closeToken: Token;
-  children: Phrase[];
 };
 
 // ポーランド記法を解く
@@ -108,26 +108,6 @@ function parse(tokens: Token[]): Phrase[] {
       throw new Error("ParseError: Unxpected Token " + token.literal);
 
     switch (token.tokenType) {
-      case "isolated_determiner":
-        return { phraseType: token.tokenType, token: token };
-      case "new_determiner":
-        return { phraseType: token.tokenType, token: token, key: token.key };
-      case "inherit_determiner":
-        return { phraseType: token.tokenType, token: token, key: token.key };
-      case "predicate":
-        return { phraseType: token.tokenType, name: token.name, token: token };
-      case "relative": {
-        const left = recursion(tokens);
-        const right = recursion(tokens);
-        return { phraseType: token.tokenType, casus: token.casus, left, right, token: token };
-      }
-      case "preposition": {
-        const left = recursion(tokens);
-        const right = recursion(tokens);
-        return { phraseType: token.tokenType, casus: token.casus, left, right, token: token };
-      }
-      case "single_negation":
-        return { phraseType: token.tokenType, child: recursion(tokens), token: token };
       case "open_negation": {
         const children: Phrase[] = [];
         while (true) {
@@ -139,6 +119,26 @@ function parse(tokens: Token[]): Phrase[] {
           children.push(recursion(tokens));
         }
       }
+      case "single_negation":
+        return { phraseType: token.tokenType, child: recursion(tokens), token: token };
+      case "isolated_determiner":
+        return { phraseType: token.tokenType, token: token };
+      case "new_determiner":
+        return { phraseType: token.tokenType, token: token, key: token.key };
+      case "inherit_determiner":
+        return { phraseType: token.tokenType, token: token, key: token.key };
+      case "relative": {
+        const left = recursion(tokens);
+        const right = recursion(tokens);
+        return { phraseType: token.tokenType, casus: token.casus, left, right, token: token };
+      }
+      case "preposition": {
+        const left = recursion(tokens);
+        const right = recursion(tokens);
+        return { phraseType: token.tokenType, casus: token.casus, left, right, token: token };
+      }
+      case "predicate":
+        return { phraseType: token.tokenType, name: token.name, token: token };
     }
   }
 }
@@ -146,12 +146,6 @@ function parse(tokens: Token[]): Phrase[] {
 interface Variable {
   id: string;
 }
-interface PredicateFormula {
-  formulaType: "predicate";
-  name: string;
-  args: { casus: string, variable: Variable; }[];
-}
-//述語論理式
 interface TrueFormula {
   formulaType: "true";
 }
@@ -180,21 +174,19 @@ interface DisjunctionFormula {
   formulaType: "disjunction",
   formulas: Formula[];
 }
+interface PredicateFormula {
+  formulaType: "predicate";
+  name: string;
+  args: { casus: string, variable: Variable; }[];
+}
 
-type Formula = TrueFormula | FalseFormula | PredicateFormula | NegationFormula | ExistFormula | AllFormula | ConjunctionFormula | DisjunctionFormula;
+type Formula = TrueFormula | FalseFormula | NegationFormula | ExistFormula | AllFormula | ConjunctionFormula | DisjunctionFormula | PredicateFormula;
 
 function T(): TrueFormula {
   return { formulaType: "true" };
 }
 function F(): FalseFormula {
   return { formulaType: "false" };
-}
-function PredicateFormula(name: string, args: { casus: string, variable: Variable; }[]): PredicateFormula {
-  return {
-    formulaType: "predicate",
-    name,
-    args
-  };
 }
 function negation(formula: Formula): NegationFormula {
   return { formulaType: "negation", formula };
@@ -239,6 +231,13 @@ function disjunction(formulas: Formula[]): Formula {
     formulas
   };
 }
+function PredicateFormula(name: string, args: { casus: string, variable: Variable; }[]): PredicateFormula {
+  return {
+    formulaType: "predicate",
+    name,
+    args
+  };
+}
 
 interface PartialMeaning {
   formula: Formula,
@@ -275,6 +274,34 @@ function interpret(phrases: Phrase[]): Formula {
     return interpretRelative("", a, interpretIsolatedDeterminer());
   }
 
+  function interpretSentence(phrases: PartialMeaning[]): PartialMeaning {
+    const v = variableMap.shift();
+    if (v === undefined) throw new Error();
+    const variables = v.map(entry => entry.variable);
+    return {
+      formula: variables.reduce((f, v) => exist(v, f), conjunction(phrases.map(x => x.formula))),
+      mainPredicate: undefined,
+      mainVariable: undefined
+    };
+  }
+  function interpretNegation(phrases: PartialMeaning[]): PartialMeaning {
+    return {
+      formula: negation(interpretSentence(phrases).formula),
+      mainPredicate: undefined,
+      mainVariable: undefined
+    };
+  }
+  function interpretSingleNegation(phrase: PartialMeaning): PartialMeaning {
+    const v = variableMap.shift();
+    if (v === undefined) throw new Error();
+    const variables = v.map(entry => entry.variable);
+
+    return {
+      formula: negation(variables.reduce((f, v) => exist(v, f), phrase.formula)),
+      mainPredicate: phrase.mainPredicate,
+      mainVariable: phrase.mainVariable
+    };
+  }
   function interpretIsolatedDeterminer(): NounPartialMeaning {
     const variable = issueVariable();
     variableMap[0].unshift({ key: null, variable });
@@ -305,11 +332,14 @@ function interpret(phrases: Phrase[]): Formula {
       mainVariable: variable
     };
   }
-  function interpretPredicate(name: string): PredicatePartialMeaning {
-    const predicate = PredicateFormula(name, []);
+  function interpretPreposition(casus: string, a: PartialMeaning, b: PartialMeaning): PredicatePartialMeaning {
+    const aa: NounPartialMeaning = convertToNoun(a);
+    if (!isPredicatePartialMeaning(b)) throw new Error("CalcError: Unexpected Phrase");
+    b.mainPredicate.args.unshift({ casus: casus, variable: aa.mainVariable });
+
     return {
-      formula: predicate,
-      mainPredicate: predicate,
+      formula: conjunction([aa.formula, b.formula]),
+      mainPredicate: b.mainPredicate,
       mainVariable: undefined
     };
   }
@@ -324,42 +354,11 @@ function interpret(phrases: Phrase[]): Formula {
       mainVariable: bb.mainVariable
     };
   }
-  function interpretPreposition(casus: string, a: PartialMeaning, b: PartialMeaning): PredicatePartialMeaning {
-    const aa: NounPartialMeaning = convertToNoun(a);
-    if (!isPredicatePartialMeaning(b)) throw new Error("CalcError: Unexpected Phrase");
-    b.mainPredicate.args.unshift({ casus: casus, variable: aa.mainVariable });
-
+  function interpretPredicate(name: string): PredicatePartialMeaning {
+    const predicate = PredicateFormula(name, []);
     return {
-      formula: conjunction([aa.formula, b.formula]),
-      mainPredicate: b.mainPredicate,
-      mainVariable: undefined
-    };
-  }
-  function interpretSingleNegation(phrase: PartialMeaning): PartialMeaning {
-    const v = variableMap.shift();
-    if (v === undefined) throw new Error();
-    const variables = v.map(entry => entry.variable);
-
-    return {
-      formula: negation(variables.reduce((f, v) => exist(v, f), phrase.formula)),
-      mainPredicate: phrase.mainPredicate,
-      mainVariable: phrase.mainVariable
-    };
-  }
-  function interpretNegation(phrases: PartialMeaning[]): PartialMeaning {
-    return {
-      formula: negation(interpretSentence(phrases).formula),
-      mainPredicate: undefined,
-      mainVariable: undefined
-    };
-  }
-  function interpretSentence(phrases: PartialMeaning[]): PartialMeaning {
-    const v = variableMap.shift();
-    if (v === undefined) throw new Error();
-    const variables = v.map(entry => entry.variable);
-    return {
-      formula: variables.reduce((f, v) => exist(v, f), conjunction(phrases.map(x => x.formula))),
-      mainPredicate: undefined,
+      formula: predicate,
+      mainPredicate: predicate,
       mainVariable: undefined
     };
   }
@@ -367,19 +366,19 @@ function interpret(phrases: Phrase[]): Formula {
   function recursion(phrase: Phrase): PartialMeaning {
     // 否定はクロージャを生成
     switch (phrase.phraseType) {
-      case "single_negation":
       case "negation":
+      case "single_negation":
         variableMap.unshift([]);
     }
     switch (phrase.phraseType) {
+      case "negation": return interpretNegation(phrase.children.map(x => recursion(x)));
+      case "single_negation": return interpretSingleNegation(recursion(phrase.child));
       case "isolated_determiner": return interpretIsolatedDeterminer();
       case "new_determiner": return interpretNewDeterminer(phrase.key);
       case "inherit_determiner": return interpretInheritDeterminer(phrase.key);
-      case "predicate": return interpretPredicate(phrase.name);
-      case "relative": return interpretRelative(phrase.casus, recursion(phrase.left), recursion(phrase.right));
       case "preposition": return interpretPreposition(phrase.casus, recursion(phrase.left), recursion(phrase.right));
-      case "single_negation": return interpretSingleNegation(recursion(phrase.child));
-      case "negation": return interpretNegation(phrase.children.map(x => recursion(x)));
+      case "relative": return interpretRelative(phrase.casus, recursion(phrase.left), recursion(phrase.right));
+      case "predicate": return interpretPredicate(phrase.name);
     }
   }
   const result = interpretSentence(phrases.map(x => recursion(x)));
@@ -483,6 +482,8 @@ function stringify(formula: Formula): string {
     return "⊤";
   if (formula.formulaType === "false")
     return "⊥";
+  if (formula.formulaType === "negation")
+    return "￢" + stringify(formula.formula);
   if (formula.formulaType === "exist")
     return "∃" + formula.variable.id + ";" + stringify(formula.formula);
   if (formula.formulaType === "all")
@@ -491,8 +492,6 @@ function stringify(formula: Formula): string {
     return "(" + formula.formulas.map(x => stringify(x)).join("∧") + ")";
   if (formula.formulaType === "disjunction")
     return "(" + formula.formulas.map(x => stringify(x)).join("∨") + ")";
-  if (formula.formulaType === "negation")
-    return "￢" + stringify(formula.formula);
   if (formula.formulaType === "predicate")
     return formula.name + "(" + formula.args.map(x => (x.casus + ":" + x.variable.id)).join(", ") + ")";
   // 網羅チェック
@@ -502,24 +501,24 @@ function stringify(formula: Formula): string {
 function showGloss(tokens: Token[]) {
   const gloss = tokens.map(token => {
     switch (token.tokenType) {
+      case "open_negation":
+        return { literal: token.literal, gloss: "{NEG" };
+      case "close_negation":
+        return { literal: token.literal, gloss: "}NEG" };
+      case "single_negation":
+        return { literal: token.literal, gloss: "/NEG" };
       case "isolated_determiner":
         return { literal: token.literal, gloss: "DET" };
       case "new_determiner":
         return { literal: token.literal, gloss: "DET" + token.key + "+" };
       case "inherit_determiner":
         return { literal: token.literal, gloss: "DET" + token.key };
-      case "predicate":
-        return { literal: token.literal, gloss: token.name };
-      case "relative":
-        return { literal: token.literal, gloss: "//REL" + token.casus };
       case "preposition":
         return { literal: token.literal, gloss: "//PRE" + token.casus };
-      case "single_negation":
-        return { literal: token.literal, gloss: "/NEG" };
-      case "open_negation":
-        return { literal: token.literal, gloss: "{NEG" };
-      case "close_negation":
-        return { literal: token.literal, gloss: "}NEG" };
+      case "relative":
+        return { literal: token.literal, gloss: "//REL" + token.casus };
+      case "predicate":
+        return { literal: token.literal, gloss: token.name };
     }
   });
   const output = document.createElement("span");
@@ -684,6 +683,99 @@ function visualizePhraseStructure(phrases: Phrase[]) {
     const literalCenterX = x + literalWidth / 2;
 
     switch (phrase.phraseType) {
+      case "negation": {
+        const childrenResult = phrase.children.reduce((state, child) => {
+          const result = recursion(child, state.nextX);
+          return { nextX: result.nextX, height: Math.max(state.height, result.height) };
+        }, { nextX: literalNextX, height: 0 });
+
+        const closeLiteralSVG = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        closeLiteralSVG.textContent = phrase.closeToken.literal;
+        closeLiteralSVG.setAttribute("fill", "#222");
+        closeLiteralSVG.setAttribute("font-size", "20px");
+        closeLiteralSVG.setAttribute("stroke", "none");
+        closeLiteralSVG.setAttribute("x", "" + childrenResult.nextX);
+        closeLiteralSVG.setAttribute("dominant-baseline", "central");
+        svg.appendChild(closeLiteralSVG);
+        let closeLiteralNextX = childrenResult.nextX + closeLiteralSVG.getBoundingClientRect().width + spaceWidth;
+        const closeLiteralCenterX = childrenResult.nextX + closeLiteralSVG.getBoundingClientRect().width / 2;
+
+        const startX = literalCenterX;
+        const endX = closeLiteralCenterX;
+        const height = childrenResult.height + 6 * u;
+        const overPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        overPath.setAttribute("stroke-width", "1px");
+        overPath.setAttribute("d", [
+          "M", literalCenterX, -10 * u,
+          "c", 0, -2 * u, 0, -2 * u, 2 * u, -5 * u,
+          "l", height / 6 * 4 - 4 * u, -height + 6 * u,
+          "c", u, -1.5 * u, 2 * u, -3 * u, 4 * u, -3 * u,
+          "l", endX - height / 6 * 8 - 4 * u - startX, 0,
+          "c", 2 * u, 0, 3 * u, 1.5 * u, 4 * u, 3 * u,
+          "l", height / 6 * 4 - 4 * u, height - 6 * u,
+          "c", 2 * u, 3 * u, 2 * u, 3 * u, 2 * u, 5 * u].join(" "));
+        svg.appendChild(overPath);
+
+        const underPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        underPath.setAttribute("stroke-width", "1px");
+        underPath.setAttribute("d", [
+          "M", literalCenterX, 10 * u,
+          "c", 0, 2 * u, 0, 2 * u, 2 * u, 5 * u,
+          "l", height / 6 * 4 - 4 * u, height - 6 * u,
+          "c", u, 1.5 * u, 2 * u, 3 * u, 4 * u, 3 * u,
+          "l", endX - height / 6 * 8 - 4 * u - startX, 0,
+          "c", 2 * u, 0, 3 * u, -1.5 * u, 4 * u, -3 * u,
+          "l", height / 6 * 4 - 4 * u, -height + 6 * u,
+          "c", 2 * u, -3 * u, 2 * u, -3 * u, 2 * u, -5 * u].join(" "));
+        svg.appendChild(underPath);
+
+        return {
+          nextX: closeLiteralNextX + spaceWidth,
+          height: childrenResult.height + 6 * u,
+          varX: NaN,
+          varY: NaN,
+          argX: NaN,
+          argY: NaN,
+          predX: NaN,
+        };
+      }
+      case "single_negation": {
+        const child = recursion(phrase.child, literalNextX);
+
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        const startX = literalCenterX;
+        const endX = child.nextX;
+        const height = child.height + 6 * u;
+        path.setAttribute("d", [
+          "M", literalCenterX, -10 * u,
+          "c", 0, -2 * u, 0, -2 * u, 2 * u, -5 * u,
+          "l", height / 6 * 4 - 4 * u, -height + 6 * u,
+          "c", u, -1.5 * u, 2 * u, -3 * u, 4 * u, -3 * u,
+          "l", endX - height / 6 * 8 - 4 * u - startX, 0,
+          "c", 2 * u, 0, 3 * u, 1.5 * u, 4 * u, 3 * u,
+          "l", height / 6 * 4 - 4 * u, height - 6 * u,
+          "c", 2 * u, 3 * u, 2 * u, 3 * u, 2 * u, 5 * u,
+          "l", 0, 20 * u,
+          "c", 0, 2 * u, 0, 2 * u, -2 * u, 5 * u,
+          "l", -height / 6 * 4 + 4 * u, height - 6 * u,
+          "c", -u, 1.5 * u, -2 * u, 3 * u, -4 * u, 3 * u,
+          "l", -endX + height / 6 * 8 + 4 * u + startX, 0,
+          "c", -2 * u, 0, -3 * u, -1.5 * u, -4 * u, -3 * u,
+          "l", -height / 6 * 4 + 4 * u, -height + 6 * u,
+          "c", -2 * u, -3 * u, -2 * u, -3 * u, -2 * u, -5 * u].join(" "));
+        svg.appendChild(path);
+        path.setAttribute("stroke-width", "1px");
+
+        return {
+          height: child.height + 6 * u,
+          varX: child.varX,
+          varY: child.varY,
+          argX: child.argX,
+          argY: child.argY,
+          predX: child.predX,
+          nextX: child.nextX + spaceWidth,
+        };
+      }
       case "isolated_determiner":
       case "new_determiner":
       case "inherit_determiner": {
@@ -702,17 +794,6 @@ function visualizePhraseStructure(phrases: Phrase[]) {
           argX: NaN,
           argY: NaN,
           predX: NaN,
-          nextX: literalNextX,
-        };
-      }
-      case "predicate": {
-        return {
-          height: 0,
-          varX: NaN,
-          varY: NaN,
-          argX: literalCenterX,
-          argY: 0,
-          predX: literalCenterX,
           nextX: literalNextX,
         };
       }
@@ -777,97 +858,15 @@ function visualizePhraseStructure(phrases: Phrase[]) {
           nextX: right.nextX,
         };
       }
-      case "single_negation": {
-        const child = recursion(phrase.child, literalNextX);
-
-        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        const startX = literalCenterX;
-        const endX = child.nextX;
-        const height = child.height + 6 * u;
-        path.setAttribute("d", [
-          "M", literalCenterX, -10 * u,
-          "c", 0, -2 * u, 0, -2 * u, 2 * u, -5 * u,
-          "l", height / 6 * 4 - 4 * u, -height + 6 * u,
-          "c", u, -1.5 * u, 2 * u, -3 * u, 4 * u, -3 * u,
-          "l", endX - height / 6 * 8 - 4 * u - startX, 0,
-          "c", 2 * u, 0, 3 * u, 1.5 * u, 4 * u, 3 * u,
-          "l", height / 6 * 4 - 4 * u, height - 6 * u,
-          "c", 2 * u, 3 * u, 2 * u, 3 * u, 2 * u, 5 * u,
-          "l", 0, 20 * u,
-          "c", 0, 2 * u, 0, 2 * u, -2 * u, 5 * u,
-          "l", -height / 6 * 4 + 4 * u, height - 6 * u,
-          "c", -u, 1.5 * u, -2 * u, 3 * u, -4 * u, 3 * u,
-          "l", -endX + height / 6 * 8 + 4 * u + startX, 0,
-          "c", -2 * u, 0, -3 * u, -1.5 * u, -4 * u, -3 * u,
-          "l", -height / 6 * 4 + 4 * u, -height + 6 * u,
-          "c", -2 * u, -3 * u, -2 * u, -3 * u, -2 * u, -5 * u].join(" "));
-        svg.appendChild(path);
-        path.setAttribute("stroke-width", "1px");
-
+      case "predicate": {
         return {
-          height: child.height + 6 * u,
-          varX: child.varX,
-          varY: child.varY,
-          argX: child.argX,
-          argY: child.argY,
-          predX: child.predX,
-          nextX: child.nextX + spaceWidth,
-        };
-      }
-      case "negation": {
-        const childrenResult = phrase.children.reduce((state, child) => {
-          const result = recursion(child, state.nextX);
-          return { nextX: result.nextX, height: Math.max(state.height, result.height) };
-        }, { nextX: literalNextX, height: 0 });
-
-        const closeLiteralSVG = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        closeLiteralSVG.textContent = phrase.closeToken.literal;
-        closeLiteralSVG.setAttribute("fill", "#222");
-        closeLiteralSVG.setAttribute("font-size", "20px");
-        closeLiteralSVG.setAttribute("stroke", "none");
-        closeLiteralSVG.setAttribute("x", "" + childrenResult.nextX);
-        closeLiteralSVG.setAttribute("dominant-baseline", "central");
-        svg.appendChild(closeLiteralSVG);
-        let closeLiteralNextX = childrenResult.nextX + closeLiteralSVG.getBoundingClientRect().width + spaceWidth;
-        const closeLiteralCenterX = childrenResult.nextX + closeLiteralSVG.getBoundingClientRect().width / 2;
-
-        const startX = literalCenterX;
-        const endX = closeLiteralCenterX;
-        const height = childrenResult.height + 6 * u;
-        const overPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        overPath.setAttribute("stroke-width", "1px");
-        overPath.setAttribute("d", [
-          "M", literalCenterX, -10 * u,
-          "c", 0, -2 * u, 0, -2 * u, 2 * u, -5 * u,
-          "l", height / 6 * 4 - 4 * u, -height + 6 * u,
-          "c", u, -1.5 * u, 2 * u, -3 * u, 4 * u, -3 * u,
-          "l", endX - height / 6 * 8 - 4 * u - startX, 0,
-          "c", 2 * u, 0, 3 * u, 1.5 * u, 4 * u, 3 * u,
-          "l", height / 6 * 4 - 4 * u, height - 6 * u,
-          "c", 2 * u, 3 * u, 2 * u, 3 * u, 2 * u, 5 * u].join(" "));
-        svg.appendChild(overPath);
-
-        const underPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        underPath.setAttribute("stroke-width", "1px");
-        underPath.setAttribute("d", [
-          "M", literalCenterX, 10 * u,
-          "c", 0, 2 * u, 0, 2 * u, 2 * u, 5 * u,
-          "l", height / 6 * 4 - 4 * u, height - 6 * u,
-          "c", u, 1.5 * u, 2 * u, 3 * u, 4 * u, 3 * u,
-          "l", endX - height / 6 * 8 - 4 * u - startX, 0,
-          "c", 2 * u, 0, 3 * u, -1.5 * u, 4 * u, -3 * u,
-          "l", height / 6 * 4 - 4 * u, -height + 6 * u,
-          "c", 2 * u, -3 * u, 2 * u, -3 * u, 2 * u, -5 * u].join(" "));
-        svg.appendChild(underPath);
-
-        return {
-          nextX: closeLiteralNextX + spaceWidth,
-          height: childrenResult.height + 6 * u,
+          height: 0,
           varX: NaN,
           varY: NaN,
-          argX: NaN,
-          argY: NaN,
-          predX: NaN,
+          argX: literalCenterX,
+          argY: 0,
+          predX: literalCenterX,
+          nextX: literalNextX,
         };
       }
     }
@@ -904,47 +903,49 @@ function generateEditor(value: string, multiline: boolean) {
   function getTokenizerOption() {
     return {
       separator: new RegExp(separator.value),
+      openNegation: new RegExp("^" + openNegation.value + "$"),
+      closeNegation: new RegExp("^" + closeNegation.value + "$"),
+      singleNegation: new RegExp("^" + singleNegation.value + "$"),
       isolatedDeterminer: new RegExp("^" + isolatedDeterminer.value + "$"),
       newDeterminer: new RegExp("^" + newDeterminer.value + "$"),
       inheritDeterminer: new RegExp("^" + inheritDeterminer.value + "$"),
-      predicate: new RegExp("^" + predicate.value + "$"),
-      relative: new RegExp("^" + relative.value + "$"),
       preposition: new RegExp("^" + preposition.value + "$"),
-      singleNegation: new RegExp("^" + singleNegation.value + "$"),
-      openNegation: new RegExp("^" + openNegation.value + "$"),
-      closeNegation: new RegExp("^" + closeNegation.value + "$"),
+      relative: new RegExp("^" + relative.value + "$"),
+      predicate: new RegExp("^" + predicate.value + "$"),
+      
       keyOfNewDeterminer: keyOfNewDeterminer.value,
       keyOfInheritDeterminer: keyOfInheritDeterminer.value,
-      nameOfPredicate: nameOfPredicate.value,
-      casusOfRelative: casusOfRelative.value,
       casusOfPreposition: casusOfPreposition.value,
+      casusOfRelative: casusOfRelative.value,
+      nameOfPredicate: nameOfPredicate.value,
     };
   }
 
   function reset1(): void {
     separator.value = "[,.\\s]";
-    isolatedDeterminer.value = "au";
-    newDeterminer.value = "a('[aeiou])*";
-    keyOfNewDeterminer.value = "$1";
-    inheritDeterminer.value = "i('[aeiou])*";
-    keyOfInheritDeterminer.value = "$1";
-    predicate.value = "(([^aeiou'][aeiou]){2,})";
-    nameOfPredicate.value = "$1";
-    relative.value = "([^aeiou]?)ei";
-    casusOfRelative.value = "$1";
-    preposition.value = "([^aeiou]?)e";
-    casusOfPreposition.value = "$1";
-    singleNegation.value = "no";
     openNegation.value = "nou";
     closeNegation.value = "noi";
+    singleNegation.value = "no";
+    isolatedDeterminer.value = "au";
+    newDeterminer.value = "a('[aeiou])*";
+    inheritDeterminer.value = "i('[aeiou])*";
+    preposition.value = "([^aeiou]?)e";
+    relative.value = "([^aeiou]?)ei";
+    predicate.value = "(([^aeiou'][aeiou]){2,})";
+    
+    keyOfNewDeterminer.value = "$1";
+    keyOfInheritDeterminer.value = "$1";
+    casusOfRelative.value = "$1";
+    casusOfPreposition.value = "$1";
+    nameOfPredicate.value = "$1";
   }
 
   function update(): void {
-    formulaOutput.innerText = "";
-    normalizedFormulaOutput.innerText = "";
-    glossOutput.innerHTML = ""
-    errorOutput.innerText = "";
-    phraseStructureOutput.innerHTML = "";
+    errorOutput.innerHTML = "";
+    glossOutput.innerHTML = "";
+    structureOutput.innerHTML = "";
+    formulaOutput.innerHTML = "";
+    normalizedFormulaOutput.innerHTML = "";
     try {
       const tokenized = tokenize(input.value, getTokenizerOption());
       glossOutput.appendChild(showGloss(tokenized));
@@ -952,7 +953,7 @@ function generateEditor(value: string, multiline: boolean) {
       const parsed = parse(tokenized);
       const interpreted = interpret(parsed);
 
-      phraseStructureOutput.appendChild(visualizePhraseStructure(parsed));
+      structureOutput.appendChild(visualizePhraseStructure(parsed));
       formulaOutput.innerHTML = markupFormula(stringify(interpreted));
       normalizedFormulaOutput.innerHTML = markupFormula(stringify(normalize(interpreted)));
     } catch (e) {
@@ -969,47 +970,50 @@ function generateEditor(value: string, multiline: boolean) {
   const input = document.createElement("textarea");
   const errorOutput = document.createElement("div");
   const glossOutput = document.createElement('div');
-  const phraseStructureOutput = document.createElement('div');
+  const structureOutput = document.createElement('div');
   const formulaOutput = document.createElement("div");
   const normalizedFormulaOutput = document.createElement("div");
+  
   const separator = document.createElement("input");
-  const isolatedDeterminer = document.createElement("input");
-  const newDeterminer = document.createElement("input");
-  const keyOfNewDeterminer = document.createElement("input");
-  const inheritDeterminer = document.createElement("input");
-  const keyOfInheritDeterminer = document.createElement("input");
-  const predicate = document.createElement("input");
-  const nameOfPredicate = document.createElement("input");
-  const relative = document.createElement("input");
-  const casusOfRelative = document.createElement("input");
-  const preposition = document.createElement("input");
-  const casusOfPreposition = document.createElement("input");
-  const singleNegation = document.createElement("input");
   const openNegation = document.createElement("input");
   const closeNegation = document.createElement("input");
-
+  const singleNegation = document.createElement("input");
+  const isolatedDeterminer = document.createElement("input");
+  const newDeterminer = document.createElement("input");
+  const inheritDeterminer = document.createElement("input");
+  const preposition = document.createElement("input");
+  const relative = document.createElement("input");
+  const predicate = document.createElement("input");
+  
+  const keyOfNewDeterminer = document.createElement("input");
+  const keyOfInheritDeterminer = document.createElement("input");
+  const casusOfPreposition = document.createElement("input");
+  const casusOfRelative = document.createElement("input");
+  const nameOfPredicate = document.createElement("input");
+  
   input.style.width = "100%";
   input.rows = multiline ? 8 : 1;
   input.style.resize = "none";
-  phraseStructureOutput.style.width = "100%";
-  phraseStructureOutput.style.overflowX = "scroll";
+  structureOutput.style.width = "100%";
+  structureOutput.style.overflowX = "scroll";
 
   input.oninput = update;
   separator.oninput = update;
-  isolatedDeterminer.oninput = update;
-  newDeterminer.oninput = update;
-  keyOfNewDeterminer.oninput = update;
-  inheritDeterminer.oninput = update;
-  keyOfInheritDeterminer.oninput = update;
-  predicate.oninput = update;
-  nameOfPredicate.oninput = update;
-  relative.oninput = update;
-  casusOfRelative.oninput = update;
-  preposition.oninput = update;
-  casusOfPreposition.oninput = update;
-  singleNegation.oninput = update;
   openNegation.oninput = update;
   closeNegation.oninput = update;
+  singleNegation.oninput = update;
+  isolatedDeterminer.oninput = update;
+  newDeterminer.oninput = update;
+  inheritDeterminer.oninput = update;
+  preposition.oninput = update;
+  relative.oninput = update;
+  predicate.oninput = update;
+  
+  keyOfNewDeterminer.oninput = update;
+  keyOfInheritDeterminer.oninput = update;
+  casusOfPreposition.oninput = update;
+  casusOfRelative.oninput = update;
+  nameOfPredicate.oninput = update;
 
   input.value = value;
   reset1();
@@ -1022,7 +1026,7 @@ function generateEditor(value: string, multiline: boolean) {
     wrap("h4", document.createTextNode("品詞解析")),
     glossOutput,
     wrap("h4", document.createTextNode("構造")),
-    phraseStructureOutput,
+    structureOutput,
     wrap("h4", document.createTextNode("論理式")),
     formulaOutput,
     wrap("h4", document.createTextNode("標準形論理式")),
@@ -1033,6 +1037,18 @@ function generateEditor(value: string, multiline: boolean) {
         wrap("tr",
           wrap("td", document.createTextNode("単語境界")),
           wrap("td", separator)
+        ),
+        wrap("tr",
+          wrap("td", document.createTextNode("否定開始")),
+          wrap("td", openNegation),
+        ),
+        wrap("tr",
+          wrap("td", document.createTextNode("否定終止")),
+          wrap("td", closeNegation),
+        ),
+        wrap("tr",
+          wrap("td", document.createTextNode("単独否定")),
+          wrap("td", singleNegation),
         ),
         wrap("tr",
           wrap("td", document.createTextNode("孤立限定詞")),
@@ -1051,12 +1067,6 @@ function generateEditor(value: string, multiline: boolean) {
           wrap("td", keyOfInheritDeterminer)
         ),
         wrap("tr",
-          wrap("td", document.createTextNode("述語")),
-          wrap("td", predicate),
-          wrap("td", document.createTextNode("述語名")),
-          wrap("td", nameOfPredicate)
-        ),
-        wrap("tr",
           wrap("td", document.createTextNode("前置詞")),
           wrap("td", preposition),
           wrap("td", document.createTextNode("格")),
@@ -1069,16 +1079,10 @@ function generateEditor(value: string, multiline: boolean) {
           wrap("td", casusOfRelative)
         ),
         wrap("tr",
-          wrap("td", document.createTextNode("単独否定")),
-          wrap("td", singleNegation),
-        ),
-        wrap("tr",
-          wrap("td", document.createTextNode("否定開始")),
-          wrap("td", openNegation),
-        ),
-        wrap("tr",
-          wrap("td", document.createTextNode("否定終止")),
-          wrap("td", closeNegation),
+          wrap("td", document.createTextNode("述語")),
+          wrap("td", predicate),
+          wrap("td", document.createTextNode("述語名")),
+          wrap("td", nameOfPredicate)
         ),
       )
     )
