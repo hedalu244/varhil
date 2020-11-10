@@ -52,7 +52,7 @@ function tokenize(input: string, option: {
     if (option.relative.test(literal))
       return { literal, index, tokenType: "relative", casus: literal.replace(option.relative, option.casusOfRelative) };
     if (option.preposition.test(literal))
-      return { literal, index, tokenType: "preposition", casus: literal.replace(option.relative, option.casusOfPreposition) };
+      return { literal, index, tokenType: "preposition", casus: literal.replace(option.preposition, option.casusOfPreposition) };
     if (option.singleNegation.test(literal))
       return { literal, index, tokenType: "single_negation" };
     if (option.openNegation.test(literal))
