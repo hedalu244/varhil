@@ -1,55 +1,63 @@
 //字句解析
-let separatorPattern: RegExp;
-
-let isIsolatedDeterminer: (literal: string) => boolean;
-
-let isNewDeterminer: (literal: string) => boolean;
-let newDeterminerToKey: (literal: string) => string;
-
-let isInheritDeterminer: (literal: string) => boolean;
-let inheritDeterminerToKey: (literal: string) => string;
-
-let isPredicate: (literal: string) => boolean;
-let predicateToName: (literal: string) => string;
-
-let isRelative: (literal: string) => boolean;
-let relativeToCasus: (literal: string) => string;
-
-let isPreposition: (literal: string) => boolean;
-let prepositionToCasus: (literal: string) => string;
-
-let isSingleNegation: (literal: string) => boolean;
-let isOpenNegation: (literal: string) => boolean;
-let isCloseNegation: (literal: string) => boolean;
-
 type Token = {
   literal: string;
   index: number;
-  tokenType: "new_determiner" | "inherit_determiner" | "predicate" | "relative" | "preposition" | "isolated_determiner" | "single_negation" | "open_negation" | "close_negation";
+  tokenType: "isolated_determiner" | "single_negation" | "open_negation" | "close_negation";
+} | {
+  literal: string;
+  index: number;
+  tokenType: "new_determiner" | "inherit_determiner";
+  key: string;
+} | {
+  literal: string;
+  index: number;
+  tokenType: "relative" | "preposition";
+  casus: string;
+} | {
+  literal: string;
+  index: number;
+  tokenType: "predicate";
+  name: string;
 };
-
 //トークン単位に分割し、必要な情報を付加する
-function tokenize(input: string): Token[] {
-  const literals = input.split(separatorPattern).filter(x => x !== "");
+function tokenize(input: string, option: {
+  separator: RegExp;
+  isolatedDeterminer: RegExp;
+  newDeterminer: RegExp;
+  inheritDeterminer: RegExp;
+  predicate: RegExp;
+  preposition: RegExp;
+  relative: RegExp;
+  singleNegation: RegExp;
+  openNegation: RegExp;
+  closeNegation: RegExp;
+
+  keyOfNewDeterminer: string;
+  keyOfInheritDeterminer: string;
+  nameOfPredicate: string;
+  casusOfPreposition: string;
+  casusOfRelative: string;
+}): Token[] {
+  const literals = input.split(option.separator).filter(x => x !== "");
 
   const tokens: Token[] = literals.map((literal, index) => {
-    if (isIsolatedDeterminer(literal))
+    if (option.isolatedDeterminer.test(literal))
       return { literal, index, tokenType: "isolated_determiner" };
-    if (isNewDeterminer(literal))
-      return { literal, index, tokenType: "new_determiner" };
-    if (isInheritDeterminer(literal))
-      return { literal, index, tokenType: "inherit_determiner" };
-    if (isPredicate(literal))
-      return { literal, index, tokenType: "predicate" };
-    if (isRelative(literal))
-      return { literal, index, tokenType: "relative" };
-    if (isPreposition(literal))
-      return { literal, index, tokenType: "preposition" };
-    if (isSingleNegation(literal))
+    if (option.newDeterminer.test(literal))
+      return { literal, index, tokenType: "new_determiner", key: literal.replace(option.newDeterminer, option.keyOfNewDeterminer) };
+    if (option.inheritDeterminer.test(literal))
+      return { literal, index, tokenType: "inherit_determiner", key: literal.replace(option.inheritDeterminer, option.keyOfInheritDeterminer) };
+    if (option.predicate.test(literal))
+      return { literal, index, tokenType: "predicate", name: literal.replace(option.predicate, option.nameOfPredicate) };
+    if (option.relative.test(literal))
+      return { literal, index, tokenType: "relative", casus: literal.replace(option.relative, option.casusOfRelative) };
+    if (option.preposition.test(literal))
+      return { literal, index, tokenType: "preposition", casus: literal.replace(option.relative, option.casusOfPreposition) };
+    if (option.singleNegation.test(literal))
       return { literal, index, tokenType: "single_negation" };
-    if (isOpenNegation(literal))
+    if (option.openNegation.test(literal))
       return { literal, index, tokenType: "open_negation" };
-    if (isCloseNegation(literal))
+    if (option.closeNegation.test(literal))
       return { literal, index, tokenType: "close_negation" };
     throw new Error("TokenizeError: word " + literal + " can't be classificated");
   });
@@ -103,20 +111,20 @@ function parse(tokens: Token[]): Phrase[] {
       case "isolated_determiner":
         return { phraseType: token.tokenType, token: token };
       case "new_determiner":
-        return { phraseType: token.tokenType, token: token, key: newDeterminerToKey(token.literal) };
+        return { phraseType: token.tokenType, token: token, key: token.key };
       case "inherit_determiner":
-        return { phraseType: token.tokenType, token: token, key: inheritDeterminerToKey(token.literal) };
+        return { phraseType: token.tokenType, token: token, key: token.key };
       case "predicate":
-        return { phraseType: token.tokenType, name: predicateToName(token.literal), token: token };
+        return { phraseType: token.tokenType, name: token.name, token: token };
       case "relative": {
         const left = recursion(tokens);
         const right = recursion(tokens);
-        return { phraseType: token.tokenType, casus: relativeToCasus(token.literal), left, right, token: token };
+        return { phraseType: token.tokenType, casus: token.casus, left, right, token: token };
       }
       case "preposition": {
         const left = recursion(tokens);
         const right = recursion(tokens);
-        return { phraseType: token.tokenType, casus: prepositionToCasus(token.literal), left, right, token: token };
+        return { phraseType: token.tokenType, casus: token.casus, left, right, token: token };
       }
       case "single_negation":
         return { phraseType: token.tokenType, child: recursion(tokens), token: token };
@@ -491,8 +499,9 @@ function stringify(formula: Formula): string {
   return formula;
 }
 
-function drawPhraseStructure(phrases: Phrase[], svg: SVGElement) {
-  svg.innerHTML = "";
+function visualizePhraseStructure(phrases: Phrase[]) {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  document.body.appendChild(svg);
 
   const u = 3;
   const spaceWidth = 10;
@@ -512,6 +521,10 @@ function drawPhraseStructure(phrases: Phrase[], svg: SVGElement) {
   svg.setAttribute("height", "" + height);
   svg.setAttribute("width", "" + width);
   svg.setAttribute("viewBox", [0, -height / 2, width, height].join(" "));
+
+  document.body.removeChild(svg);
+
+  return svg;
 
   function recursion(phrase: Phrase, x: number): {
     height: number,
@@ -822,6 +835,7 @@ function drawPhraseStructure(phrases: Phrase[], svg: SVGElement) {
   }
 }
 
+/*
 function test(): void {
   const inputs = [
     "a",
@@ -845,195 +859,195 @@ function test(): void {
     console.log(stringify(interpret(parse(tokenize(x)))));
     console.log(stringify(normalize(interpret(parse(tokenize(x))))));
   });
-}
+}*/
 
-function gebi(id: string) {
-  return document.getElementById(id);
-}
-const doms = (function () {
-  const input = gebi("input");
-  if (!(input instanceof HTMLTextAreaElement)) throw new Error("DOM not found");
-
-  const phrase_structure_output = gebi("phrase_structure_output");
-  if (!(phrase_structure_output instanceof SVGSVGElement)) throw new Error("DOM not found");
-
-  const formula_output = gebi("formula_output");
-  if (!(formula_output instanceof HTMLDivElement)) throw new Error("DOM not found");
-
-  const normalized_formula_output = gebi("normalized_formula_output");
-  if (!(normalized_formula_output instanceof HTMLDivElement)) throw new Error("DOM not found");
-
-  const error_output = gebi("error_output");
-  if (!(error_output instanceof HTMLDivElement)) throw new Error("DOM not found");
-
-  const separator_pattern = gebi("separator_pattern");
-  if (!(separator_pattern instanceof HTMLInputElement)) throw new Error("DOM not found");
-
-  const isolated_determiner_pattern = gebi("isolated_determiner_pattern");
-  if (!(isolated_determiner_pattern instanceof HTMLInputElement)) throw new Error("DOM not found");
-
-  const new_determiner_pattern = gebi("new_determiner_pattern");
-  if (!(new_determiner_pattern instanceof HTMLInputElement)) throw new Error("DOM not found");
-
-  const new_determiner_replacer = gebi("new_determiner_replacer");
-  if (!(new_determiner_replacer instanceof HTMLInputElement)) throw new Error("DOM not found");
-
-  const inherit_determiner_pattern = gebi("inherit_determiner_pattern");
-  if (!(inherit_determiner_pattern instanceof HTMLInputElement)) throw new Error("DOM not found");
-
-  const inherit_determiner_replacer = gebi("inherit_determiner_replacer");
-  if (!(inherit_determiner_replacer instanceof HTMLInputElement)) throw new Error("DOM not found");
-
-  const predicate_pattern = gebi("predicate_pattern");
-  if (!(predicate_pattern instanceof HTMLInputElement)) throw new Error("DOM not found");
-
-  const predicate_replacer = gebi("predicate_replacer");
-  if (!(predicate_replacer instanceof HTMLInputElement)) throw new Error("DOM not found");
-
-  const relative_pattern = gebi("relative_pattern");
-  if (!(relative_pattern instanceof HTMLInputElement)) throw new Error("DOM not found");
-
-  const relative_replacer = gebi("relative_replacer");
-  if (!(relative_replacer instanceof HTMLInputElement)) throw new Error("DOM not found");
-
-  const preposition_pattern = gebi("preposition_pattern");
-  if (!(preposition_pattern instanceof HTMLInputElement)) throw new Error("DOM not found");
-
-  const preposition_replacer = gebi("preposition_replacer");
-  if (!(preposition_replacer instanceof HTMLInputElement)) throw new Error("DOM not found");
-
-  const single_negation_pattern = gebi("single_negation_pattern");
-  if (!(single_negation_pattern instanceof HTMLInputElement)) throw new Error("DOM not found");
-
-  const open_negation_pattern = gebi("open_negation_pattern");
-  if (!(open_negation_pattern instanceof HTMLInputElement)) throw new Error("DOM not found");
-
-  const close_negation_pattern = gebi("close_negation_pattern");
-  if (!(close_negation_pattern instanceof HTMLInputElement)) throw new Error("DOM not found");
-
-  return {
-    input,
-    phrase_structure_output,
-    formula_output,
-    normalized_formula_output,
-    error_output,
-    separator_pattern,
-    isolated_determiner_pattern,
-    new_determiner_pattern,
-    new_determiner_replacer,
-    inherit_determiner_pattern,
-    inherit_determiner_replacer,
-    predicate_pattern,
-    predicate_replacer,
-    relative_pattern,
-    relative_replacer,
-    preposition_pattern,
-    preposition_replacer,
-    single_negation_pattern,
-    open_negation_pattern,
-    close_negation_pattern,
-  };
-})();
-function updatePattern() {
-  separatorPattern = new RegExp(doms.separator_pattern.value);
-
-  const isolatedDeterminerPattern = new RegExp("^" + doms.isolated_determiner_pattern.value + "$");
-  isIsolatedDeterminer = literal => isolatedDeterminerPattern.test(literal);
-
-  const newDeterminerPattern = new RegExp("^" + doms.new_determiner_pattern.value + "$");
-  const newDeterminerReplacer = doms.new_determiner_replacer.value;
-  isNewDeterminer = literal => newDeterminerPattern.test(literal);
-  newDeterminerToKey = literal => literal.replace(newDeterminerPattern, newDeterminerReplacer);
-
-  const inheritDeterminerPattern = new RegExp("^" + doms.inherit_determiner_pattern.value + "$");
-  const inheritDeterminerReplacer = doms.inherit_determiner_replacer.value;
-  isInheritDeterminer = literal => inheritDeterminerPattern.test(literal);
-  inheritDeterminerToKey = literal => literal.replace(inheritDeterminerPattern, inheritDeterminerReplacer);
-
-  const predicatePattern = new RegExp("^" + doms.predicate_pattern.value + "$");
-  const predicateReplacer = doms.predicate_replacer.value;
-  isPredicate = literal => predicatePattern.test(literal);
-  predicateToName = literal => literal.replace(predicatePattern, predicateReplacer);
-
-  const relativePattern = new RegExp("^" + doms.relative_pattern.value + "$");
-  const relativeReplacer = doms.relative_replacer.value;
-  isRelative = literal => relativePattern.test(literal);
-  relativeToCasus = literal => literal.replace(relativePattern, relativeReplacer);
-
-  const prepositionPattern = new RegExp("^" + doms.preposition_pattern.value + "$");
-  const prepositionReplacer = doms.preposition_replacer.value;
-  isPreposition = literal => prepositionPattern.test(literal);
-  prepositionToCasus = literal => literal.replace(prepositionPattern, prepositionReplacer);
-
-  const singleNegationPattern = new RegExp("^" + doms.single_negation_pattern.value + "$");
-  isSingleNegation = literal => singleNegationPattern.test(literal);
-
-  const openNegationPattern = new RegExp("^" + doms.open_negation_pattern.value + "$");
-  isOpenNegation = literal => openNegationPattern.test(literal);
-
-  const closeNegationPattern = new RegExp("^" + doms.close_negation_pattern.value + "$");
-  isCloseNegation = literal => closeNegationPattern.test(literal);
-
-  update();
-}
-
-function reset1(): void {
-  doms.separator_pattern.value = "[,.\\s]";
-
-  doms.isolated_determiner_pattern.value = "au";
-
-  doms.new_determiner_pattern.value = "a('[aeiou])*";
-  doms.new_determiner_replacer.value = "$1";
-
-  doms.inherit_determiner_pattern.value = "i('[aeiou])*";
-  doms.inherit_determiner_replacer.value = "$1";
-
-  doms.predicate_pattern.value = "(([^aeiou'][aeiou]){2,})";
-  doms.predicate_replacer.value = "$1";
-
-  doms.relative_pattern.value = "([^aeiou]?)ei";
-  doms.relative_replacer.value = "$1";
-
-  doms.preposition_pattern.value = "([^aeiou]?)e";
-  doms.preposition_replacer.value = "$1";
-
-  doms.single_negation_pattern.value = "no";
-  doms.open_negation_pattern.value = "nou";
-  doms.close_negation_pattern.value = "noi";
-
-  updatePattern();
-}
-
-function update(): void {
-  doms.formula_output.innerText = "";
-  doms.normalized_formula_output.innerText = "";
-  doms.error_output.innerText = "";
-  const input = doms.input.value;
-  try {
-    doms.formula_output.innerHTML = markupFormula(stringify(interpret(parse(tokenize(input)))));
-    doms.normalized_formula_output.innerHTML = markupFormula(stringify(normalize(interpret(parse(tokenize(input))))));
-    drawPhraseStructure(parse(tokenize(input)), doms.phrase_structure_output);
-  } catch (e) {
-    doms.error_output.innerText = e.message;
+function generateEditor(value: string, multiline: boolean) {
+  function getTokenizerOption() {
+    return {
+      separator: new RegExp(separator.value),
+      isolatedDeterminer: new RegExp("^" + isolatedDeterminer.value + "$"),
+      newDeterminer: new RegExp("^" + newDeterminer.value + "$"),
+      inheritDeterminer: new RegExp("^" + inheritDeterminer.value + "$"),
+      predicate: new RegExp("^" + predicate.value + "$"),
+      relative: new RegExp("^" + relative.value + "$"),
+      preposition: new RegExp("^" + preposition.value + "$"),
+      singleNegation: new RegExp("^" + singleNegation.value + "$"),
+      openNegation: new RegExp("^" + openNegation.value + "$"),
+      closeNegation: new RegExp("^" + closeNegation.value + "$"),
+      keyOfNewDeterminer: keyOfNewDeterminer.value,
+      keyOfInheritDeterminer: keyOfInheritDeterminer.value,
+      nameOfPredicate: nameOfPredicate.value,
+      casusOfRelative: casusOfRelative.value,
+      casusOfPreposition: casusOfPreposition.value,
+    };
   }
+
+  function reset1(): void {
+    separator.value = "[,.\\s]";
+    isolatedDeterminer.value = "au";
+    newDeterminer.value = "a('[aeiou])*";
+    keyOfNewDeterminer.value = "$1";
+    inheritDeterminer.value = "i('[aeiou])*";
+    keyOfInheritDeterminer.value = "$1";
+    predicate.value = "(([^aeiou'][aeiou]){2,})";
+    nameOfPredicate.value = "$1";
+    relative.value = "([^aeiou]?)ei";
+    casusOfRelative.value = "$1";
+    preposition.value = "([^aeiou]?)e";
+    casusOfPreposition.value = "$1";
+    singleNegation.value = "no";
+    openNegation.value = "nou";
+    closeNegation.value = "noi";
+  }
+
+  function update(): void {
+    formulaOutput.innerText = "";
+    normalizedFormulaOutput.innerText = "";
+    errorOutput.innerText = "";
+    phraseStructureOutput.innerHTML = "";
+    try {
+      const tokenized = tokenize(input.value, getTokenizerOption());
+      const parsed = parse(tokenized);
+      const interpreted = interpret(parsed);
+
+      phraseStructureOutput.appendChild(visualizePhraseStructure(parsed));
+      formulaOutput.innerHTML = markupFormula(stringify(interpreted));
+      normalizedFormulaOutput.innerHTML = markupFormula(stringify(normalize(interpreted)));
+    } catch (e) {
+      errorOutput.innerText = e.message;
+    }
+  }
+
+  function wrap(tagName: string, ...nodes: Node[]) {
+    const wrapper = document.createElement(tagName);
+    nodes.forEach((node) => wrapper.appendChild(node));
+    return wrapper;
+  }
+
+  const input = document.createElement("textarea");
+  const errorOutput = document.createElement("div");
+  const phraseStructureOutput = document.createElement('div');
+  const formulaOutput = document.createElement("div");
+  const normalizedFormulaOutput = document.createElement("div");
+  const separator = document.createElement("input");
+  const isolatedDeterminer = document.createElement("input");
+  const newDeterminer = document.createElement("input");
+  const keyOfNewDeterminer = document.createElement("input");
+  const inheritDeterminer = document.createElement("input");
+  const keyOfInheritDeterminer = document.createElement("input");
+  const predicate = document.createElement("input");
+  const nameOfPredicate = document.createElement("input");
+  const relative = document.createElement("input");
+  const casusOfRelative = document.createElement("input");
+  const preposition = document.createElement("input");
+  const casusOfPreposition = document.createElement("input");
+  const singleNegation = document.createElement("input");
+  const openNegation = document.createElement("input");
+  const closeNegation = document.createElement("input");
+
+  input.style.width = "100%";
+  input.rows = multiline ? 8 : 1;
+  input.style.resize = "none";
+  phraseStructureOutput.style.width = "100%";
+  phraseStructureOutput.style.overflowX = "scroll";
+
+  input.oninput = update;
+  separator.oninput = update;
+  isolatedDeterminer.oninput = update;
+  newDeterminer.oninput = update;
+  keyOfNewDeterminer.oninput = update;
+  inheritDeterminer.oninput = update;
+  keyOfInheritDeterminer.oninput = update;
+  predicate.oninput = update;
+  nameOfPredicate.oninput = update;
+  relative.oninput = update;
+  casusOfRelative.oninput = update;
+  preposition.oninput = update;
+  casusOfPreposition.oninput = update;
+  singleNegation.oninput = update;
+  openNegation.oninput = update;
+  closeNegation.oninput = update;
+
+  input.value = value;
+  reset1();
+  update();
+
+  const container = wrap("div",
+    input,
+    document.createElement("br"),
+    errorOutput,
+    wrap("h4", document.createTextNode("構造")),
+    phraseStructureOutput,
+    wrap("h4", document.createTextNode("論理式")),
+    formulaOutput,
+    wrap("h4", document.createTextNode("標準形論理式")),
+    normalizedFormulaOutput,
+    wrap("details",
+      wrap("summary", document.createTextNode("設定")),
+      wrap("table",
+        wrap("tr",
+          wrap("td", document.createTextNode("単語境界")),
+          wrap("td", separator)
+        ),
+        wrap("tr",
+          wrap("td", document.createTextNode("孤立限定詞")),
+          wrap("td", isolatedDeterminer)
+        ),
+        wrap("tr",
+          wrap("td", document.createTextNode("新規限定詞")),
+          wrap("td", newDeterminer),
+          wrap("td", document.createTextNode("キー")),
+          wrap("td", keyOfNewDeterminer)
+        ),
+        wrap("tr",
+          wrap("td", document.createTextNode("継続限定詞")),
+          wrap("td", inheritDeterminer),
+          wrap("td", document.createTextNode("キー")),
+          wrap("td", keyOfInheritDeterminer)
+        ),
+        wrap("tr",
+          wrap("td", document.createTextNode("述語")),
+          wrap("td", predicate),
+          wrap("td", document.createTextNode("述語名")),
+          wrap("td", nameOfPredicate)
+        ),
+        wrap("tr",
+          wrap("td", document.createTextNode("前置詞")),
+          wrap("td", preposition),
+          wrap("td", document.createTextNode("格")),
+          wrap("td", casusOfPreposition)
+        ),
+        wrap("tr",
+          wrap("td", document.createTextNode("関係詞")),
+          wrap("td", relative),
+          wrap("td", document.createTextNode("格")),
+          wrap("td", casusOfRelative)
+        ),
+        wrap("tr",
+          wrap("td", document.createTextNode("単独否定")),
+          wrap("td", singleNegation),
+        ),
+        wrap("tr",
+          wrap("td", document.createTextNode("否定開始")),
+          wrap("td", openNegation),
+        ),
+        wrap("tr",
+          wrap("td", document.createTextNode("否定終止")),
+          wrap("td", closeNegation),
+        ),
+      )
+    )
+  );
+  container.classList.add(multiline ? "multiline-editor" : "inline-editor");
+  return container;
 }
 
-window.onload = () => {
-  doms.input.oninput = update;
-  doms.separator_pattern.oninput = updatePattern;
-  doms.isolated_determiner_pattern.oninput = updatePattern;
-  doms.new_determiner_pattern.oninput = updatePattern;
-  doms.new_determiner_replacer.oninput = updatePattern;
-  doms.inherit_determiner_pattern.oninput = updatePattern;
-  doms.inherit_determiner_replacer.oninput = updatePattern;
-  doms.predicate_pattern.oninput = updatePattern;
-  doms.predicate_replacer.oninput = updatePattern;
-  doms.relative_pattern.oninput = updatePattern;
-  doms.relative_replacer.oninput = updatePattern;
-  doms.preposition_pattern.oninput = updatePattern;
-  doms.preposition_replacer.oninput = updatePattern;
-  doms.single_negation_pattern.oninput = updatePattern;
-  doms.open_negation_pattern.oninput = updatePattern;
-  doms.close_negation_pattern.oninput = updatePattern;
-  reset1();
-};
+function appendInlineEditor(text: string) {
+  if (document.currentScript == null || document.currentScript.parentNode == null) return;
+  document.currentScript.parentNode.insertBefore(generateEditor(text, false), document.currentScript);
+}
+
+function appendMultilineEditor(text: string) {
+  if (document.currentScript == null || document.currentScript.parentNode == null) return;
+  document.currentScript.parentNode.insertBefore(generateEditor(text, true), document.currentScript);
+}
