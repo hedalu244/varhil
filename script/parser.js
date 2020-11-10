@@ -370,6 +370,42 @@ function stringify(formula) {
     // 網羅チェック
     return formula;
 }
+function showGloss(tokens) {
+    const gloss = tokens.map(token => {
+        switch (token.tokenType) {
+            case "isolated_determiner":
+                return { literal: token.literal, gloss: "DET" };
+            case "new_determiner":
+                return { literal: token.literal, gloss: "DET" + token.key + "+" };
+            case "inherit_determiner":
+                return { literal: token.literal, gloss: "DET" + token.key };
+            case "predicate":
+                return { literal: token.literal, gloss: token.name };
+            case "relative":
+                return { literal: token.literal, gloss: "//REL" + token.casus };
+            case "preposition":
+                return { literal: token.literal, gloss: "//PRE" + token.casus };
+            case "single_negation":
+                return { literal: token.literal, gloss: "/NEG" };
+            case "open_negation":
+                return { literal: token.literal, gloss: "{NEG" };
+            case "close_negation":
+                return { literal: token.literal, gloss: "}NEG" };
+        }
+    });
+    const output = document.createElement("span");
+    output.classList.add("glossed");
+    gloss.forEach(word => {
+        const ruby = document.createElement("ruby");
+        ruby.appendChild(document.createTextNode(word.literal));
+        const rt = document.createElement("rt");
+        rt.appendChild(document.createTextNode(word.gloss));
+        ruby.appendChild(rt);
+        output.appendChild(ruby);
+        output.appendChild(document.createTextNode(" "));
+    });
+    return output;
+}
 function visualizePhraseStructure(phrases) {
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     document.body.appendChild(svg);
@@ -736,10 +772,12 @@ function generateEditor(value, multiline) {
     function update() {
         formulaOutput.innerText = "";
         normalizedFormulaOutput.innerText = "";
+        glossOutput.innerHTML = "";
         errorOutput.innerText = "";
         phraseStructureOutput.innerHTML = "";
         try {
             const tokenized = tokenize(input.value, getTokenizerOption());
+            glossOutput.appendChild(showGloss(tokenized));
             const parsed = parse(tokenized);
             const interpreted = interpret(parsed);
             phraseStructureOutput.appendChild(visualizePhraseStructure(parsed));
@@ -757,6 +795,7 @@ function generateEditor(value, multiline) {
     }
     const input = document.createElement("textarea");
     const errorOutput = document.createElement("div");
+    const glossOutput = document.createElement('div');
     const phraseStructureOutput = document.createElement('div');
     const formulaOutput = document.createElement("div");
     const normalizedFormulaOutput = document.createElement("div");
@@ -799,7 +838,6 @@ function generateEditor(value, multiline) {
     input.value = value;
     reset1();
     update();
-    const container = wrap("div", input, document.createElement("br"), errorOutput, wrap("h4", document.createTextNode("構造")), phraseStructureOutput, wrap("h4", document.createTextNode("論理式")), formulaOutput, wrap("h4", document.createTextNode("標準形論理式")), normalizedFormulaOutput, wrap("details", wrap("summary", document.createTextNode("設定")), wrap("table", wrap("tr", wrap("td", document.createTextNode("単語境界")), wrap("td", separator)), wrap("tr", wrap("td", document.createTextNode("孤立限定詞")), wrap("td", isolatedDeterminer)), wrap("tr", wrap("td", document.createTextNode("新規限定詞")), wrap("td", newDeterminer), wrap("td", document.createTextNode("キー")), wrap("td", keyOfNewDeterminer)), wrap("tr", wrap("td", document.createTextNode("継続限定詞")), wrap("td", inheritDeterminer), wrap("td", document.createTextNode("キー")), wrap("td", keyOfInheritDeterminer)), wrap("tr", wrap("td", document.createTextNode("述語")), wrap("td", predicate), wrap("td", document.createTextNode("述語名")), wrap("td", nameOfPredicate)), wrap("tr", wrap("td", document.createTextNode("前置詞")), wrap("td", preposition), wrap("td", document.createTextNode("格")), wrap("td", casusOfPreposition)), wrap("tr", wrap("td", document.createTextNode("関係詞")), wrap("td", relative), wrap("td", document.createTextNode("格")), wrap("td", casusOfRelative)), wrap("tr", wrap("td", document.createTextNode("単独否定")), wrap("td", singleNegation)), wrap("tr", wrap("td", document.createTextNode("否定開始")), wrap("td", openNegation)), wrap("tr", wrap("td", document.createTextNode("否定終止")), wrap("td", closeNegation)))));
     const container = wrap("div", input, document.createElement("br"), errorOutput, wrap("h4", document.createTextNode("品詞解析")), glossOutput, wrap("h4", document.createTextNode("構造")), phraseStructureOutput, wrap("h4", document.createTextNode("論理式")), formulaOutput, wrap("h4", document.createTextNode("標準形論理式")), normalizedFormulaOutput, wrap("details", wrap("summary", document.createTextNode("設定")), wrap("table", wrap("tr", wrap("td", document.createTextNode("単語境界")), wrap("td", separator)), wrap("tr", wrap("td", document.createTextNode("孤立限定詞")), wrap("td", isolatedDeterminer)), wrap("tr", wrap("td", document.createTextNode("新規限定詞")), wrap("td", newDeterminer), wrap("td", document.createTextNode("キー")), wrap("td", keyOfNewDeterminer)), wrap("tr", wrap("td", document.createTextNode("継続限定詞")), wrap("td", inheritDeterminer), wrap("td", document.createTextNode("キー")), wrap("td", keyOfInheritDeterminer)), wrap("tr", wrap("td", document.createTextNode("述語")), wrap("td", predicate), wrap("td", document.createTextNode("述語名")), wrap("td", nameOfPredicate)), wrap("tr", wrap("td", document.createTextNode("前置詞")), wrap("td", preposition), wrap("td", document.createTextNode("格")), wrap("td", casusOfPreposition)), wrap("tr", wrap("td", document.createTextNode("関係詞")), wrap("td", relative), wrap("td", document.createTextNode("格")), wrap("td", casusOfRelative)), wrap("tr", wrap("td", document.createTextNode("単独否定")), wrap("td", singleNegation)), wrap("tr", wrap("td", document.createTextNode("否定開始")), wrap("td", openNegation)), wrap("tr", wrap("td", document.createTextNode("否定終止")), wrap("td", closeNegation)))));
     container.classList.add(multiline ? "multiline-editor" : "inline-editor");
     return container;
