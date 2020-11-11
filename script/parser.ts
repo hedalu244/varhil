@@ -46,6 +46,7 @@ function tokenize(input: string, option: {
     casus: { [key: string]: string; };
   }): Token[] {
   const literals = input.split(option.separator).filter(x => x !== "");
+  const keyMapper: string[] = [];
 
   const tokens: Token[] = literals.map((literal, index) => {
     if (option.openNegation.test(literal))
@@ -68,18 +69,26 @@ function tokenize(input: string, option: {
         literal, index, tokenType: "isolated_determiner",
         gloss: "DET"
       };
-    if (option.newDeterminer.test(literal))
+    if (option.newDeterminer.test(literal)) {
+      const key = literal.replace(option.newDeterminer, option.keyOfNewDeterminer);
+      const n = keyMapper.indexOf(key);
+      const m = (n === -1) ? (keyMapper.push(key), keyMapper.length - 1) : n;
       return {
         literal, index, tokenType: "new_determiner",
-        gloss: "DET" + + "+",
+        gloss: "DET" + m + "+",
         key: literal.replace(option.newDeterminer, option.keyOfNewDeterminer)
       };
-    if (option.inheritDeterminer.test(literal))
+    }
+    if (option.inheritDeterminer.test(literal)) {
+      const key = literal.replace(option.inheritDeterminer, option.keyOfInheritDeterminer);
+      const n = keyMapper.indexOf(key);
+      const m = (n === -1) ? (keyMapper.push(key), keyMapper.length - 1) : n;
       return {
         literal, index, tokenType: "inherit_determiner",
-        gloss: "DET",
+        gloss: "DET" + m,
         key: literal.replace(option.inheritDeterminer, option.keyOfInheritDeterminer),
       };
+    }
     if (option.preposition.test(literal)) {
       const key = literal.replace(option.preposition, option.casusOfPreposition);
       const casus = dictionary.casus[key] || key;
@@ -543,36 +552,14 @@ function stringify(formula: Formula): string {
 }
 
 function showGloss(tokens: Token[]) {
-  const gloss = tokens.map(token => {
-    switch (token.tokenType) {
-      case "open_negation":
-        return { literal: token.literal, gloss: "{NEG" };
-      case "close_negation":
-        return { literal: token.literal, gloss: "}NEG" };
-      case "single_negation":
-        return { literal: token.literal, gloss: "/NEG" };
-      case "isolated_determiner":
-        return { literal: token.literal, gloss: "DET" };
-      case "new_determiner":
-        return { literal: token.literal, gloss: "DET" + token.key + "+" };
-      case "inherit_determiner":
-        return { literal: token.literal, gloss: "DET" + token.key };
-      case "preposition":
-        return { literal: token.literal, gloss: "//PRE" + token.casus };
-      case "relative":
-        return { literal: token.literal, gloss: "//REL" + token.casus };
-      case "predicate":
-        return { literal: token.literal, gloss: token.name };
-    }
-  });
   const output = document.createElement("span");
   output.classList.add("glossed");
 
-  gloss.forEach(word => {
+  tokens.forEach(token => {
     const ruby = document.createElement("ruby");
-    ruby.appendChild(document.createTextNode(word.literal));
+    ruby.appendChild(document.createTextNode(token.literal));
     const rt = document.createElement("rt");
-    rt.appendChild(document.createTextNode(word.gloss));
+    rt.appendChild(document.createTextNode(token.gloss));
     ruby.appendChild(rt);
     output.appendChild(ruby);
     output.appendChild(document.createTextNode(" "));
@@ -983,15 +970,15 @@ function generateEditor(value: string, multiline: boolean) {
 
     dictionary.value = JSON.stringify({
       predicate: {
-        moku:"食べる",
-        soweli:"もふもふ",
-      }, 
+        moku: "食べる",
+        soweli: "もふもふ",
+      },
       casus: {
         "": "は",
         f: "が",
         b: "を",
       }
-    })
+    });
   }
 
   function update(): void {
