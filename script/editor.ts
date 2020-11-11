@@ -1,5 +1,3 @@
-
-
 function showGloss(tokens: Token[]) {
     const output = document.createElement("span");
     output.classList.add("glossed");
@@ -404,40 +402,40 @@ function test(): void {
 function generateEditor(value: string, multiline: boolean) {
     function getTokenizerOption() {
         return {
-            separator: new RegExp(separator.value),
-            openNegation: new RegExp("^" + openNegation.value + "$"),
-            closeNegation: new RegExp("^" + closeNegation.value + "$"),
-            singleNegation: new RegExp("^" + singleNegation.value + "$"),
-            isolatedDeterminer: new RegExp("^" + isolatedDeterminer.value + "$"),
-            newDeterminer: new RegExp("^" + newDeterminer.value + "$"),
-            inheritDeterminer: new RegExp("^" + inheritDeterminer.value + "$"),
-            preposition: new RegExp("^" + preposition.value + "$"),
-            relative: new RegExp("^" + relative.value + "$"),
-            predicate: new RegExp("^" + predicate.value + "$"),
+            separator: new RegExp(separatorPattern.value),
+            openNegation: new RegExp("^" + openNegationPattern.value + "$"),
+            closeNegation: new RegExp("^" + closeNegationPattern.value + "$"),
+            singleNegation: new RegExp("^" + singleNegationPattern.value + "$"),
+            isolatedDeterminer: new RegExp("^" + isolatedDeterminerPattern.value + "$"),
+            newDeterminer: new RegExp("^" + newDeterminerPattern.value + "$"),
+            inheritDeterminer: new RegExp("^" + inheritDeterminerPattern.value + "$"),
+            preposition: new RegExp("^" + prepositionPattern.value + "$"),
+            relative: new RegExp("^" + relativePattern.value + "$"),
+            predicate: new RegExp("^" + predicatePattern.value + "$"),
 
-            keyOfNewDeterminer: keyOfNewDeterminer.value,
-            keyOfInheritDeterminer: keyOfInheritDeterminer.value,
-            casusOfPreposition: casusOfPreposition.value,
-            casusOfRelative: casusOfRelative.value,
+            keyOfNewDeterminer: keyOfNewDeterminerPattern.value,
+            keyOfInheritDeterminer: keyOfInheritDeterminerPattern.value,
+            casusOfPreposition: casusOfPrepositionPattern.value,
+            casusOfRelative: casusOfRelativePattern.value,
         };
     }
 
-    function reset1(): void {
-        separator.value = "[,.\\s]";
-        openNegation.value = "nou";
-        closeNegation.value = "noi";
-        singleNegation.value = "no";
-        isolatedDeterminer.value = "au";
-        newDeterminer.value = "a('[aeiou])*";
-        inheritDeterminer.value = "i('[aeiou])*";
-        preposition.value = "([^aeiou]?)e";
-        relative.value = "([^aeiou]?)ei";
-        predicate.value = "(([^aeiou'][aeiou]){2,})";
+    function resetSetting(): void {
+        separatorPattern.value = "[,.\\s]";
+        openNegationPattern.value = "nou";
+        closeNegationPattern.value = "noi";
+        singleNegationPattern.value = "no";
+        isolatedDeterminerPattern.value = "au";
+        newDeterminerPattern.value = "a('[aeiou])*";
+        inheritDeterminerPattern.value = "i('[aeiou])*";
+        prepositionPattern.value = "([^aeiou]?)e";
+        relativePattern.value = "([^aeiou]?)ei";
+        predicatePattern.value = "(([^aeiou'][aeiou]){2,})";
 
-        keyOfNewDeterminer.value = "$1";
-        keyOfInheritDeterminer.value = "$1";
-        casusOfRelative.value = "$1";
-        casusOfPreposition.value = "$1";
+        keyOfNewDeterminerPattern.value = "$1";
+        keyOfInheritDeterminerPattern.value = "$1";
+        casusOfRelativePattern.value = "$1";
+        casusOfPrepositionPattern.value = "$1";
 
         dictionary.value = JSON.stringify({
             predicate: {
@@ -473,142 +471,65 @@ function generateEditor(value: string, multiline: boolean) {
         }
     }
 
-    function wrap(tagName: string, ...nodes: Node[]) {
-        const wrapper = document.createElement(tagName);
-        nodes.forEach((node) => wrapper.appendChild(node));
-        return wrapper;
+    function assure<T extends new (...args: any[]) => any>(object: any, constructor: T): InstanceType<T> {
+        if (object instanceof constructor) return object;
+        throw new TypeError(`${object} is not ${constructor.name}.`);
     }
 
-    const input = document.createElement("textarea");
-    const errorOutput = document.createElement("div");
-    const glossOutput = document.createElement('div');
-    const structureOutput = document.createElement('div');
-    const formulaOutput = document.createElement("div");
-    const normalizedFormulaOutput = document.createElement("div");
+    const template = assure(document.getElementById(multiline ? "multiline_editor_template" : "inline_editor_template"), HTMLTemplateElement);
+    const editor = document.importNode(template.content, true);
 
-    const separator = document.createElement("input");
-    const openNegation = document.createElement("input");
-    const closeNegation = document.createElement("input");
-    const singleNegation = document.createElement("input");
-    const isolatedDeterminer = document.createElement("input");
-    const newDeterminer = document.createElement("input");
-    const inheritDeterminer = document.createElement("input");
-    const preposition = document.createElement("input");
-    const relative = document.createElement("input");
-    const predicate = document.createElement("input");
+    const input = assure(editor.getElementById("input"), HTMLTextAreaElement);
+    const errorOutput = assure(editor.getElementById("error_output"), HTMLDivElement);
+    const glossOutput = assure(editor.getElementById("gloss_output"), HTMLDivElement);
+    const structureOutput = assure(editor.getElementById("structure_output"), HTMLDivElement);
+    const formulaOutput = assure(editor.getElementById("formula_output"), HTMLDivElement);
+    const normalizedFormulaOutput = assure(editor.getElementById("normalized_formula_output"), HTMLDivElement);
+    const separatorPattern = assure(editor.getElementById("separator_pattern"), HTMLInputElement);
+    const openNegationPattern = assure(editor.getElementById("open_negation_pattern"), HTMLInputElement);
+    const closeNegationPattern = assure(editor.getElementById("close_negation_pattern"), HTMLInputElement);
+    const singleNegationPattern = assure(editor.getElementById("single_negation_pattern"), HTMLInputElement);
+    const isolatedDeterminerPattern = assure(editor.getElementById("isolated_determiner_pattern"), HTMLInputElement);
+    const newDeterminerPattern = assure(editor.getElementById("new_determiner_pattern"), HTMLInputElement);
+    const inheritDeterminerPattern = assure(editor.getElementById("inherit_determiner_pattern"), HTMLInputElement);
+    const prepositionPattern = assure(editor.getElementById("preposition_pattern"), HTMLInputElement);
+    const relativePattern = assure(editor.getElementById("relative_pattern"), HTMLInputElement);
+    const predicatePattern = assure(editor.getElementById("predicate_pattern"), HTMLInputElement);
 
-    const keyOfNewDeterminer = document.createElement("input");
-    const keyOfInheritDeterminer = document.createElement("input");
-    const casusOfPreposition = document.createElement("input");
-    const casusOfRelative = document.createElement("input");
+    const keyOfNewDeterminerPattern = assure(editor.getElementById("key_of_new_determiner_pattern"), HTMLInputElement);
+    const keyOfInheritDeterminerPattern = assure(editor.getElementById("key_of_inherit_determiner_pattern"), HTMLInputElement);
+    const casusOfPrepositionPattern = assure(editor.getElementById("casus_of_preposition_pattern"), HTMLInputElement);
+    const casusOfRelativePattern = assure(editor.getElementById("casus_of_relative_pattern"), HTMLInputElement);
 
-    const dictionary = document.createElement("textarea");
+    const dictionary = assure(editor.getElementById("dictionary"), HTMLTextAreaElement);
 
-    input.style.width = "100%";
-    input.rows = multiline ? 8 : 1;
-    input.style.resize = "none";
-
-    structureOutput.style.width = "100%";
-    structureOutput.style.overflowX = "scroll";
-
-    formulaOutput.classList.add("formula");
-    normalizedFormulaOutput.classList.add("formula");
-
-    dictionary.style.width = "100%";
-    dictionary.rows = 8;
-    dictionary.style.resize = "none";
+    // id重複を避けるためにidを消す
+    editor.querySelectorAll("*").forEach(node => {
+        if (node.id !== "") node.classList.add(node.id);
+        node.removeAttribute("id");
+    });
 
     input.oninput = update;
-    separator.oninput = update;
-    openNegation.oninput = update;
-    closeNegation.oninput = update;
-    singleNegation.oninput = update;
-    isolatedDeterminer.oninput = update;
-    newDeterminer.oninput = update;
-    inheritDeterminer.oninput = update;
-    preposition.oninput = update;
-    relative.oninput = update;
-    predicate.oninput = update;
+    separatorPattern.oninput = update;
+    openNegationPattern.oninput = update;
+    closeNegationPattern.oninput = update;
+    singleNegationPattern.oninput = update;
+    isolatedDeterminerPattern.oninput = update;
+    newDeterminerPattern.oninput = update;
+    inheritDeterminerPattern.oninput = update;
+    prepositionPattern.oninput = update;
+    relativePattern.oninput = update;
+    predicatePattern.oninput = update;
 
-    keyOfNewDeterminer.oninput = update;
-    keyOfInheritDeterminer.oninput = update;
-    casusOfPreposition.oninput = update;
-    casusOfRelative.oninput = update;
+    keyOfNewDeterminerPattern.oninput = update;
+    keyOfInheritDeterminerPattern.oninput = update;
+    casusOfPrepositionPattern.oninput = update;
+    casusOfRelativePattern.oninput = update;
 
     input.value = value;
-    reset1();
+    resetSetting();
     update();
-
-    const container = wrap("div",
-        input,
-        document.createElement("br"),
-        errorOutput,
-        wrap("h4", document.createTextNode("品詞解析")),
-        glossOutput,
-        wrap("h4", document.createTextNode("構造")),
-        structureOutput,
-        wrap("h4", document.createTextNode("論理式")),
-        formulaOutput,
-        wrap("h4", document.createTextNode("標準形論理式")),
-        normalizedFormulaOutput,
-        wrap("details",
-            wrap("summary", document.createTextNode("設定")),
-            wrap("table",
-                wrap("tr",
-                    wrap("td", document.createTextNode("単語境界")),
-                    wrap("td", separator)
-                ),
-                wrap("tr",
-                    wrap("td", document.createTextNode("否定開始")),
-                    wrap("td", openNegation),
-                ),
-                wrap("tr",
-                    wrap("td", document.createTextNode("否定終止")),
-                    wrap("td", closeNegation),
-                ),
-                wrap("tr",
-                    wrap("td", document.createTextNode("単独否定")),
-                    wrap("td", singleNegation),
-                ),
-                wrap("tr",
-                    wrap("td", document.createTextNode("孤立限定詞")),
-                    wrap("td", isolatedDeterminer)
-                ),
-                wrap("tr",
-                    wrap("td", document.createTextNode("新規限定詞")),
-                    wrap("td", newDeterminer),
-                    wrap("td", document.createTextNode("キー")),
-                    wrap("td", keyOfNewDeterminer)
-                ),
-                wrap("tr",
-                    wrap("td", document.createTextNode("継続限定詞")),
-                    wrap("td", inheritDeterminer),
-                    wrap("td", document.createTextNode("キー")),
-                    wrap("td", keyOfInheritDeterminer)
-                ),
-                wrap("tr",
-                    wrap("td", document.createTextNode("前置詞")),
-                    wrap("td", preposition),
-                    wrap("td", document.createTextNode("格")),
-                    wrap("td", casusOfPreposition)
-                ),
-                wrap("tr",
-                    wrap("td", document.createTextNode("関係詞")),
-                    wrap("td", relative),
-                    wrap("td", document.createTextNode("格")),
-                    wrap("td", casusOfRelative)
-                ),
-                wrap("tr",
-                    wrap("td", document.createTextNode("述語")),
-                    wrap("td", predicate)
-                ),
-            ),
-            document.createTextNode("辞書"),
-            dictionary,
-        )
-    );
-    container.classList.add(multiline ? "multiline-editor" : "inline-editor");
-    return container;
+    return editor;
 }
 
 function appendInlineEditor(text: string) {
