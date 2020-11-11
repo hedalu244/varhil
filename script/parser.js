@@ -852,6 +852,8 @@ function generateEditor(value, multiline) {
     input.style.resize = "none";
     structureOutput.style.width = "100%";
     structureOutput.style.overflowX = "scroll";
+    formulaOutput.classList.add("formula");
+    normalizedFormulaOutput.classList.add("formula");
     dictionary.style.width = "100%";
     dictionary.rows = 8;
     dictionary.style.resize = "none";
