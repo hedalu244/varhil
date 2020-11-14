@@ -17,7 +17,7 @@ function visualizePhraseStructure(phrases) {
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     document.body.appendChild(svg);
     const u = 3;
-    const spaceWidth = 10;
+    const spaceWidth = 15;
     svg.setAttribute("fill", "none");
     svg.setAttribute("stroke", "#444");
     svg.setAttribute("stroke-width", "3");
@@ -34,51 +34,37 @@ function visualizePhraseStructure(phrases) {
     svg.setAttribute("viewBox", [0, -height / 2, width, height].join(" "));
     document.body.removeChild(svg);
     return svg;
-    function recursion(phrase, x) {
-        function createOverPath(startX, endX, endY, height, convert) {
-            if (convert) {
-                const path1 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                path1.setAttribute("d", [
-                    "M", startX, -10 * u,
-                    "c", 0, -2 * u, 0, -2 * u, 2 * u, -5 * u,
-                    "l", height / 6 * 4 - 4 * u, -height + 6 * u,
-                    "c", u, -1.5 * u, 2 * u, -3 * u, 4 * u, -3 * u,
-                    "l", endX - (2 * height - endY) / 6 * 4 - 6 * u - startX, 0,
-                    "c", 2 * u, 0, 3 * u, 1.5 * u, 4 * u, 3 * u,
-                    "l", height / 6 * 4 - 4 * u, height - 6 * u,
-                ].join(" "));
-                svg.appendChild(path1);
-                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-                circle.setAttribute("cx", "" + (endX));
-                circle.setAttribute("cy", "" + (endY - 9 * u));
-                circle.setAttribute("r", "15");
-                svg.appendChild(circle);
-                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                text.setAttribute("x", "" + (endX));
-                text.setAttribute("y", "" + (endY - 9 * u - 2));
-                text.setAttribute("fill", "#222");
-                text.setAttribute("stroke", "none");
-                text.setAttribute("font-size", "20px");
-                text.setAttribute("text-anchor", "middle");
-                text.setAttribute("dominant-baseline", "central");
-                text.textContent = "e";
-                svg.appendChild(text);
-                return;
-            }
-            if (endY == 0) {
-                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                path.setAttribute("d", [
-                    "M", startX, -10 * u,
-                    "c", 0, -2 * u, 0, -2 * u, 2 * u, -5 * u,
-                    "l", height / 6 * 4 - 4 * u, -height + 6 * u,
-                    "c", u, -1.5 * u, 2 * u, -3 * u, 4 * u, -3 * u,
-                    "l", endX - (2 * height - endY) / 6 * 4 - 6 * u - startX, 0,
-                    "c", 2 * u, 0, 3 * u, 1.5 * u, 4 * u, 3 * u,
-                    "l", height / 6 * 4, height
-                ].join(" "));
-                svg.appendChild(path);
-                return;
-            }
+    function drawOverPath(startX, endX, endY, height, convert) {
+        if (convert) {
+            const path1 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            path1.setAttribute("d", [
+                "M", startX, -10 * u,
+                "c", 0, -2 * u, 0, -2 * u, 2 * u, -5 * u,
+                "l", height / 6 * 4 - 4 * u, -height + 6 * u,
+                "c", u, -1.5 * u, 2 * u, -3 * u, 4 * u, -3 * u,
+                "l", endX - (2 * height - endY) / 6 * 4 - 6 * u - startX, 0,
+                "c", 2 * u, 0, 3 * u, 1.5 * u, 4 * u, 3 * u,
+                "l", height / 6 * 4 - 4 * u, height - 6 * u,
+            ].join(" "));
+            svg.appendChild(path1);
+            const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            circle.setAttribute("cx", "" + (endX));
+            circle.setAttribute("cy", "" + (endY - 9 * u));
+            circle.setAttribute("r", "15");
+            svg.appendChild(circle);
+            const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            text.setAttribute("x", "" + (endX));
+            text.setAttribute("y", "" + (endY - 9 * u - 2));
+            text.setAttribute("fill", "#222");
+            text.setAttribute("stroke", "none");
+            text.setAttribute("font-size", "20px");
+            text.setAttribute("text-anchor", "middle");
+            text.setAttribute("dominant-baseline", "central");
+            text.textContent = "e";
+            svg.appendChild(text);
+            return;
+        }
+        if (endY == 0) {
             const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
             path.setAttribute("d", [
                 "M", startX, -10 * u,
@@ -87,71 +73,137 @@ function visualizePhraseStructure(phrases) {
                 "c", u, -1.5 * u, 2 * u, -3 * u, 4 * u, -3 * u,
                 "l", endX - (2 * height - endY) / 6 * 4 - 6 * u - startX, 0,
                 "c", 2 * u, 0, 3 * u, 1.5 * u, 4 * u, 3 * u,
-                "l", (height - endY) / 6 * 4 - 4 * u, height - endY - 6 * u,
-                "c", 1 * u, 1.5 * u, 2 * u, 3 * u, 4 * u, 3 * u
+                "l", height / 6 * 4, height
             ].join(" "));
             svg.appendChild(path);
+            return;
         }
-        function createUnderPath(startX, endX, endY, height) {
-            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-            path.setAttribute("stroke-dasharray", "5");
-            if (endY == 0) {
-                path.setAttribute("d", [
-                    "M", startX, 10 * u,
-                    "c", 0, 2 * u, 0, 2 * u, 2 * u, 5 * u,
-                    "l", height / 6 * 4 - 4 * u, height - 6 * u,
-                    "c", u, 1.5 * u, 2 * u, 3 * u, 4 * u, 3 * u,
-                    "l", endX - (2 * height - endY) / 6 * 4 - 6 * u - startX, 0,
-                    "c", 2 * u, 0, 3 * u, -1.5 * u, 4 * u, -3 * u,
-                    "l", (height - endY) / 6 * 4, -height + endY
-                ].join(" "));
-            }
-            else {
-                path.setAttribute("d", [
-                    "M", startX, 10 * u,
-                    "c", 0, 2 * u, 0, 2 * u, 2 * u, 5 * u,
-                    "l", height / 6 * 4 - 4 * u, height - 6 * u,
-                    "c", u, 1.5 * u, 2 * u, 3 * u, 4 * u, 3 * u,
-                    "l", endX - (2 * height - endY) / 6 * 4 - 6 * u - startX, 0,
-                    "c", 2 * u, 0, 3 * u, -1.5 * u, 4 * u, -3 * u,
-                    "l", (height - endY) / 6 * 4 - 2 * u, -height + endY + 3 * u
-                ].join(" "));
-            }
-            svg.appendChild(path);
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute("d", [
+            "M", startX, -10 * u,
+            "c", 0, -2 * u, 0, -2 * u, 2 * u, -5 * u,
+            "l", height / 6 * 4 - 4 * u, -height + 6 * u,
+            "c", u, -1.5 * u, 2 * u, -3 * u, 4 * u, -3 * u,
+            "l", endX - (2 * height - endY) / 6 * 4 - 6 * u - startX, 0,
+            "c", 2 * u, 0, 3 * u, 1.5 * u, 4 * u, 3 * u,
+            "l", (height - endY) / 6 * 4 - 4 * u, height - endY - 6 * u,
+            "c", 1 * u, 1.5 * u, 2 * u, 3 * u, 4 * u, 3 * u
+        ].join(" "));
+        svg.appendChild(path);
+    }
+    function draweUnderPath(startX, endX, endY, height) {
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute("stroke-dasharray", "5");
+        if (endY == 0) {
+            path.setAttribute("d", [
+                "M", startX, 10 * u,
+                "c", 0, 2 * u, 0, 2 * u, 2 * u, 5 * u,
+                "l", height / 6 * 4 - 4 * u, height - 6 * u,
+                "c", u, 1.5 * u, 2 * u, 3 * u, 4 * u, 3 * u,
+                "l", endX - (2 * height - endY) / 6 * 4 - 6 * u - startX, 0,
+                "c", 2 * u, 0, 3 * u, -1.5 * u, 4 * u, -3 * u,
+                "l", (height - endY) / 6 * 4, -height + endY
+            ].join(" "));
         }
-        const wrapperWidth = (phrase.phraseType === "isolated_determiner"
-            || phrase.phraseType === "new_determiner"
-            || phrase.phraseType === "inherit_determiner"
-            || phrase.phraseType === "preposition"
-            || phrase.phraseType === "relative" ? 15 : 0);
+        else {
+            path.setAttribute("d", [
+                "M", startX, 10 * u,
+                "c", 0, 2 * u, 0, 2 * u, 2 * u, 5 * u,
+                "l", height / 6 * 4 - 4 * u, height - 6 * u,
+                "c", u, 1.5 * u, 2 * u, 3 * u, 4 * u, 3 * u,
+                "l", endX - (2 * height - endY) / 6 * 4 - 6 * u - startX, 0,
+                "c", 2 * u, 0, 3 * u, -1.5 * u, 4 * u, -3 * u,
+                "l", (height - endY) / 6 * 4 - 2 * u, -height + endY + 3 * u
+            ].join(" "));
+        }
+        svg.appendChild(path);
+    }
+    function estimateTextWidth(text, attributes) {
+        const textSVG = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        textSVG.textContent = text;
+        for (const attr in attributes) {
+            textSVG.setAttribute(attr, attributes[attr]);
+        }
+        svg.appendChild(textSVG);
+        const width = textSVG.getBoundingClientRect().width;
+        svg.removeChild(textSVG);
+        return width;
+    }
+    function drawTokenSVG(token, x) {
+        const literalWidth = Math.max(estimateTextWidth(token.literal, { "font-size": "16px" }), estimateTextWidth(token.gloss, { "font-size": "9px" }), token.tokenType === "isolated_determiner"
+            || token.tokenType === "new_determiner"
+            || token.tokenType === "inherit_determiner"
+            || token.tokenType === "preposition"
+            || token.tokenType === "relative" ? 12 * u : 0);
+        const nextX = x + literalWidth + spaceWidth;
+        const centerX = x + literalWidth / 2;
+        switch (token.tokenType) {
+            case "isolated_determiner":
+            case "new_determiner":
+            case "inherit_determiner":
+                {
+                    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                    rect.setAttribute("x", "" + (centerX - 5 * u));
+                    rect.setAttribute("y", "" + (-5 * u));
+                    rect.setAttribute("width", "" + (10 * u));
+                    rect.setAttribute("height", "" + (10 * u));
+                    rect.setAttribute("transform", "rotate(45, " + centerX + ", 0)");
+                    svg.appendChild(rect);
+                }
+                break;
+            case "preposition":
+                {
+                    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                    circle.setAttribute("cx", "" + centerX);
+                    circle.setAttribute("cy", "0");
+                    circle.setAttribute("r", "" + (6 * u));
+                    svg.appendChild(circle);
+                }
+                break;
+            case "relative":
+                {
+                    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                    rect.setAttribute("x", "" + (centerX - 5.5 * u));
+                    rect.setAttribute("y", "" + (-5.5 * u));
+                    rect.setAttribute("width", "" + (11 * u));
+                    rect.setAttribute("height", "" + (11 * u));
+                    svg.appendChild(rect);
+                }
+                ;
+        }
         const literalSVG = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        literalSVG.textContent = phrase.token.literal;
+        literalSVG.textContent = token.literal;
         literalSVG.setAttribute("fill", "#222");
-        literalSVG.setAttribute("stroke", "none");
-        literalSVG.setAttribute("font-size", "20px");
-        literalSVG.setAttribute("x", "" + (x + wrapperWidth));
-        literalSVG.setAttribute("y", "0");
+        literalSVG.setAttribute("stroke", "#fff");
+        literalSVG.setAttribute("font-size", "16px");
+        literalSVG.setAttribute("x", "" + centerX);
+        literalSVG.setAttribute("y", "-8");
         literalSVG.setAttribute("dominant-baseline", "central");
+        literalSVG.setAttribute("text-anchor", "middle");
+        literalSVG.setAttribute("paint-order", "stroke");
         svg.appendChild(literalSVG);
-        const literalWidth = literalSVG.getBoundingClientRect().width + 2 * wrapperWidth;
-        let literalNextX = x + literalWidth + spaceWidth;
-        const literalCenterX = x + literalWidth / 2;
+        const glossSVG = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        glossSVG.textContent = token.gloss;
+        glossSVG.setAttribute("fill", "#222");
+        glossSVG.setAttribute("stroke", "#fff");
+        glossSVG.setAttribute("font-size", "9px");
+        glossSVG.setAttribute("x", "" + centerX);
+        glossSVG.setAttribute("y", "8");
+        glossSVG.setAttribute("dominant-baseline", "central");
+        glossSVG.setAttribute("text-anchor", "middle");
+        glossSVG.setAttribute("paint-order", "stroke");
+        svg.appendChild(glossSVG);
+        return [centerX, nextX];
+    }
+    function recursion(phrase, x) {
+        const [literalCenterX, literalNextX] = drawTokenSVG(phrase.token, x);
         switch (phrase.phraseType) {
             case "negation": {
                 const childrenResult = phrase.children.reduce((state, child) => {
                     const result = recursion(child, state.nextX);
                     return { nextX: result.nextX, height: Math.max(state.height, result.height) };
                 }, { nextX: literalNextX, height: 0 });
-                const closeLiteralSVG = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                closeLiteralSVG.textContent = phrase.closeToken.literal;
-                closeLiteralSVG.setAttribute("fill", "#222");
-                closeLiteralSVG.setAttribute("font-size", "20px");
-                closeLiteralSVG.setAttribute("stroke", "none");
-                closeLiteralSVG.setAttribute("x", "" + childrenResult.nextX);
-                closeLiteralSVG.setAttribute("dominant-baseline", "central");
-                svg.appendChild(closeLiteralSVG);
-                let closeLiteralNextX = childrenResult.nextX + closeLiteralSVG.getBoundingClientRect().width + spaceWidth;
-                const closeLiteralCenterX = childrenResult.nextX + closeLiteralSVG.getBoundingClientRect().width / 2;
+                const [closeLiteralCenterX, closeLiteralNextX] = drawTokenSVG(phrase.closeToken, childrenResult.nextX);
                 const startX = literalCenterX;
                 const endX = closeLiteralCenterX;
                 const height = childrenResult.height + 6 * u;
@@ -230,13 +282,6 @@ function visualizePhraseStructure(phrases) {
             case "isolated_determiner":
             case "new_determiner":
             case "inherit_determiner": {
-                const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-                rect.setAttribute("x", "" + (literalCenterX - 5 * u));
-                rect.setAttribute("y", "" + (-5 * u));
-                rect.setAttribute("width", "" + (10 * u));
-                rect.setAttribute("height", "" + (10 * u));
-                rect.setAttribute("transform", "rotate(45, " + literalCenterX + ", 0)");
-                svg.appendChild(rect);
                 return {
                     height: 0,
                     varX: literalCenterX,
@@ -248,21 +293,16 @@ function visualizePhraseStructure(phrases) {
                 };
             }
             case "preposition": {
-                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-                circle.setAttribute("cx", "" + literalCenterX);
-                circle.setAttribute("cy", "0");
-                circle.setAttribute("r", "" + (6 * u));
-                svg.appendChild(circle);
                 const left = recursion(phrase.left, literalNextX);
                 const right = recursion(phrase.right, left.nextX);
                 const overEndX = isNaN(left.varX) ? left.predX : left.varX;
                 const overEndY = isNaN(left.varY) ? 0 : left.varY;
                 const overHeight = left.height + 6 * u;
-                createOverPath(literalCenterX, overEndX, overEndY, overHeight, isNaN(left.varX));
+                drawOverPath(literalCenterX, overEndX, overEndY, overHeight, isNaN(left.varX));
                 const underEndX = right.argX;
                 const underEndY = right.argY;
                 const underHeight = Math.max(left.height, right.height) + 6 * u;
-                createUnderPath(literalCenterX, underEndX, underEndY, underHeight);
+                draweUnderPath(literalCenterX, underEndX, underEndY, underHeight);
                 return {
                     height: Math.max(left.height, right.height) + 6 * u,
                     varX: NaN,
@@ -274,22 +314,16 @@ function visualizePhraseStructure(phrases) {
                 };
             }
             case "relative": {
-                const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-                rect.setAttribute("x", "" + (literalCenterX - 5.5 * u));
-                rect.setAttribute("y", "" + (-5.5 * u));
-                rect.setAttribute("width", "" + (11 * u));
-                rect.setAttribute("height", "" + (11 * u));
-                svg.appendChild(rect);
                 const left = recursion(phrase.left, literalNextX);
                 const right = recursion(phrase.right, left.nextX);
                 const overEndX = isNaN(right.varX) ? right.predX : right.varX;
                 const overEndY = isNaN(right.varY) ? 0 : right.varY;
                 const overHeight = Math.max(left.height, right.height) + 6 * u;
-                createOverPath(literalCenterX, overEndX, overEndY, overHeight, isNaN(right.varX));
+                drawOverPath(literalCenterX, overEndX, overEndY, overHeight, isNaN(right.varX));
                 const underEndX = left.argX;
                 const underEndY = left.argY;
                 const underHeight = left.height + 6 * u;
-                createUnderPath(literalCenterX, underEndX, underEndY, underHeight);
+                draweUnderPath(literalCenterX, underEndX, underEndY, underHeight);
                 return {
                     height: Math.max(left.height, right.height) + 6 * u,
                     varX: Math.min((literalCenterX + overEndX) / 2, literalCenterX + overHeight / 6 * 4 + 20),

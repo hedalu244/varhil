@@ -6,6 +6,7 @@
     <title>{{ page.title }} | Varhil</title>
     <link rel="stylesheet" href="{{ site.baseurl }}/style/master.css">
     <link rel="stylesheet" href="{{ site.baseurl }}/style/default-layout.css">
+    <link rel="stylesheet" href="{{ site.baseurl }}/style/editor.css">
     <link rel="icon" href="{{ site.baseurl }}/image/favicon.svg" type="image/svg+xml">
     <link rel="icon alternate" href="{{ site.baseurl }}/image/favicon.png" type="image/png">
     <script src="{{ site.baseurl }}/script/breadcrumbs.js"></script>
@@ -78,18 +79,18 @@
                         <td><input id="predicate_pattern"></td>
                     </tr>
                 </table>
-                辞書<textarea id="dictionary" rows="8" style="width: 100%; resize: none;"></textarea>
+                辞書<br><textarea id="dictionary" rows="8" style="width: 100%; resize: none;"></textarea>
             </details>
         </div>
     </template>
     <template id="multiline_editor_template">
         <div class="editor multiline-editor">
-            <textarea id="input" rows="1" style="width: 100%; resize: none;"></textarea><br>
+            <textarea id="input" rows="8"></textarea><br>
             <div id="error_output"></div>
             <h4>品詞解析</h4>
             <div id="gloss_output"></div>
             <h4>構造</h4>
-            <div id="structure_output" style="width: 100%; overflow-x: scroll;">
+            <div id="structure_output">
             </div>
             <h4>論理式</h4>
             <div id="formula_output" class="formula"></div>
@@ -147,7 +148,7 @@
                         <td><input id="predicate_pattern"></td>
                     </tr>
                 </table>
-                辞書<textarea id="dictionary" rows="8" style="width: 100%; resize: none;"></textarea>
+                辞書<br><textarea id="dictionary" rows="8"></textarea>
             </details>
         </div>
     </template>
