@@ -1,0 +1,48 @@
+div.inline-editor {
+    border: 1px solid #333;
+    padding: 10px;
+}
+
+div.inline-editor h4 {
+    margin: 10px;
+    font-size: 1em;
+}
+
+div.inline-editor .input {
+    font-size: 1em;
+    width: 100%;
+    box-sizing: border-box;
+    resize: none;
+}
+
+div.inline-editor .error_output {
+    background-color: #fdd;
+    padding: 0 10px;
+}
+
+div.inline-editor .structure_output {
+    width: 100%;
+    overflow-x: auto;
+}
+
+div.multiline-editor h4 {
+    margin: 10px;
+    font-size: 1em;
+}
+
+div.multiline-editor .input {
+    font-size: 1em;
+    width: 100%;
+    box-sizing: border-box;
+    resize: none;
+}
+
+div.multiline-editor .error_output {
+    background-color: #fdd;
+    padding: 0 10px;
+}
+
+div.multiline-editor .structure_output {
+    width: 100%;
+    overflow-x: auto;
+}
