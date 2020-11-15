@@ -391,15 +391,15 @@ function stringifyFormula(formula: Formula): string {
     if (formula.formulaType === "negation")
         return "￢" + stringifyFormula(formula.formula);
     if (formula.formulaType === "exist")
-        return "∃" + formula.variable.id + ";" + stringifyFormula(formula.formula);
+        return "∃" + formula.variable.getName() + ";" + stringifyFormula(formula.formula);
     if (formula.formulaType === "all")
-        return "∀" + formula.variable.id + ";" + stringifyFormula(formula.formula);
+        return "∀" + formula.variable.getName() + ";" + stringifyFormula(formula.formula);
     if (formula.formulaType === "conjunction")
         return "(" + formula.formulas.map(x => stringifyFormula(x)).join("∧") + ")";
     if (formula.formulaType === "disjunction")
         return "(" + formula.formulas.map(x => stringifyFormula(x)).join("∨") + ")";
     if (formula.formulaType === "predicate")
-        return formula.name + "(" + formula.args.map(x => (x.casus + ":" + x.variable.id)).join(", ") + ")";
+        return formula.name + "(" + formula.args.map(x => (x.casus + ":" + x.variable.getName())).join(", ") + ")";
     // 網羅チェック
     return formula;
 }

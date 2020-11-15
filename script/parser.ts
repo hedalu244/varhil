@@ -197,7 +197,8 @@ function parse(tokens: Token[]): Phrase[] {
 }
 //意味解析
 interface Variable {
-  id: string;
+  id: number;
+  getName(): string;
 }
 interface TrueFormula {
   formulaType: "true";
@@ -308,7 +309,18 @@ function interpret(phrases: Phrase[]): Formula {
   const variableMap: { key: string | null, variable: Variable; }[][] = [[]];
   let variableCount: number = 0;
 
-  function issueVariable(): Variable { return { id: "" + variableCount++ }; }
+  function issueVariable(): Variable {
+    const id = variableCount++;
+    return {
+      id,
+      getName: () => {
+        if (variableCount <= 3) return ["x", "y", "z"][id];
+        if (variableCount <= 26)
+          return ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"][id];
+        return "x_" + id; 
+      }
+    };
+  }
 
   function findVariable(key: string): Variable | undefined {
     const a = variableMap.find(closure => closure.some(entry => entry.key === key));
