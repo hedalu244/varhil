@@ -473,7 +473,10 @@ function generateEditor(value: string, multiline: boolean) {
         dictionary.value = JSON.stringify({
             predicate: {
                 moku: "食べる",
-                soweli: "もふもふ",
+                jana: "人間だ",
+                soweli: "動物だ",
+                loja: "赤い",
+                pina: "りんごだ",
             },
             casus: {
                 "": "は",
@@ -542,7 +545,7 @@ function generateEditor(value: string, multiline: boolean) {
 
     const dictionary = assure(editor.getElementById("dictionary"), HTMLTextAreaElement);
 
-    if(!multiline) {
+    if (!multiline) {
         const link = assure(editor.getElementById("open_in_parser_link"), HTMLAnchorElement);
         link.href = "https://hedalu244.github.io/varhil/parser/?input=" + value;
     }
@@ -563,6 +566,8 @@ function generateEditor(value: string, multiline: boolean) {
     keyOfInheritDeterminerPattern.oninput = update;
     casusOfPrepositionPattern.oninput = update;
     casusOfRelativePattern.oninput = update;
+
+    dictionary.oninput = update;
 
     input.value = value;
     resetSetting();

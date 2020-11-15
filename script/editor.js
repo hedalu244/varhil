@@ -433,7 +433,10 @@ function generateEditor(value, multiline) {
         dictionary.value = JSON.stringify({
             predicate: {
                 moku: "食べる",
-                soweli: "もふもふ",
+                jana: "人間だ",
+                soweli: "動物だ",
+                loja: "赤い",
+                pina: "りんごだ",
             },
             casus: {
                 "": "は",
@@ -514,6 +517,7 @@ function generateEditor(value, multiline) {
     keyOfInheritDeterminerPattern.oninput = update;
     casusOfPrepositionPattern.oninput = update;
     casusOfRelativePattern.oninput = update;
+    dictionary.oninput = update;
     input.value = value;
     resetSetting();
     update();
