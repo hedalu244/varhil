@@ -1,28 +1,23 @@
-div.inline-editor {
-    border: 1px solid #333;
-    padding: 10px;
-}
-
-div.inline-editor h4 {
-    margin: 10px;
-    font-size: 1em;
-}
-
-div.inline-editor .input {
+.inline-editor .input {
     font-size: 1em;
     width: 100%;
     box-sizing: border-box;
     resize: none;
+
+    background-color: transparent;
+    border: none;
+    border-bottom: 1px solid #333;
 }
 
-div.inline-editor .error_output {
-    background-color: #fdd;
+.inline-editor .error_output {
+    background-color: #fcc;
     padding: 0 10px;
 }
 
-div.inline-editor .structure_output {
+.inline-editor .structure_output {
     width: 100%;
     overflow-x: auto;
+    mix-blend-mode: multiply;
 }
 
 div.multiline-editor h4 {

@@ -15,83 +15,76 @@
     <script src="{{ site.baseurl }}/script/parser.js"></script>
     <script src="{{ site.baseurl }}/script/editor.js"></script>
     <template id="inline_editor_template">
-        <div class="editor inline-editor">
-            <textarea id="input" rows="1" style="width: 100%; resize: none;"></textarea><br>
-            <div id="error_output"></div>
-            <h4>品詞解析</h4>
-            <div id="gloss_output"></div>
-            <h4>構造</h4>
-            <div id="structure_output" style="width: 100%; overflow-x: scroll;">
-            </div>
-            <h4>論理式</h4>
-            <div id="formula_output" class="formula"></div>
-            <h4>標準形論理式</h4>
-            <div id="normalized_formula_output" class="formula"></div>
-            <details>
-                <summary>設定</summary>
-                <table>
-                    <tr>
-                        <td>単語境界</td>
-                        <td><input id="separator_pattern"></td>
-                    </tr>
-                    <tr>
-                        <td>否定開始</td>
-                        <td><input id="open_negation_pattern"></td>
-                    </tr>
-                    <tr>
-                        <td>否定終止</td>
-                        <td><input id="close_negation_pattern"></td>
-                    </tr>
-                    <tr>
-                        <td>単独否定</td>
-                        <td><input id="single_negation_pattern"></td>
-                    </tr>
-                    <tr>
-                        <td>孤立限定詞</td>
-                        <td><input id="isolated_determiner_pattern"></td>
-                    </tr>
-                    <tr>
-                        <td>新規限定詞</td>
-                        <td><input id="new_determiner_pattern"></td>
-                        <td>キー</td>
-                        <td><input id="key_of_new_determiner_pattern"></td>
-                    </tr>
-                    <tr>
-                        <td>継続限定詞</td>
-                        <td><input id="inherit_determiner_pattern"></td>
-                        <td>キー</td>
-                        <td><input id="key_of_inherit_determiner_pattern"></td>
-                    </tr>
-                    <tr>
-                        <td>前置詞</td>
-                        <td><input id="preposition_pattern"></td>
-                        <td>格</td>
-                        <td><input id="casus_of_preposition_pattern"></td>
-                    </tr>
-                    <tr>
-                        <td>関係詞</td>
-                        <td><input id="relative_pattern"></td>
-                        <td>格</td>
-                        <td><input id="casus_of_relative_pattern"></td>
-                    </tr>
-                    <tr>
-                        <td>述語</td>
-                        <td><input id="predicate_pattern"></td>
-                    </tr>
-                </table>
-                辞書<br><textarea id="dictionary" rows="8" style="width: 100%; resize: none;"></textarea>
-            </details>
-        </div>
+        <dl class="example editor inline-editor" spellcheck="false">
+            <dt>
+                <textarea id="input" rows="1"></textarea>
+                <div id="error_output"></div>
+            </dt>
+            <dt id="structure_output"></dt>
+            <dd id="formula_output" class="formula"></dd>
+            <dd id="normalized_formula_output" class="formula"></dd>
+        </dl>
+        <details>
+            <summary>設定</summary>
+            <table>
+                <tr>
+                    <td>単語境界</td>
+                    <td><input id="separator_pattern"></td>
+                </tr>
+                <tr>
+                    <td>否定開始</td>
+                    <td><input id="open_negation_pattern"></td>
+                </tr>
+                <tr>
+                    <td>否定終止</td>
+                    <td><input id="close_negation_pattern"></td>
+                </tr>
+                <tr>
+                    <td>単独否定</td>
+                    <td><input id="single_negation_pattern"></td>
+                </tr>
+                <tr>
+                    <td>孤立限定詞</td>
+                    <td><input id="isolated_determiner_pattern"></td>
+                </tr>
+                <tr>
+                    <td>新規限定詞</td>
+                    <td><input id="new_determiner_pattern"></td>
+                    <td>キー</td>
+                    <td><input id="key_of_new_determiner_pattern"></td>
+                </tr>
+                <tr>
+                    <td>継続限定詞</td>
+                    <td><input id="inherit_determiner_pattern"></td>
+                    <td>キー</td>
+                    <td><input id="key_of_inherit_determiner_pattern"></td>
+                </tr>
+                <tr>
+                    <td>前置詞</td>
+                    <td><input id="preposition_pattern"></td>
+                    <td>格</td>
+                    <td><input id="casus_of_preposition_pattern"></td>
+                </tr>
+                <tr>
+                    <td>関係詞</td>
+                    <td><input id="relative_pattern"></td>
+                    <td>格</td>
+                    <td><input id="casus_of_relative_pattern"></td>
+                </tr>
+                <tr>
+                    <td>述語</td>
+                    <td><input id="predicate_pattern"></td>
+                </tr>
+            </table>
+            辞書<br><textarea id="dictionary"></textarea>
+        </details>
     </template>
     <template id="multiline_editor_template">
-        <div class="editor multiline-editor">
+        <div class="editor multiline-editor" spellcheck="false">
             <textarea id="input" rows="8"></textarea><br>
             <div id="error_output"></div>
-            <h4>品詞解析</h4>
-            <div id="gloss_output"></div>
             <h4>構造</h4>
-            <div id="structure_output">
-            </div>
+            <div id="structure_output"></div>
             <h4>論理式</h4>
             <div id="formula_output" class="formula"></div>
             <h4>標準形論理式</h4>

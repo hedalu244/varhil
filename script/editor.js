@@ -130,7 +130,7 @@ function visualizePhraseStructure(phrases) {
         return width;
     }
     function drawTokenSVG(token, x) {
-        const literalWidth = Math.max(estimateTextWidth(token.literal, { "font-size": "16px" }), estimateTextWidth(token.gloss, { "font-size": "9px" }), token.tokenType === "isolated_determiner"
+        const literalWidth = Math.max(estimateTextWidth(token.literal, { "font-size": "16px" }), estimateTextWidth(token.gloss, { "font-size": "12px" }), token.tokenType === "isolated_determiner"
             || token.tokenType === "new_determiner"
             || token.tokenType === "inherit_determiner"
             || token.tokenType === "preposition"
@@ -175,9 +175,10 @@ function visualizePhraseStructure(phrases) {
         literalSVG.textContent = token.literal;
         literalSVG.setAttribute("fill", "#222");
         literalSVG.setAttribute("stroke", "#fff");
+        literalSVG.setAttribute("stroke-width", "3");
         literalSVG.setAttribute("font-size", "16px");
         literalSVG.setAttribute("x", "" + centerX);
-        literalSVG.setAttribute("y", "-8");
+        literalSVG.setAttribute("y", "-10");
         literalSVG.setAttribute("dominant-baseline", "central");
         literalSVG.setAttribute("text-anchor", "middle");
         literalSVG.setAttribute("paint-order", "stroke");
@@ -186,9 +187,10 @@ function visualizePhraseStructure(phrases) {
         glossSVG.textContent = token.gloss;
         glossSVG.setAttribute("fill", "#222");
         glossSVG.setAttribute("stroke", "#fff");
-        glossSVG.setAttribute("font-size", "9px");
+        glossSVG.setAttribute("stroke-width", "3");
+        glossSVG.setAttribute("font-size", "12px");
         glossSVG.setAttribute("x", "" + centerX);
-        glossSVG.setAttribute("y", "8");
+        glossSVG.setAttribute("y", "10");
         glossSVG.setAttribute("dominant-baseline", "central");
         glossSVG.setAttribute("text-anchor", "middle");
         glossSVG.setAttribute("paint-order", "stroke");
@@ -442,21 +444,28 @@ function generateEditor(value, multiline) {
     }
     function update() {
         errorOutput.innerHTML = "";
-        glossOutput.innerHTML = "";
         structureOutput.innerHTML = "";
         formulaOutput.innerHTML = "";
         normalizedFormulaOutput.innerHTML = "";
         try {
             const tokenized = tokenize(input.value, getTokenizerOption(), JSON.parse(dictionary.value));
-            glossOutput.appendChild(showGloss(tokenized));
             const parsed = parse(tokenized);
             const interpreted = interpret(parsed);
             structureOutput.appendChild(visualizePhraseStructure(parsed));
             formulaOutput.innerHTML = markupFormula(stringifyFormula(interpreted));
             normalizedFormulaOutput.innerHTML = markupFormula(stringifyFormula(normalize(interpreted)));
+            structureOutput.style.display = "block";
+            formulaOutput.style.display = "block";
+            if (!multiline && stringifyFormula(interpreted) === stringifyFormula(normalize(interpreted)))
+                normalizedFormulaOutput.style.display = "none";
+            else
+                normalizedFormulaOutput.style.display = "block";
         }
         catch (e) {
             errorOutput.innerText = e.message;
+            structureOutput.style.display = "none";
+            formulaOutput.style.display = "none";
+            normalizedFormulaOutput.style.display = "none";
         }
     }
     function assure(object, constructor) {
@@ -467,11 +476,10 @@ function generateEditor(value, multiline) {
     const template = assure(document.getElementById(multiline ? "multiline_editor_template" : "inline_editor_template"), HTMLTemplateElement);
     const editor = document.importNode(template.content, true);
     const input = assure(editor.getElementById("input"), HTMLTextAreaElement);
-    const errorOutput = assure(editor.getElementById("error_output"), HTMLDivElement);
-    const glossOutput = assure(editor.getElementById("gloss_output"), HTMLDivElement);
-    const structureOutput = assure(editor.getElementById("structure_output"), HTMLDivElement);
-    const formulaOutput = assure(editor.getElementById("formula_output"), HTMLDivElement);
-    const normalizedFormulaOutput = assure(editor.getElementById("normalized_formula_output"), HTMLDivElement);
+    const errorOutput = assure(editor.getElementById("error_output"), HTMLElement);
+    const structureOutput = assure(editor.getElementById("structure_output"), HTMLElement);
+    const formulaOutput = assure(editor.getElementById("formula_output"), HTMLElement);
+    const normalizedFormulaOutput = assure(editor.getElementById("normalized_formula_output"), HTMLElement);
     const separatorPattern = assure(editor.getElementById("separator_pattern"), HTMLInputElement);
     const openNegationPattern = assure(editor.getElementById("open_negation_pattern"), HTMLInputElement);
     const closeNegationPattern = assure(editor.getElementById("close_negation_pattern"), HTMLInputElement);
