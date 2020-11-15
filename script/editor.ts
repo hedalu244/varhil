@@ -501,7 +501,7 @@ function generateEditor(value: string, multiline: boolean) {
             formulaOutput.style.display = "block";
             if (!multiline && stringifyFormula(interpreted) === stringifyFormula(normalize(interpreted)))
                 normalizedFormulaOutput.style.display = "none";
-            else     normalizedFormulaOutput.style.display = "block";
+            else normalizedFormulaOutput.style.display = "block";
 
         } catch (e) {
             errorOutput.innerText = e.message;
@@ -542,11 +542,10 @@ function generateEditor(value: string, multiline: boolean) {
 
     const dictionary = assure(editor.getElementById("dictionary"), HTMLTextAreaElement);
 
-    // id重複を避けるためにidを消す
-    editor.querySelectorAll("*").forEach(node => {
-        if (node.id !== "") node.classList.add(node.id);
-        node.removeAttribute("id");
-    });
+    if(!multiline) {
+        const link = assure(editor.getElementById("open_in_parser_link"), HTMLAnchorElement);
+        link.href = "https://hedalu244.github.io/varhil/parser/?input=" + value;
+    }
 
     input.oninput = update;
     separatorPattern.oninput = update;
@@ -568,6 +567,12 @@ function generateEditor(value: string, multiline: boolean) {
     input.value = value;
     resetSetting();
     update();
+
+    // id重複を避けるためにidを消す
+    editor.querySelectorAll("*").forEach(node => {
+        if (node.id !== "") node.classList.add(node.id);
+        node.removeAttribute("id");
+    });
     return editor;
 }
 
@@ -579,4 +584,14 @@ function appendInlineEditor(text: string) {
 function appendMultilineEditor(text: string) {
     if (document.currentScript == null || document.currentScript.parentNode == null) return;
     document.currentScript.parentNode.insertBefore(generateEditor(text, true), document.currentScript);
+}
+
+function getParam(name: string) {
+    const url = window.location.href;
+    name = name.replace(/[\[\]]/g, "\\$&");
+    const regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
 }

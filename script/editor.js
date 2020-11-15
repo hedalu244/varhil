@@ -495,12 +495,10 @@ function generateEditor(value, multiline) {
     const casusOfPrepositionPattern = assure(editor.getElementById("casus_of_preposition_pattern"), HTMLInputElement);
     const casusOfRelativePattern = assure(editor.getElementById("casus_of_relative_pattern"), HTMLInputElement);
     const dictionary = assure(editor.getElementById("dictionary"), HTMLTextAreaElement);
-    // id重複を避けるためにidを消す
-    editor.querySelectorAll("*").forEach(node => {
-        if (node.id !== "")
-            node.classList.add(node.id);
-        node.removeAttribute("id");
-    });
+    if (!multiline) {
+        const link = assure(editor.getElementById("open_in_parser_link"), HTMLAnchorElement);
+        link.href = "https://hedalu244.github.io/varhil/parser/?input=" + value;
+    }
     input.oninput = update;
     separatorPattern.oninput = update;
     openNegationPattern.oninput = update;
@@ -519,6 +517,12 @@ function generateEditor(value, multiline) {
     input.value = value;
     resetSetting();
     update();
+    // id重複を避けるためにidを消す
+    editor.querySelectorAll("*").forEach(node => {
+        if (node.id !== "")
+            node.classList.add(node.id);
+        node.removeAttribute("id");
+    });
     return editor;
 }
 function appendInlineEditor(text) {
@@ -530,4 +534,14 @@ function appendMultilineEditor(text) {
     if (document.currentScript == null || document.currentScript.parentNode == null)
         return;
     document.currentScript.parentNode.insertBefore(generateEditor(text, true), document.currentScript);
+}
+function getParam(name) {
+    const url = window.location.href;
+    name = name.replace(/[\[\]]/g, "\\$&");
+    const regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"), results = regex.exec(url);
+    if (!results)
+        return null;
+    if (!results[2])
+        return '';
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
 }
