@@ -120,7 +120,6 @@ dl.example > dt {
   position: relative;
 }
 dl.example > dd {
-  border-radius: 6px;
   margin: 10px 10px 10px 30px;
   padding: 0 0 0 20px;
   position: relative;

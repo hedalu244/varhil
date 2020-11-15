@@ -20,9 +20,10 @@
     mix-blend-mode: multiply;
 }
 
-div.multiline-editor h4 {
-    margin: 10px;
-    font-size: 1em;
+.open_in_parser_link_wrapper {
+    width:80%;
+    margin:auto;
+    text-align: right;
 }
 
 div.multiline-editor .input {
@@ -31,6 +32,7 @@ div.multiline-editor .input {
     box-sizing: border-box;
     resize: none;
 }
+
 
 div.multiline-editor .error_output {
     background-color: #fdd;
