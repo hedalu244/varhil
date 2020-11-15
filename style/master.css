@@ -185,8 +185,8 @@ dl.words > dd {
 }
 @font-face {
 	font-family: "Math";
-	src: url("STIX2Math.otf");
+	src: url("../STIX2Math.otf");
 }
 .formula > span.symbol {
-  font-family: "Math" serif;
+  font-family: "Math";
 }
