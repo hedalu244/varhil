@@ -15,65 +15,110 @@ a {
   text-decoration: none;
   border-bottom: 1px dashed #444;
 }
-a:hover{ color: #888; }
-a:active{ color:#888; }
 
-p{margin:1em 0;}
-
-img{display: block; max-width: 100%; margin: auto;}
-
-h1,h2,h3,h4,h5,h6 {
-  line-height:1em;
-  font-weight:bold;
+a:hover {
+  color: #888;
 }
+
+a:active {
+  color: #888;
+}
+
+p {
+  margin: 1em 0;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+  margin: auto;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  line-height: 1em;
+  font-weight: bold;
+}
+
 h1 {
   margin-bottom: 50px;
-
   font-size: 3em;
   font-weight: normal;
   font-family: "Century", "Times New Roman", "IPA P明朝", "YuMincho", "Yu Mincho", serif;
   letter-spacing: 0.2em;
 }
-h2{
+
+h2 {
   border-bottom: 1px solid #bbb;
   padding: 10px;
   margin: 30px 0 30px;
-
   font-size: 2em;
   font-weight: bold;
   font-family: "Century", "Times New Roman", "IPA P明朝", "YuMincho", "Yu Mincho", serif;
   letter-spacing: 0.2em;
 }
-h3{
-  font-size:1.5em;
+
+h3 {
+  font-size: 1.5em;
   display: inline-block;
-  border-bottom:1px solid #bbb;
+  border-bottom: 1px solid #bbb;
   padding: 5px;
   margin: 30px 15px 0;
-
   font-weight: normal;
 }
-h4{ font-size:1.5em; display: inline-block; border-bottom:1px solid #bbb; }
-h5{ font-size:1.2em; }
-h6{ font-size:1em; }
 
-hr { display: block; height: 0; border: 0; border-bottom: 1px solid #bbb; margin: 1em 0; padding: 0; }
+h4 {
+  font-size: 1.5em;
+  display: inline-block;
+  border-bottom: 1px solid #bbb;
+}
 
-ul, ol { margin: 1em 0; padding: 0 0 0 2em; }
-li p:last-child { margin:0 }
-img { border: 0; -ms-interpolation-mode: bicubic; vertical-align: middle; }
+h5 {
+  font-size: 1.2em;
+}
+
+h6 {
+  font-size: 1em;
+}
+
+hr {
+  display: block;
+  height: 0;
+  border: 0;
+  border-bottom: 1px solid #bbb;
+  margin: 1em 0;
+  padding: 0;
+}
+
+ul, ol {
+  margin: 1em 0;
+  padding: 0 0 0 2em;
+}
+
+li p:last-child {
+  margin: 0
+}
+
+img {
+  border: 0;
+  -ms-interpolation-mode: bicubic;
+  vertical-align: middle;
+}
 
 p {
   line-height: 2em;
 }
-li {line-height: 2em; }
+
+li {
+  line-height: 2em;
+}
 
 em {
-  font-size:1em;
+  font-size: 1em;
   font-style: italic;
 }
+
 strong {
-  font-size:1em;
+  font-size: 1em;
   font-weight: bold;
 }
 
@@ -81,27 +126,30 @@ code {
   background-color: rgba(234, 234, 234, 0.8);
   color: #111;
   padding: .1em .4em;
-  font-family: "SFMono-Regular", "Consolas", "Liberation Mono", "Menlo", "Courier",monospace;
+  font-family: "SFMono-Regular", "Consolas", "Liberation Mono", "Menlo", "Courier", monospace;
 }
-pre > code {
+
+pre>code {
   padding: 10px 15px;
   display: block;
   background: rgba(234, 234, 234, 0.8);
   color: #111;
   overflow: auto;
   white-space: pre;
-  font-family: "SFMono-Regular", "Consolas", "Liberation Mono", "Menlo", "Courier",monospace;
+  font-family: "SFMono-Regular", "Consolas", "Liberation Mono", "Menlo", "Courier", monospace;
 }
 
 ul.breadcrumbs {
   margin-bottom: 100px;
   padding: 0;
 }
-ul.breadcrumbs > li {
+
+ul.breadcrumbs>li {
   display: inline;
   list-style: none;
 }
-ul.breadcrumbs > li::before {
+
+ul.breadcrumbs>li::before {
   content: "/";
   margin: 3px;
 }
@@ -114,22 +162,25 @@ dl.example {
   background-color: #eee;
   border-radius: 5px;
 }
-dl.example > dt {
+
+dl.example>dt {
   margin: 10px;
   padding: 0 0 0 20px;
   position: relative;
 }
-dl.example > dd {
+
+dl.example>dd {
   margin: 10px 10px 10px 30px;
   padding: 0 0 0 20px;
   position: relative;
 }
-dl.example > dd::before {
+
+dl.example>dd::before {
   content: "";
   position: absolute;
   width: 5px;
   height: 5px;
-  left:0;
+  left: 0;
   top: 11px;
   border-top: solid 3px #CCC;
   border-right: solid 3px #CCC;
@@ -144,11 +195,13 @@ dl.words {
   background-color: #eee;
   border-radius: 5px;
 }
-dl.words > dt {
+
+dl.words>dt {
   padding: 5px;
   font-weight: bold;
 }
-dl.words > dd {
+
+dl.words>dd {
   padding: 5px;
   margin-left: 140px;
 }
@@ -157,31 +210,33 @@ dl.words > dd {
   font-family: sans-serif;
 }
 
-.glossed > ruby {
-  display:inline-block;
+.glossed>ruby {
+  display: inline-block;
   position: relative;
   height: 4em;
   line-height: 2em;
   margin: 0 1em 0 0;
 }
-.glossed > ruby > rt {
-  display:block;
+
+.glossed>ruby>rt {
+  display: block;
   position: absolute;
   bottom: 0;
   left: 0;
   height: 2em;
   line-height: 2em;
   font-size: 80%;
-  font-family: "SFMono-Regular", "Consolas", "Liberation Mono", "Menlo", "Courier",monospace;
+  font-family: "SFMono-Regular", "Consolas", "Liberation Mono", "Menlo", "Courier", monospace;
 }
-
 
 .formula {
   font-family: "Times New Roman", "IPA P明朝", "YuMincho", "Yu Mincho", serif;
 }
-.formula > span.variable {
+
+.formula>span.variable {
   font-style: italic;
 }
-.formula > span.symbol {
+
+.formula>span.symbol {
   font-family: math, sans-serif;
 }
