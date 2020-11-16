@@ -91,7 +91,9 @@
         {{ content }}
     </div>
     <script>
-        animations.pageAnimation();
+        window.addEventListener("DOMload", function () {
+            animations.pageAnimation();
+        });
     </script>
 </body>
 
