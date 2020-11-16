@@ -432,7 +432,13 @@ function test(): void {
   });
 }*/
 
-function generateEditor(value: string, multiline: boolean) {
+
+function assure<T extends new (...args: any[]) => any>(object: any, constructor: T): InstanceType<T> {
+    if (object instanceof constructor) return object;
+    throw new TypeError(`${object} is not ${constructor.name}.`);
+}
+
+function enableEditor(value: string, target: DocumentFragment | Document = document) {
     function getTokenizerOption() {
         return {
             separator: new RegExp(separatorPattern.value),
@@ -513,40 +519,33 @@ function generateEditor(value: string, multiline: boolean) {
             normalizedFormulaOutput.style.display = "none";
         }
     }
+    const multiline = target === document;
 
-    function assure<T extends new (...args: any[]) => any>(object: any, constructor: T): InstanceType<T> {
-        if (object instanceof constructor) return object;
-        throw new TypeError(`${object} is not ${constructor.name}.`);
-    }
+    const input = assure(target.getElementById("input"), HTMLTextAreaElement);
+    const errorOutput = assure(target.getElementById("error_output"), HTMLElement);
+    const structureOutput = assure(target.getElementById("structure_output"), HTMLElement);
+    const formulaOutput = assure(target.getElementById("formula_output"), HTMLElement);
+    const normalizedFormulaOutput = assure(target.getElementById("normalized_formula_output"), HTMLElement);
+    const separatorPattern = assure(target.getElementById("separator_pattern"), HTMLInputElement);
+    const openNegationPattern = assure(target.getElementById("open_negation_pattern"), HTMLInputElement);
+    const closeNegationPattern = assure(target.getElementById("close_negation_pattern"), HTMLInputElement);
+    const singleNegationPattern = assure(target.getElementById("single_negation_pattern"), HTMLInputElement);
+    const isolatedDeterminerPattern = assure(target.getElementById("isolated_determiner_pattern"), HTMLInputElement);
+    const newDeterminerPattern = assure(target.getElementById("new_determiner_pattern"), HTMLInputElement);
+    const inheritDeterminerPattern = assure(target.getElementById("inherit_determiner_pattern"), HTMLInputElement);
+    const prepositionPattern = assure(target.getElementById("preposition_pattern"), HTMLInputElement);
+    const relativePattern = assure(target.getElementById("relative_pattern"), HTMLInputElement);
+    const predicatePattern = assure(target.getElementById("predicate_pattern"), HTMLInputElement);
 
-    const template = assure(document.getElementById(multiline ? "multiline_editor_template" : "inline_editor_template"), HTMLTemplateElement);
-    const editor = document.importNode(template.content, true);
+    const keyOfNewDeterminerPattern = assure(target.getElementById("key_of_new_determiner_pattern"), HTMLInputElement);
+    const keyOfInheritDeterminerPattern = assure(target.getElementById("key_of_inherit_determiner_pattern"), HTMLInputElement);
+    const casusOfPrepositionPattern = assure(target.getElementById("casus_of_preposition_pattern"), HTMLInputElement);
+    const casusOfRelativePattern = assure(target.getElementById("casus_of_relative_pattern"), HTMLInputElement);
 
-    const input = assure(editor.getElementById("input"), HTMLTextAreaElement);
-    const errorOutput = assure(editor.getElementById("error_output"), HTMLElement);
-    const structureOutput = assure(editor.getElementById("structure_output"), HTMLElement);
-    const formulaOutput = assure(editor.getElementById("formula_output"), HTMLElement);
-    const normalizedFormulaOutput = assure(editor.getElementById("normalized_formula_output"), HTMLElement);
-    const separatorPattern = assure(editor.getElementById("separator_pattern"), HTMLInputElement);
-    const openNegationPattern = assure(editor.getElementById("open_negation_pattern"), HTMLInputElement);
-    const closeNegationPattern = assure(editor.getElementById("close_negation_pattern"), HTMLInputElement);
-    const singleNegationPattern = assure(editor.getElementById("single_negation_pattern"), HTMLInputElement);
-    const isolatedDeterminerPattern = assure(editor.getElementById("isolated_determiner_pattern"), HTMLInputElement);
-    const newDeterminerPattern = assure(editor.getElementById("new_determiner_pattern"), HTMLInputElement);
-    const inheritDeterminerPattern = assure(editor.getElementById("inherit_determiner_pattern"), HTMLInputElement);
-    const prepositionPattern = assure(editor.getElementById("preposition_pattern"), HTMLInputElement);
-    const relativePattern = assure(editor.getElementById("relative_pattern"), HTMLInputElement);
-    const predicatePattern = assure(editor.getElementById("predicate_pattern"), HTMLInputElement);
-
-    const keyOfNewDeterminerPattern = assure(editor.getElementById("key_of_new_determiner_pattern"), HTMLInputElement);
-    const keyOfInheritDeterminerPattern = assure(editor.getElementById("key_of_inherit_determiner_pattern"), HTMLInputElement);
-    const casusOfPrepositionPattern = assure(editor.getElementById("casus_of_preposition_pattern"), HTMLInputElement);
-    const casusOfRelativePattern = assure(editor.getElementById("casus_of_relative_pattern"), HTMLInputElement);
-
-    const dictionary = assure(editor.getElementById("dictionary"), HTMLTextAreaElement);
+    const dictionary = assure(target.getElementById("dictionary"), HTMLTextAreaElement);
 
     if (!multiline) {
-        const link = assure(editor.getElementById("open_in_parser_link"), HTMLAnchorElement);
+        const link = assure(target.getElementById("open_in_parser_link"), HTMLAnchorElement);
         link.href = "https://hedalu244.github.io/varhil/parser/?input=" + value;
     }
 
@@ -573,30 +572,21 @@ function generateEditor(value: string, multiline: boolean) {
     resetSetting();
     update();
 
-    // id重複を避けるためにidを消す
-    editor.querySelectorAll("*").forEach(node => {
-        if (node.id !== "") node.classList.add(node.id);
-        node.removeAttribute("id");
-    });
-    return editor;
+    return target;
 }
 
 function appendInlineEditor(text: string) {
-    if (document.currentScript == null || document.currentScript.parentNode == null) return;
-    document.currentScript.parentNode.insertBefore(generateEditor(text, false), document.currentScript);
-}
+    const template = assure(document.getElementById("inline_editor_template"), HTMLTemplateElement);
+    const clone = document.importNode(template.content, true);
 
-function appendMultilineEditor(text: string) {
-    if (document.currentScript == null || document.currentScript.parentNode == null) return;
-    document.currentScript.parentNode.insertBefore(generateEditor(text, true), document.currentScript);
-}
+    enableEditor(text, clone);
 
-function getParam(name: string) {
-    const url = window.location.href;
-    name = name.replace(/[\[\]]/g, "\\$&");
-    const regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
-        results = regex.exec(url);
-    if (!results) return null;
-    if (!results[2]) return '';
-    return decodeURIComponent(results[2].replace(/\+/g, " "));
+    // id重複を避けるためにidを消す
+    clone.querySelectorAll("*").forEach(node => {
+        if (node.id !== "") node.classList.add(node.id);
+        node.removeAttribute("id");
+    });
+
+    if (document.currentScript == null || document.currentScript.parentNode == null) return;
+    document.currentScript.parentNode.insertBefore(clone, document.currentScript);
 }

@@ -25,21 +25,3 @@
     margin:auto;
     text-align: right;
 }
-
-div.multiline-editor .input {
-    font-size: 1em;
-    width: 100%;
-    box-sizing: border-box;
-    resize: none;
-}
-
-
-div.multiline-editor .error_output {
-    background-color: #fdd;
-    padding: 0 10px;
-}
-
-div.multiline-editor .structure_output {
-    width: 100%;
-    overflow-x: auto;
-}
