@@ -18,6 +18,7 @@ title: 構文解析器
 <div id="normalized_formula_output" class="formula"></div>
 
 ###### 設定
+
 | 単語境界 | <input id="separator_pattern"> |
 | 否定開始 | <input id="open_negation_pattern"> |
 | 否定終止 | <input id="close_negation_pattern"> |
@@ -47,7 +48,7 @@ title: 構文解析器
     }
 </style>
 <script>
-    function getParam(name: string) {
+    function getParam(name) {
         const url = window.location.href;
         name = name.replace(/[\[\]]/g, "\\$&");
         const regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
