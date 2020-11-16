@@ -29,22 +29,31 @@ title: 構文解析器
 | 前置詞 | <input id="preposition_pattern"> | 格 | <input id="casus_of_preposition_pattern"> |
 | 関係詞 | <input id="relative_pattern"> | 格 | <input id="casus_of_relative_pattern"> |
 | 述語 | <input id="predicate_pattern"> |
-| 辞書 | <textarea id="dictionary" rows="8"></textarea> |
+
+###### 辞書
+<textarea id="dictionary" rows="8"></textarea>
 
 <style>
-    .input {
+    #input {
         font-size: 1em;
         width: 100%;
         box-sizing: border-box;
         resize: none;
     }
-    .error_output {
+    #error_output {
         background-color: #fdd;
         padding: 0 10px;
     }
-    .structure_output {
+    #structure_output {
         width: 100%;
         overflow-x: auto;
+    }
+
+    #dictionary {  
+        font-size: 1em;
+        width: 100%;
+        box-sizing: border-box;
+        resize: none;
     }
 </style>
 <script>
